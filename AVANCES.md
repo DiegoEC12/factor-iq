@@ -22,6 +22,7 @@
 - [X] Ajustada la vista de acceso: cabecera de altura estable, formulario de columna clara desde tablet y diseño de dos columnas solo en pantallas amplias para evitar cortes en laptop y tablet.
 - [X] Logotipo público ajustado: solo el isotipo en móvil y solo el logotipo completo de Factor IQ desde tablet en adelante, con una altura máxima de `h-14`.
 - [X] Configurado el destino de compilación para Vercel (`nitro.preset = vercel`) y añadida detección explícita de TanStack Start mediante `vercel.json`; corrige la salida previa dirigida a Cloudflare Workers.
+- [X] Excluida la salida generada `.vercel/` para que Vercel compile desde el código fuente y no despliegue artefactos locales versionados.
 
 Pendiente para la siguiente fase:
 
