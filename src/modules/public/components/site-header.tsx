@@ -9,17 +9,24 @@ export function SiteHeader() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <header className="fixed top-0 z-50 w-full border-blue-500 bg-white/80 shadow-md backdrop-blur-sm">
-      <div className="z-50 mx-auto flex h-[10vh] max-w-7xl items-center justify-between px-4">
-        <div className="h-full py-4">
-          <Link to="/" onClick={() => setOpen(false)}>
-            <img className="h-full" src="/assets/img/logo-transparent.png" alt="Factor IQ" />
+    <header className="fixed top-0 z-50 w-full border-blue-500 bg-white/95 shadow-md backdrop-blur-sm">
+      <div className="z-50 mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <div className="flex h-full items-center py-2">
+          <Link to="/" onClick={() => setOpen(false)} className="sm:hidden">
+            <img
+              className="h-12 w-12 rounded-full object-contain"
+              src="/assets/icon/Isotipo IQ.png"
+              alt="Isotipo Factor IQ"
+            />
+          </Link>
+          <Link to="/" onClick={() => setOpen(false)} className="hidden sm:block">
+            <img className="h-12 w-auto max-h-14" src="/assets/img/logo-transparent.png" alt="Factor IQ" />
           </Link>
         </div>
 
         <nav
           className={cn(
-            "absolute top-[10vh] left-0 z-10 h-screen w-full flex-col bg-[#1b2447] lg:relative lg:top-0 lg:flex lg:h-full lg:flex-row lg:bg-transparent",
+            "absolute top-18 left-0 z-10 h-[calc(100dvh-4.5rem)] w-full flex-col bg-[#1b2447] lg:relative lg:top-0 lg:flex lg:h-full lg:flex-row lg:bg-transparent",
             open ? "flex" : "hidden lg:flex",
           )}
         >

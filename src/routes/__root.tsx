@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -126,6 +127,14 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+
+  useEffect(() => {
+    const isMaquinarias = pathname === "/maquinarias" || pathname.startsWith("/maquinarias/");
+    const favicon = isMaquinarias ? "/icon-logo.png" : "/assets/icon/Isotipo%20IQ.png";
+    const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (link) link.href = favicon;
+  }, [pathname]);
 
   return (
     <QueryClientProvider client={queryClient}>

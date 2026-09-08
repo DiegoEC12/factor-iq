@@ -8,7 +8,7 @@ export function SiteFooter() {
         <div className="mb-8 w-full text-left md:mb-0 md:text-left sm:w-sm lg:w-1/2 lg:items-start">
           <div className="mb-2">
             <Link to="/">
-              <img src="/assets/img/logo-transparent-white.png" className="w-52" alt="Factor IQ" />
+              <img src="/assets/img/logo-transparent-white.png" className="h-12 w-auto max-h-14" alt="Factor IQ" />
             </Link>
           </div>
           <p className="max-w-xs text-left text-xs lg:max-w-md">

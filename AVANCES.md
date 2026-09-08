@@ -17,6 +17,10 @@
 - [X] Validaciones realizadas: comprobación de TypeScript sin emisión y build de producción completados sin errores.
 - [X] Corregida la separación cliente/servidor de autenticación: las funciones RPC se encuentran en `src/lib/auth.ts`, evitando el bloqueo de Vite al importar desde `src/server/` en rutas del navegador.
 - [X] Revisión visual local realizada: portada pública y pantalla de acceso alineadas; inicio de sesión probado de extremo a extremo hasta el dashboard de Maquinarias.
+- [X] Identidad visual separada: `icon-logo.png` se conserva para el módulo Maquinarias y su favicon; `Isotipo IQ.png` se muestra en el encabezado, pie y acceso de la web pública de Factor IQ.
+- [X] El favicon cambia según el módulo activo: Factor IQ para la parte pública y el icono de Maquinarias dentro de `/maquinarias`.
+- [X] Ajustada la vista de acceso: cabecera de altura estable, formulario de columna clara desde tablet y diseño de dos columnas solo en pantallas amplias para evitar cortes en laptop y tablet.
+- [X] Logotipo público ajustado: solo el isotipo en móvil y solo el logotipo completo de Factor IQ desde tablet en adelante, con una altura máxima de `h-14`.
 
 Pendiente para la siguiente fase:
 

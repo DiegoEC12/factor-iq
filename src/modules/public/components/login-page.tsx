@@ -47,13 +47,13 @@ export function LoginPage() {
   return (
     <div className="fiq-site min-h-screen bg-white">
       <SiteHeader />
-      <main className="flex min-h-screen items-stretch bg-[#1b2447]">
-        <div className="relative hidden animate-on-load flex-col justify-between overflow-hidden bg-[#1b2447] p-16 select-none lg:flex lg:w-5/12">
+      <main className="flex min-h-[100dvh] items-stretch bg-[#1b2447] pt-18">
+        <div className="relative hidden animate-on-load flex-col justify-between overflow-hidden bg-[#1b2447] p-12 select-none xl:flex xl:w-5/12">
           <div className="relative z-10">
-            <div className="mt-20 mb-12">
-              <img className="w-50" src="/assets/img/logo-transparent-white.png" alt="Factor IQ" />
+            <div className="mt-8 mb-10">
+              <img className="h-12 w-auto max-h-14" src="/assets/img/logo-transparent-white.png" alt="Factor IQ" />
             </div>
-            <h1 className="mb-6 border-l-4 border-red-500 pl-4 text-5xl leading-tight font-extrabold tracking-tight text-white uppercase drop-shadow-md lg:text-6xl">
+            <h1 className="mb-6 border-l-4 border-red-500 pl-4 text-5xl leading-tight font-extrabold tracking-tight text-white uppercase drop-shadow-md">
               Servicio en la nube <br />
               Para <br /> tu negocio
             </h1>
@@ -63,26 +63,20 @@ export function LoginPage() {
           </div>
         </div>
 
-        <div className="flex w-full animate-on-load flex-col justify-center bg-[#1b2447]/50 px-6 py-12 select-none md:px-16 lg:w-7/12 lg:bg-white lg:px-24">
+        <div className="flex w-full animate-on-load flex-col justify-center bg-[#1b2447]/50 px-6 py-10 select-none sm:px-10 md:bg-white md:px-16 xl:w-7/12 xl:px-24">
           <div className="mx-auto w-full max-w-md">
-            <div className="mb-12 flex justify-center lg:hidden">
-              <Link to="/">
-                <img src="/assets/img/logo-transparent-white.png" alt="Factor IQ" className="h-12 w-auto" />
-              </Link>
-            </div>
-
-            <div className="mt-20 mb-10">
-              <h2 className="mb-2 text-3xl font-extrabold tracking-tight text-white lg:text-slate-900">
+            <div className="mb-8 md:mt-0 md:mb-10">
+              <h2 className="mb-2 text-3xl font-extrabold tracking-tight text-white md:text-slate-900">
                 Iniciar Sesión
               </h2>
-              <p className="font-medium text-slate-100 lg:text-slate-500">
+              <p className="font-medium text-slate-100 md:text-slate-500">
                 Bienvenido de nuevo. Por favor ingresa tus credenciales.
               </p>
             </div>
 
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div className="group">
-                <label className="mb-3 ml-1 block text-xs font-bold tracking-widest text-white uppercase lg:text-[#1b2447]">
+                <label className="mb-3 ml-1 block text-xs font-bold tracking-widest text-white uppercase md:text-[#1b2447]">
                   Usuario (Correo o DNI)
                 </label>
                 <div className="relative">
@@ -100,7 +94,7 @@ export function LoginPage() {
               </div>
 
               <div className="group">
-                <label className="mb-3 block px-1 text-xs font-bold tracking-widest text-white uppercase lg:text-[#1b2447]">
+                <label className="mb-3 block px-1 text-xs font-bold tracking-widest text-white uppercase md:text-[#1b2447]">
                   Contraseña
                 </label>
                 <div className="relative">
@@ -119,7 +113,7 @@ export function LoginPage() {
 
               <div className="pt-4">
                 <button
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#1B2447_0%,#3D5BB8_100%)] py-4 text-base font-bold tracking-wide text-white shadow-sm shadow-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 lg:shadow-lg lg:shadow-blue-500/30"
+                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#1B2447_0%,#3D5BB8_100%)] py-4 text-base font-bold tracking-wide text-white shadow-sm shadow-white transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 md:shadow-lg md:shadow-blue-500/30"
                   type="submit"
                   disabled={submitting}
                 >
@@ -130,17 +124,17 @@ export function LoginPage() {
             </form>
 
             <div className="mt-8 text-center">
-              <p className="text-sm text-white lg:text-slate-500">
+              <p className="text-sm text-white md:text-slate-500">
                 Aun no eres un cliente,
                 <Link
-                  className="ml-1 font-semibold text-white hover:underline lg:text-[#d6452c] lg:hover:text-red-600"
+                  className="ml-1 font-semibold text-white hover:underline md:text-[#d6452c] md:hover:text-red-600"
                   to="/contacto"
                   hash="contacto"
                 >
                   comunicate con nosotros
                 </Link>
               </p>
-              <div className="mt-15 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-8 text-[10px] font-bold tracking-widest text-white uppercase lg:flex-row lg:text-slate-400">
+              <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-100 pt-8 text-[10px] font-bold tracking-widest text-white uppercase md:flex-row md:text-slate-400">
                 <p>© 2026 Factor IQ</p>
                 <div className="flex space-x-6">
                   <span>Ayuda</span>
