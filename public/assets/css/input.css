@@ -1,0 +1,43 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import "tailwindcss";
+@plugin "@iconify/tailwind4";
+
+@theme {
+  /*TIPOGRAFIAS DEL PROJECT OWO*/
+  --font-primary: "Fraunces", sans-serif;
+  /*heading*/
+  --font-secondary: "Inter", sans-serif;
+  /*subheading*/
+  --font-tertiary: "Plus Jakarta Sans", sans-serif;
+  /*paragraph*/
+
+  /* PALETA DE COLORES (HEX) */
+  --color-primary: #1b2447;
+  /* Navy - Color principal de marca, botones, encabezados */
+  --color-primary-glow: #3d5bb8;
+  /* Hover, gradientes, acentos suaves */
+  --color-accent: #d6452c;
+  /* Rojo - CTAs secundarios, highlights, énfasis */
+  --color-foreground: #16192b;
+  /* Texto principal */
+  --color-muted-foreground: #6b7184;
+  /* Texto secundario */
+  --color-background: #ffffff;
+  /* Fondo general */
+  --color-secondary: #f2f4f8;
+  /* Fondos suaves de sección */
+  --color-muted: #f2f4f8;
+  /* Muted */
+  --color-border: #e4e7ee;
+  /* Bordes y divisores */
+  --color-footer-dark: #0f1330;
+  /* Fondo del footer */
+  --color-footer-dark-2: #020c22;
+
+  /*shadowssowo*/
+  --shadow-accent: 0px -10px 100px 0px rgba(214, 69, 44, 0.5);
+}
+#contacto {
+  scroll-margin-top: 50px;
+}

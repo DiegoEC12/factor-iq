@@ -1,0 +1,186 @@
+import { useMemo, useState } from "react";
+import { SectionCard } from "@/components/dash/primitives";
+import { cn } from "@/lib/utils";
+import {
+  avg,
+  indicadores as allIndicadores,
+  labelOf,
+  pct,
+  toneColor,
+  toneOf,
+  title,
+  type Evaluacion,
+} from "@/lib/analytics";
+
+type Cell = { ev: Evaluacion; n: number; nombre: string; valor: number | null };
+type HeatmapColumn = { n: number; nombre: string; peso: number };
+
+export function Heatmap({
+  evs,
+  evalIdsByRow,
+  onSelect,
+  selected,
+  delay = 0,
+  maxViewportHeightClass = "max-h-105",
+}: {
+  evs: Evaluacion[];
+  evalIdsByRow?: Map<string, string[]>;
+  onSelect: (id: string) => void;
+  selected: string | null;
+  delay?: number;
+  maxViewportHeightClass?: string;
+}) {
+  const [hover, setHover] = useState<Cell | null>(null);
+  const columns: HeatmapColumn[] = useMemo(() => {
+    const evaluationIds = new Set(evs.flatMap((ev) => evalIdsByRow?.get(ev.id) ?? [ev.id]));
+    return Array.from(
+      new Map(
+        allIndicadores
+          .filter((indicator) => evaluationIds.has(indicator.ev))
+          .sort((a, b) => a.n - b.n)
+          .map((indicator) => [indicator.n, indicator]),
+      ).values(),
+    ).sort((a, b) => a.n - b.n);
+  }, [evs, evalIdsByRow]);
+
+  return (
+    <SectionCard
+      title="Mapa de calor: local vs. indicador"
+      subtitle="Pasa el cursor sobre una celda para ver el detalle"
+      delay={delay}
+      action={
+        <div className="hidden shrink-0 items-center gap-3 text-[11px] text-muted-foreground sm:flex">
+          {(["critico", "medio", "alto"] as const).map((t) => (
+            <span key={t} className="flex items-center gap-1">
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: toneColor[t] }} />
+              {t === "critico" ? "<50%" : t === "medio" ? "50-70%" : ">70%"}
+            </span>
+          ))}
+        </div>
+      }
+    >
+      <div className="relative">
+        <div className={cn("overflow-auto pb-1 pr-1", maxViewportHeightClass)}>
+          <div className="min-w-160">
+            <div
+              className="grid gap-1"
+              style={{
+                gridTemplateColumns: `minmax(150px, 1fr) repeat(${columns.length}, minmax(0, 1fr))`,
+              }}
+            >
+              <div />
+              {columns.map((c) => (
+                <div
+                  key={c.n}
+                  className="pb-1 text-center text-[10px] font-semibold text-muted-foreground"
+                  title={c.nombre}
+                >
+                  {c.n}
+                </div>
+              ))}
+
+              {evs.map((ev, r) => (
+                <FragmentRow
+                  key={ev.id}
+                  ev={ev}
+                  evalIds={evalIdsByRow?.get(ev.id) ?? [ev.id]}
+                  rowIndex={r}
+                  selected={selected === ev.id}
+                  onSelect={onSelect}
+                  onHover={setHover}
+                  columns={columns}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={cn(
+            "pointer-events-none mt-3 rounded-lg border border-border bg-muted/60 px-3 py-2 text-xs transition-all duration-200",
+            hover ? "opacity-100" : "opacity-60",
+          )}
+        >
+          {hover ? (
+            <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="font-semibold">{labelOf(hover.ev)}</span>
+              <span className="text-muted-foreground">{title(hover.ev.ubicacion)}</span>
+              <span className="text-muted-foreground">·</span>
+              <span>{hover.nombre}</span>
+              <span
+                className="font-display font-bold"
+                style={{ color: hover.valor === null ? undefined : toneColor[toneOf(hover.valor)] }}
+              >
+                {hover.valor === null ? "Sin datos" : pct(hover.valor)}
+              </span>
+            </span>
+          ) : (
+            <span className="text-muted-foreground">
+              Los indicadores 1 a 12 siguen el orden del formulario de evaluación.
+            </span>
+          )}
+        </div>
+      </div>
+    </SectionCard>
+  );
+}
+
+function FragmentRow({
+  ev,
+  evalIds,
+  rowIndex,
+  selected,
+  onSelect,
+  onHover,
+  columns,
+}: {
+  ev: Evaluacion;
+  evalIds: string[];
+  rowIndex: number;
+  selected: boolean;
+  onSelect: (id: string) => void;
+  onHover: (cell: Cell | null) => void;
+  columns: HeatmapColumn[];
+}) {
+  const evaluationSet = new Set(evalIds);
+  const rows = allIndicadores.filter((indicator) => evaluationSet.has(indicator.ev));
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => onSelect(ev.id)}
+        className={cn(
+          "truncate rounded px-1 text-left text-xs font-medium transition-colors hover:text-primary",
+          selected && "text-primary",
+        )}
+      >
+        {labelOf(ev)}
+      </button>
+      {columns.map((c, i) => {
+        const values = rows
+          .filter((indicator) => indicator.n === c.n)
+          .map((indicator) => indicator.cumpl);
+        const valor = values.length ? avg(values) : null;
+        return (
+          <button
+            key={c.n}
+            type="button"
+            onClick={() => onSelect(ev.id)}
+            onMouseEnter={() => onHover({ ev, n: c.n, nombre: c.nombre, valor })}
+            onMouseLeave={() => onHover(null)}
+            onFocus={() => onHover({ ev, n: c.n, nombre: c.nombre, valor })}
+            className="rise-in h-7 rounded-lg transition-transform duration-200 hover:z-10 hover:scale-[1.12] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            style={{
+              backgroundColor: valor === null ? "var(--muted)" : toneColor[toneOf(valor)],
+              opacity: valor === null ? 0.65 : 0.35 + Math.min(0.65, valor + 0.15),
+              animationDelay: `${(rowIndex * 12 + i) * 12}ms`,
+            }}
+            aria-label={`${labelOf(ev)} — ${c.nombre}: ${valor === null ? "Sin datos" : pct(valor)}`}
+          >
+            {valor === null ? "—" : null}
+          </button>
+        );
+      })}
+    </>
+  );
+}
