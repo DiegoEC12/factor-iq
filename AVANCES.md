@@ -121,3 +121,11 @@ Prueba realizada: servidor dev iniciado en http://localhost:8081/ — verificar 
 - [ ] Revisar visualmente los datos importados en cada ruta y definir el proveedor de base de datos.
 
 Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproducible de desarrollo y encapsular después la lectura de JSON, Excel y API detrás de un único proveedor de datos. Así la UI no dependerá del formato de origen y será posible auditar cada importación.
+
+## Favicon público de Factor IQ
+
+- [X] Reemplazado `public/favicon.png` por el isotipo de Factor IQ provisto para el sitio.
+- [X] Configurado el cliente para conservar `/favicon.png` como URL estable en las rutas públicas; esto coincide con el favicon declarado en el HTML inicial y permite que los rastreadores lo descubran sin depender de JavaScript.
+- [X] Conservado `icon-logo.png` únicamente para la experiencia interna de Maquinarias.
+- [X] Verificado que el archivo público mide 48×48 px, formato admitido por Google.
+- [!] `npm run lint` no pudo iniciarse por una instalación global rota de npm en el equipo (`npm-cli.js` no encontrado); no corresponde a un error del proyecto.
