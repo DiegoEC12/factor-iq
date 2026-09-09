@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "build:godaddy": "vite build",
+    "start": "npm run build:godaddy && node .output/server/index.mjs",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -14,6 +16,9 @@
   },
   "overrides": {
     "rolldown": "1.2.1"
+  },
+  "engines": {
+    "node": ">=20.19.0"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

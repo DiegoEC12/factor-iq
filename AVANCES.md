@@ -23,6 +23,8 @@
 - [X] Logotipo público ajustado: solo el isotipo en móvil y solo el logotipo completo de Factor IQ desde tablet en adelante, con una altura máxima de `h-14`.
 - [X] Configurado el destino de compilación para Vercel (`nitro.preset = vercel`) y añadida detección explícita de TanStack Start mediante `vercel.json`; corrige la salida previa dirigida a Cloudflare Workers.
 - [X] Excluida la salida generada `.vercel/` para que Vercel compile desde el código fuente y no despliegue artefactos locales versionados.
+- [X] Preparado despliegue dual: Vercel conserva su preset propio y GoDaddy compila con `node-server`, generando `.output/server/index.mjs` para `npm start`. Se añadió `GODADDY_DEPLOY.md` con los pasos de cPanel.
+- [X] `npm start` ahora compila antes de iniciar, compatible con el flujo de GoDaddy Node.js Hosting (`npm install` seguido por `npm start`).
 
 Pendiente para la siguiente fase:
 
