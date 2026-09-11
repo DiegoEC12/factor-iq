@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useFilters } from "@/lib/mystery/filter-context";
 import { MultiFilterSelect } from "./MultiFilterSelect";
 
-export function CompactFilterControls() {
+export function CompactFilterControls({ showIndicator = true }: { showIndicator?: boolean }) {
   const {
     filters,
     setFilter,
@@ -24,7 +24,7 @@ export function CompactFilterControls() {
   return (
     <div className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-300 items-center gap-3 px-4 py-3 lg:px-8">
-        <div className="grid w-full grid-cols-2 gap-2 md:grid-cols-5">
+        <div className={`grid w-full grid-cols-2 gap-2 ${showIndicator ? "md:grid-cols-5" : "md:grid-cols-4"}`}>
           <MultiFilterSelect
             label="Concesionaria"
             values={filters.concesionaria}
@@ -43,12 +43,12 @@ export function CompactFilterControls() {
             options={options.ubicaciones.map((u) => ({ value: u, label: u }))}
             onChange={(values) => setFilter("ubicacion", values)}
           />
-          <MultiFilterSelect
+          {showIndicator && <MultiFilterSelect
             label="Indicador"
             values={filters.indicador}
             options={options.indicadores}
             onChange={(values) => setFilter("indicador", values)}
-          />
+          />}
           <MultiFilterSelect
             label="Tipo de evaluación"
             values={filters.tipoEvaluacion}

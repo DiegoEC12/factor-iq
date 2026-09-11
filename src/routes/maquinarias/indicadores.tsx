@@ -23,9 +23,8 @@ function IndicadoresPage() {
   const { filters, dataVersion } = useFilters();
   const [selectedIndicator, setSelectedIndicator] = useState<string | null>(null);
   const [selectedLocal, setSelectedLocal] = useState<string | null>(null);
-  const [sortMode, setSortMode] = useState<"mayor" | "menor" | "brecha-pos" | "brecha-neg">(
-    "mayor",
-  );
+  const [sortMode, setSortMode] = useState<"id" | "mayor" | "menor">("id");
+  const [showAllIndicators, setShowAllIndicators] = useState(false);
 
   void dataVersion;
   const scopes = getScopes(filters);
@@ -47,15 +46,18 @@ function IndicadoresPage() {
     const evaluationIds = evs.map((evaluation) => evaluation.id);
     let indicators = availableIndicators(evaluationIds);
     // Respect global indicator filter
-    if (filters.indicador?.length) {
+    if (filters.indicador !== null) {
       indicators = indicators.filter((ind) => filters.indicador!.includes(ind.id));
     }
-    return indicators.map((indicator) => ({
+    const scored = indicators.map((indicator) => ({
       ...indicator,
       n: indicator.orden,
       valor: indicatorScore(evaluationIds, indicator.id) ?? 0,
     }));
-  }, [evs, filters.indicador]);
+    return scored.sort((a, b) =>
+      sortMode === "mayor" ? b.valor - a.valor : sortMode === "menor" ? a.valor - b.valor : a.orden - b.orden,
+    );
+  }, [evs, filters.indicador, sortMode]);
 
   const localScores = useMemo(() => {
     const scores = new Map<string, number | null>();
@@ -130,10 +132,9 @@ function IndicadoresPage() {
                   onChange={(e) => setSortMode(e.target.value as any)}
                   className="transition-ui h-8 rounded-md border border-input bg-card px-2 text-[13px] font-medium shadow-xs outline-none focus:border-ring"
                 >
+                  <option value="id">ID del indicador</option>
                   <option value="mayor">Mayor puntaje</option>
                   <option value="menor">Menor puntaje</option>
-                  <option value="brecha-pos">Mayor brecha positiva</option>
-                  <option value="brecha-neg">Mayor brecha negativa</option>
                 </select>
               </div>
             </div>
@@ -143,8 +144,9 @@ function IndicadoresPage() {
                 No hay indicadores para mostrar con los filtros actuales.
               </p>
             ) : (
+              <>
               <Accordion type="single" collapsible className="mt-5">
-                {indicatorList.map((indicator) => (
+                {(showAllIndicators ? indicatorList : indicatorList.slice(0, 5)).map((indicator) => (
                   <AccordionItem
                     key={indicator.id}
                     value={indicator.id}
@@ -199,19 +201,6 @@ function IndicadoresPage() {
                             brecha: ((localScores.get(local.id) ?? 0) * 100) - networkAvg,
                           }));
 
-                          items.sort((a, b) => {
-                            switch (sortMode) {
-                              case "mayor":
-                                return b.percentage - a.percentage;
-                              case "menor":
-                                return a.percentage - b.percentage;
-                              case "brecha-pos":
-                                return b.brecha - a.brecha;
-                              case "brecha-neg":
-                                return a.brecha - b.brecha;
-                            }
-                          });
-
                           const visible = items.slice(0, 10);
 
                           return visible.map((local) => (
@@ -259,6 +248,16 @@ function IndicadoresPage() {
                   </AccordionItem>
                 ))}
               </Accordion>
+              {indicatorList.length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllIndicators((visible) => !visible)}
+                  className="mt-4 text-sm font-semibold text-primary hover:underline"
+                >
+                  {showAllIndicators ? "Ver menos indicadores" : `Ver los ${indicatorList.length - 5} indicadores restantes`}
+                </button>
+              )}
+              </>
             )}
           </section>
 

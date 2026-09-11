@@ -69,13 +69,30 @@ function BenchmarkPage() {
 
   const matchBenchmarkFilters = useCallback(
     (evaluation: (typeof dataset.evaluations)[number], filters: BenchmarkFilters) =>
+      (filters.marca === null || filters.marca.includes(evaluation.marca)) &&
+      (filters.ubicacion === null || filters.ubicacion.includes(evaluation.ubicacion)) &&
+      (filters.tipoEvaluacion === null || includesTipoEvaluacion(filters.tipoEvaluacion, evaluation.tipoEvaluacion)),
+    [],
+  );
+
+  const matchActiveBenchmarkFilters = useCallback(
+    (evaluation: (typeof dataset.evaluations)[number], filters: BenchmarkFilters) =>
       (!filters.marca?.length || filters.marca.includes(evaluation.marca)) &&
       (!filters.ubicacion?.length || filters.ubicacion.includes(evaluation.ubicacion)) &&
-      includesTipoEvaluacion(filters.tipoEvaluacion, evaluation.tipoEvaluacion),
+      (filters.tipoEvaluacion === null || includesTipoEvaluacion(filters.tipoEvaluacion, evaluation.tipoEvaluacion)),
     [],
   );
 
   const matchCompetenciaFilters = useCallback(
+    (evaluation: (typeof dataset.evaluations)[number], filters: CompetenciaFilters) =>
+      (filters.concesionaria === null ||
+        filters.concesionaria.includes(evaluation.concesionaria)) &&
+      (filters.marca === null || filters.marca.includes(evaluation.marca)) &&
+      (filters.ubicacion === null || filters.ubicacion.includes(evaluation.ubicacion)),
+    [],
+  );
+
+  const matchActiveCompetenciaFilters = useCallback(
     (evaluation: (typeof dataset.evaluations)[number], filters: CompetenciaFilters) =>
       (!filters.concesionaria?.length ||
         filters.concesionaria.includes(evaluation.concesionaria)) &&
@@ -100,7 +117,7 @@ function BenchmarkPage() {
       return [
         ...new Set(
           maquinariasBase
-            .filter((evaluation) => matchBenchmarkFilters(evaluation, criteria))
+            .filter((evaluation) => matchActiveBenchmarkFilters(evaluation, criteria))
             .map((evaluation) => evaluation[key])
             .filter(
               (value): value is string => typeof value === "string" && value.trim().length > 0,
@@ -114,7 +131,7 @@ function BenchmarkPage() {
       ubicaciones: optionsFor("ubicacion"),
       tiposEvaluacion: optionsFor("tipoEvaluacion"),
     };
-  }, [benchmarkFilters, maquinariasBase, matchBenchmarkFilters]);
+  }, [benchmarkFilters, maquinariasBase, matchActiveBenchmarkFilters]);
 
   const setBenchmarkFilter = (key: keyof BenchmarkFilters, value: string[] | null) => {
     setBenchmarkFilters((prev) => {
@@ -127,7 +144,7 @@ function BenchmarkPage() {
         const criteria: BenchmarkFilters = { ...next, [targetKey]: null };
         return new Set(
           maquinariasBase
-            .filter((evaluation) => matchBenchmarkFilters(evaluation, criteria))
+            .filter((evaluation) => matchActiveBenchmarkFilters(evaluation, criteria))
             .map((evaluation) => evaluation[targetKey])
             .filter((item): item is string => typeof item === "string" && item.trim().length > 0),
         );
@@ -135,7 +152,7 @@ function BenchmarkPage() {
 
       for (const targetKey of ["marca", "ubicacion", "tipoEvaluacion"] as const) {
         const current = next[targetKey];
-        if (current === null) continue;
+        if (current === null || current.length === 0) continue;
         const allowed = optionsFor(targetKey);
         next[targetKey] = current.filter((item) => allowed.has(item));
       }
@@ -157,7 +174,7 @@ function BenchmarkPage() {
           const criteria: CompetenciaFilters = { ...nextComp, [targetKey]: null };
           return new Set(
             scopedCompetencia
-              .filter((evaluation) => matchCompetenciaFilters(evaluation, criteria))
+              .filter((evaluation) => matchActiveCompetenciaFilters(evaluation, criteria))
               .map((evaluation) => evaluation[targetKey])
               .filter((item): item is string => typeof item === "string" && item.trim().length > 0),
           );
@@ -165,7 +182,7 @@ function BenchmarkPage() {
 
         for (const targetKey of ["concesionaria"] as const) {
           const current = nextComp[targetKey];
-          if (current === null) continue;
+          if (current === null || current.length === 0) continue;
           const allowed = optionsForCompetencia(targetKey);
           nextComp[targetKey] = current.filter((item) => allowed.has(item));
         }
@@ -199,7 +216,7 @@ function BenchmarkPage() {
       return [
         ...new Set(
           competenciaScopedByMaquinarias
-            .filter((evaluation) => matchCompetenciaFilters(evaluation, criteria))
+            .filter((evaluation) => matchActiveCompetenciaFilters(evaluation, criteria))
             .map((evaluation) => evaluation[key])
             .filter(
               (value): value is string => typeof value === "string" && value.trim().length > 0,
@@ -213,7 +230,7 @@ function BenchmarkPage() {
       marcas: optionsFor("marca"),
       ubicaciones: optionsFor("ubicacion"),
     };
-  }, [competenciaFilters, competenciaScopedByMaquinarias, matchCompetenciaFilters]);
+  }, [competenciaFilters, competenciaScopedByMaquinarias, matchActiveCompetenciaFilters]);
 
   const setCompetenciaFilter = (key: keyof CompetenciaFilters, value: string[] | null) => {
     setCompetenciaFilters((prev) => {
@@ -223,7 +240,7 @@ function BenchmarkPage() {
         const criteria: CompetenciaFilters = { ...next, [targetKey]: null };
         return new Set(
           competenciaScopedByMaquinarias
-            .filter((evaluation) => matchCompetenciaFilters(evaluation, criteria))
+            .filter((evaluation) => matchActiveCompetenciaFilters(evaluation, criteria))
             .map((evaluation) => evaluation[targetKey])
             .filter((item): item is string => typeof item === "string" && item.trim().length > 0),
         );
@@ -231,7 +248,7 @@ function BenchmarkPage() {
 
       for (const targetKey of ["concesionaria"] as const) {
         const current = next[targetKey];
-        if (current === null) continue;
+        if (current === null || current.length === 0) continue;
         const allowed = optionsFor(targetKey);
         next[targetKey] = current.filter((item) => allowed.has(item));
       }

@@ -38,20 +38,28 @@ export const Route = createFileRoute("/maquinarias/")({
 
 function Dashboard() {
   const { filters, setFilter, clearFilters, dataVersion } = useFilters();
-  // Use global filters from context
-// Duplicate line removed
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const evs = useMemo(() => filterEvaluaciones(filters), [filters, dataVersion]);
   const benchmarkEvs = useMemo(() => {
+    const isAnyEmpty =
+      (filters.concesionaria !== null && filters.concesionaria.length === 0) ||
+      (filters.marca !== null && filters.marca.length === 0) ||
+      (filters.ubicacion !== null && filters.ubicacion.length === 0) ||
+      (filters.indicador !== null && filters.indicador.length === 0);
+
+    if (isAnyEmpty) return [];
+
     const baseByType = filterEvaluaciones({ ...EMPTY_FILTERS, tipoEvaluacion: filters.tipoEvaluacion });
     const fixedMaquinarias = baseByType.filter((evaluation) => evaluation.concesionaria === MARCA_PROPIA);
     const filteredCompetencia = evs.filter((evaluation) => evaluation.concesionaria !== MARCA_PROPIA);
     return [...fixedMaquinarias, ...filteredCompetencia];
-  }, [evs, filters.tipoEvaluacion]);
+  }, [evs, filters]);
+
   const scoreOf = useMemo(
     () => (e: Parameters<typeof scoreForEval>[0]) => {
-      if (!filters.indicador?.length) return e.puntaje;
+      if (filters.indicador === null) return e.puntaje;
+      if (filters.indicador.length === 0) return 0;
       const scores = filters.indicador.map((indicator) => scoreForEval(e, indicator));
       return scores.reduce((sum, score) => sum + score, 0) / scores.length;
     },
@@ -60,7 +68,8 @@ function Dashboard() {
 
   const indicadorRows = useMemo(() => {
     const rows = indicadorAverages(evs);
-    if (!filters.indicador?.length) return rows;
+    if (filters.indicador === null) return rows;
+    if (filters.indicador.length === 0) return [];
     // Extract trailing number from IDs like IND_01, IND_CAL_03
     const selectedNums = new Set(
       filters.indicador
@@ -138,10 +147,10 @@ function Dashboard() {
 
   const selected = evs.find((e) => e.id === selectedId) ?? null;
   const activeCount =
-    ((filters.concesionaria?.length ?? 0) > 0 ? 1 : 0) +
-    ((filters.marca?.length ?? 0) > 0 ? 1 : 0) +
-    ((filters.ubicacion?.length ?? 0) > 0 ? 1 : 0) +
-    ((filters.indicador?.length ?? 0) > 0 ? 1 : 0) +
+    (filters.concesionaria !== null ? 1 : 0) +
+    (filters.marca !== null ? 1 : 0) +
+    (filters.ubicacion !== null ? 1 : 0) +
+    (filters.indicador !== null ? 1 : 0) +
     ((filters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas" ? 1 : 0);
 
   const handleChange = (patch: Partial<Filters>) => {

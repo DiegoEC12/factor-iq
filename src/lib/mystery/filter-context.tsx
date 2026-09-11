@@ -43,7 +43,6 @@ interface FilterContextValue {
 
 const FilterContext = createContext<FilterContextValue | null>(null);
 
-
 export function FilterProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState<GlobalFilters>(EMPTY_FILTERS);
   const [selectedIndicadorId, setSelectedIndicadorId] = useState<string | null>(null);
@@ -63,39 +62,38 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
   const setFilter = useCallback((key: keyof GlobalFilters, value: string[] | null) => {
     setFilters((prev) => {
-      const next = {
+      const next: GlobalFilters = {
         ...prev,
         [key]: key === "tipoEvaluacion" ? coerceSingleTipoEvaluacion(value, "Ventas") : value,
       };
 
-      const matches = (evaluation: (typeof dataset.evaluations)[number], filters: GlobalFilters) =>
-        (!filters.periodo?.length || filters.periodo.includes(evaluation.periodo)) &&
-        (!filters.concesionaria?.length ||
-          filters.concesionaria.includes(evaluation.concesionaria)) &&
-        (!filters.marca?.length || filters.marca.includes(evaluation.marca)) &&
-        (!filters.ubicacion?.length || filters.ubicacion.includes(evaluation.ubicacion)) &&
-        includesTipoEvaluacion(filters.tipoEvaluacion, evaluation.tipoEvaluacion);
+      const matchesActive = (
+        evaluation: (typeof dataset.evaluations)[number],
+        criteria: Partial<GlobalFilters>,
+      ) =>
+        (!criteria.periodo?.length || criteria.periodo.includes(evaluation.periodo)) &&
+        (!criteria.concesionaria?.length || criteria.concesionaria.includes(evaluation.concesionaria)) &&
+        (!criteria.marca?.length || criteria.marca.includes(evaluation.marca)) &&
+        (!criteria.ubicacion?.length || criteria.ubicacion.includes(evaluation.ubicacion)) &&
+        (criteria.tipoEvaluacion === null ||
+          criteria.tipoEvaluacion === undefined ||
+          includesTipoEvaluacion(criteria.tipoEvaluacion, evaluation.tipoEvaluacion));
 
-      const scopedEvaluations = dataset.evaluations.filter((evaluation) => matches(evaluation, next));
-      const allowed = {
-        periodo: new Set(scopedEvaluations.map((evaluation) => evaluation.periodo)),
-        concesionaria: new Set(scopedEvaluations.map((evaluation) => evaluation.concesionaria)),
-        marca: new Set(scopedEvaluations.map((evaluation) => evaluation.marca)),
-        ubicacion: new Set(scopedEvaluations.map((evaluation) => evaluation.ubicacion)),
-        tipoEvaluacion: new Set(scopedEvaluations.map((evaluation) => evaluation.tipoEvaluacion)),
+      const getActiveOptionsFor = (filterKey: keyof GlobalFilters) => {
+        const criteria: Partial<GlobalFilters> = { ...next, [filterKey]: null };
+        return new Set(
+          dataset.evaluations
+            .filter((evaluation) => matchesActive(evaluation, criteria))
+            .map((evaluation) => evaluation[filterKey as keyof typeof evaluation])
+            .filter((val): val is string => typeof val === "string" && val.trim().length > 0),
+        );
       };
 
-      const scopedEvalIds = new Set(scopedEvaluations.map((evaluation) => evaluation.id));
-      const allowedIndicatorIds = new Set(
-        dataset.indicatorResults
-          .filter((result) => scopedEvalIds.has(result.idEvaluacion))
-          .map((result) => result.idIndicador),
-      );
-
-      const prune = (filterKey: keyof typeof allowed) => {
+      const prune = (filterKey: "periodo" | "concesionaria" | "marca" | "ubicacion") => {
         const current = next[filterKey];
-        if (current === null) return;
-        const compatible = current.filter((item) => allowed[filterKey].has(item));
+        if (current === null || current.length === 0) return;
+        const allowed = getActiveOptionsFor(filterKey);
+        const compatible = current.filter((item) => allowed.has(item));
         next[filterKey] = compatible;
       };
 
@@ -103,14 +101,20 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       prune("concesionaria");
       prune("marca");
       prune("ubicacion");
-      prune("tipoEvaluacion");
 
       if (next.indicador !== null && next.indicador.length > 0) {
-        // Values are already proper indicator IDs (IND_01, IND_CAL_01, etc.)
-        const filtered = next.indicador.filter((value) =>
-          allowedIndicatorIds.has(value)
+        const criteria: Partial<GlobalFilters> = { ...next, indicador: null };
+        const evals = dataset.evaluations.filter((evaluation) => matchesActive(evaluation, criteria));
+        const evalIds = new Set(evals.map((evaluation) => evaluation.id));
+        const allowedIndicatorIds = new Set(
+          dataset.indicatorResults
+            .filter((result) => evalIds.has(result.idEvaluacion))
+            .map((result) => result.idIndicador),
         );
-        next.indicador = filtered.length ? filtered : null;
+        const filtered = next.indicador.filter((indicatorVal) =>
+          allowedIndicatorIds.has(indicatorVal),
+        );
+        next.indicador = filtered;
       }
 
       return next;
@@ -120,16 +124,17 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const clearFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
   const options = useMemo(() => {
-    const matches = (
+    const matchesActive = (
       evaluation: (typeof dataset.evaluations)[number],
       criteria: Partial<GlobalFilters>,
     ) =>
       (!criteria.periodo?.length || criteria.periodo.includes(evaluation.periodo)) &&
-      (!criteria.concesionaria?.length ||
-        criteria.concesionaria.includes(evaluation.concesionaria)) &&
+      (!criteria.concesionaria?.length || criteria.concesionaria.includes(evaluation.concesionaria)) &&
       (!criteria.marca?.length || criteria.marca.includes(evaluation.marca)) &&
       (!criteria.ubicacion?.length || criteria.ubicacion.includes(evaluation.ubicacion)) &&
-      includesTipoEvaluacion(criteria.tipoEvaluacion ?? null, evaluation.tipoEvaluacion);
+      (criteria.tipoEvaluacion === null ||
+        criteria.tipoEvaluacion === undefined ||
+        includesTipoEvaluacion(criteria.tipoEvaluacion, evaluation.tipoEvaluacion));
 
     const optionsFor = (
       key: "periodo" | "concesionaria" | "marca" | "ubicacion" | "tipoEvaluacion",
@@ -140,7 +145,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       return [
         ...new Set(
           dataset.evaluations
-            .filter((evaluation) => matches(evaluation, criteria))
+            .filter((evaluation) => matchesActive(evaluation, criteria))
             .map((evaluation) => evaluation[key])
             .filter((value): value is string => typeof value === "string" && value.trim().length > 0),
         ),
@@ -151,7 +156,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       ...filters,
       indicador: null,
     };
-    const baseEvaluations = dataset.evaluations.filter((evaluation) => matches(evaluation, baseCriteria));
+    const baseEvaluations = dataset.evaluations.filter((evaluation) => matchesActive(evaluation, baseCriteria));
     const baseIds = new Set(baseEvaluations.map((evaluation) => evaluation.id));
     const availableIndicatorIds = new Set(
       dataset.indicatorResults
@@ -184,19 +189,30 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   ]);
 
   const hasFilters =
-    (filters.periodo?.length ?? 0) > 0 ||
-    (filters.concesionaria?.length ?? 0) > 0 ||
-    (filters.marca?.length ?? 0) > 0 ||
-    (filters.ubicacion?.length ?? 0) > 0 ||
-    (filters.indicador?.length ?? 0) > 0 ||
+    filters.periodo !== null ||
+    filters.concesionaria !== null ||
+    filters.marca !== null ||
+    filters.ubicacion !== null ||
+    filters.indicador !== null ||
     ((filters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas");
+
   const activeLabel = hasFilters
     ? [
-        ...(filters.periodo?.length ? [filters.periodo.join(", ")] : []),
-        ...(filters.concesionaria?.length ? [filters.concesionaria.join(", ")] : []),
-        ...(filters.marca?.length ? [filters.marca.join(", ")] : []),
-        ...(filters.ubicacion?.length ? [filters.ubicacion.join(", ")] : []),
-        ...(filters.indicador?.length ? [filters.indicador.join(", ")] : []),
+        ...(filters.periodo !== null
+          ? [filters.periodo.length ? filters.periodo.join(", ") : "Ningún período"]
+          : []),
+        ...(filters.concesionaria !== null
+          ? [filters.concesionaria.length ? filters.concesionaria.join(", ") : "Ninguna concesionaria"]
+          : []),
+        ...(filters.marca !== null
+          ? [filters.marca.length ? filters.marca.join(", ") : "Ninguna marca"]
+          : []),
+        ...(filters.ubicacion !== null
+          ? [filters.ubicacion.length ? filters.ubicacion.join(", ") : "Ninguna ubicación"]
+          : []),
+        ...(filters.indicador !== null
+          ? [filters.indicador.length ? filters.indicador.join(", ") : "Ningún indicador"]
+          : []),
         ...((filters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas"
           ? [filters.tipoEvaluacion?.join(", ") ?? ""]
           : []),
