@@ -131,7 +131,9 @@ function RootComponent() {
 
   useEffect(() => {
     const isMaquinarias = pathname === "/maquinarias" || pathname.startsWith("/maquinarias/");
-    const favicon = isMaquinarias ? "/icon-logo.png" : "/assets/icon/Isotipo%20IQ.png";
+    // El favicon público debe conservar una URL fija: así el navegador y los
+    // rastreadores (incluido Google) reciben el mismo isotipo desde el HTML.
+    const favicon = isMaquinarias ? "/icon-logo.png" : "/favicon.png";
     const link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
     if (link) link.href = favicon;
   }, [pathname]);
