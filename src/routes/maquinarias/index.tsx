@@ -39,6 +39,10 @@ export const Route = createFileRoute("/maquinarias/")({
 function Dashboard() {
   const { filters, setFilter, clearFilters, dataVersion } = useFilters();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedHeatmapIndicator, setSelectedHeatmapIndicator] = useState<{
+    n: number;
+    nombre: string;
+  } | null>(null);
 
   const evs = useMemo(() => filterEvaluaciones(filters), [filters, dataVersion]);
   const benchmarkEvs = useMemo(() => {
@@ -160,6 +164,7 @@ function Dashboard() {
       setFilter(key as keyof Filters, (value ?? null) as never);
     }
     setSelectedId(null);
+    setSelectedHeatmapIndicator(null);
   };
 
   return (
@@ -170,6 +175,7 @@ function Dashboard() {
         onReset={() => {
           clearFilters();
           setSelectedId(null);
+          setSelectedHeatmapIndicator(null);
         }}
         activeCount={activeCount}
       />
@@ -188,7 +194,10 @@ function Dashboard() {
                 evs={evs}
                 scoreOf={scoreOf}
                 selected={selectedId}
-                onSelect={(id) => setSelectedId(id === selectedId ? null : id)}
+                onSelect={(id) => {
+                  setSelectedId(id === selectedId ? null : id);
+                  setSelectedHeatmapIndicator(null);
+                }}
                 delay={120}
               />
             </div>
@@ -196,9 +205,12 @@ function Dashboard() {
               evs={heatmapRows}
               evalIdsByRow={evalIdsByHeatmapRow}
               selected={selectedHeatmapRowId}
-              onSelect={(rowId) => {
+              onSelect={(rowId, indicator) => {
                 const representativeId = representativeByHeatmapRow.get(rowId) ?? rowId;
-                setSelectedId(representativeId === selectedId ? null : representativeId);
+                setSelectedId(representativeId);
+                setSelectedHeatmapIndicator(
+                  indicator ? { n: indicator.n, nombre: indicator.nombre } : null,
+                );
               }}
               delay={180}
             />
@@ -206,7 +218,13 @@ function Dashboard() {
           </div>
 
           <div className="lg:col-span-1">
-            <EvaluatorPanel evs={evs} selected={selected} filtrosIndicador={filters.indicador} delay={160} />
+            <EvaluatorPanel
+              evs={evs}
+              selected={selected}
+              filtrosIndicador={filters.indicador}
+              selectedIndicator={selectedHeatmapIndicator}
+              delay={160}
+            />
           </div>
         </div>
 

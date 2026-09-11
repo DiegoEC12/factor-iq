@@ -17,11 +17,13 @@ export function EvaluatorPanel({
   evs,
   selected,
   filtrosIndicador,
+  selectedIndicator,
   delay = 0,
 }: {
   evs: Evaluacion[];
   selected: Evaluacion | null;
   filtrosIndicador?: string[] | null;
+  selectedIndicator?: { n: number; nombre: string } | null;
   delay?: number;
 }) {
   const [tab, setTab] = useState<"resumen" | "recomendaciones" | "indicadores">("resumen");
@@ -43,6 +45,14 @@ export function EvaluatorPanel({
     rows = rows.filter((r) => selectedNums.has(r.n));
   }
 
+  if (selectedIndicator) {
+    rows = rows.filter((row) => row.n === selectedIndicator.n);
+  }
+
+  const selectedIndicatorScore = selectedIndicator && ev
+    ? allIndicadores.find((indicator) => indicator.ev === ev.id && indicator.n === selectedIndicator.n)?.cumpl
+    : null;
+
   return (
     <aside
       className="panel rise-in sticky top-42 flex flex-col overflow-hidden"
@@ -59,6 +69,14 @@ export function EvaluatorPanel({
           <MapPin className="h-3.5 w-3.5" />
           {ev ? title(ev.ubicacion) : `${evs.length} evaluaciones en el filtro`}
         </p>
+        {selectedIndicator && (
+          <p className="mt-2 rounded-md bg-background/10 px-2 py-1 text-xs font-medium">
+            Indicador seleccionado: {selectedIndicator.n}. {selectedIndicator.nombre}
+            {selectedIndicatorScore !== null && selectedIndicatorScore !== undefined
+              ? ` · ${pct(selectedIndicatorScore)}`
+              : ""}
+          </p>
+        )}
         {ev && (
           <div className="mt-3">
             <div className="flex items-baseline justify-between">

@@ -24,7 +24,7 @@ function IndicadoresPage() {
   const [selectedIndicator, setSelectedIndicator] = useState<string | null>(null);
   const [selectedLocal, setSelectedLocal] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<"id" | "mayor" | "menor">("id");
-  const [showAllIndicators, setShowAllIndicators] = useState(false);
+  const [showAllLocalsFor, setShowAllLocalsFor] = useState<string | null>(null);
 
   void dataVersion;
   const scopes = getScopes(filters);
@@ -144,9 +144,8 @@ function IndicadoresPage() {
                 No hay indicadores para mostrar con los filtros actuales.
               </p>
             ) : (
-              <>
               <Accordion type="single" collapsible className="mt-5">
-                {(showAllIndicators ? indicatorList : indicatorList.slice(0, 5)).map((indicator) => (
+                {indicatorList.map((indicator) => (
                   <AccordionItem
                     key={indicator.id}
                     value={indicator.id}
@@ -157,6 +156,7 @@ function IndicadoresPage() {
                       onClick={() => {
                         setSelectedIndicator(indicator.id);
                         setSelectedLocal(null);
+                        setShowAllLocalsFor(null);
                       }}
                     >
                       <span className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 text-left">
@@ -201,7 +201,7 @@ function IndicadoresPage() {
                             brecha: ((localScores.get(local.id) ?? 0) * 100) - networkAvg,
                           }));
 
-                          const visible = items.slice(0, 10);
+                          const visible = showAllLocalsFor === indicator.id ? items : items.slice(0, 5);
 
                           return visible.map((local) => (
                             <li key={local.id}>
@@ -241,6 +241,19 @@ function IndicadoresPage() {
                           ));
                         })()}
                       </ul>
+                      {locales.length > 5 && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowAllLocalsFor((current) =>
+                              current === indicator.id ? null : indicator.id,
+                            )
+                          }
+                          className="mt-3 text-sm font-semibold text-primary hover:underline"
+                        >
+                          {showAllLocalsFor === indicator.id ? "Ver menos locales" : "Ver más locales"}
+                        </button>
+                      )}
                       <div className="mt-4 text-xs text-muted-foreground">
                         Promedio de la red: {(indicator.valor * 100).toFixed(0)}%
                       </div>
@@ -248,16 +261,6 @@ function IndicadoresPage() {
                   </AccordionItem>
                 ))}
               </Accordion>
-              {indicatorList.length > 5 && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllIndicators((visible) => !visible)}
-                  className="mt-4 text-sm font-semibold text-primary hover:underline"
-                >
-                  {showAllIndicators ? "Ver menos indicadores" : `Ver los ${indicatorList.length - 5} indicadores restantes`}
-                </button>
-              )}
-              </>
             )}
           </section>
 

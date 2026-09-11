@@ -25,7 +25,7 @@ export function Heatmap({
 }: {
   evs: Evaluacion[];
   evalIdsByRow?: Map<string, string[]>;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, indicator?: HeatmapColumn) => void;
   selected: string | null;
   delay?: number;
   maxViewportHeightClass?: string;
@@ -138,7 +138,7 @@ function FragmentRow({
   evalIds: string[];
   rowIndex: number;
   selected: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, indicator?: HeatmapColumn) => void;
   onHover: (cell: Cell | null) => void;
   columns: HeatmapColumn[];
 }) {
@@ -165,7 +165,7 @@ function FragmentRow({
           <button
             key={c.n}
             type="button"
-            onClick={() => onSelect(ev.id)}
+            onClick={() => onSelect(ev.id, c)}
             onMouseEnter={() => onHover({ ev, n: c.n, nombre: c.nombre, valor })}
             onMouseLeave={() => onHover(null)}
             onFocus={() => onHover({ ev, n: c.n, nombre: c.nombre, valor })}
