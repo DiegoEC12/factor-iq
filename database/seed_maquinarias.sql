@@ -2,7 +2,7 @@
 -- Generado desde src/data/mystery-shopping-imported.json
 -- IMPORTANTE: reemplazar los hashes de password antes de produccion.
 -- Genera hashes con: node scripts/hash-password.mjs <password>
-USE factor_iq;
+USE factoriq;
 
 -- Cliente Maquinarias (id=1)
 INSERT INTO clientes (id, slug, nombre_comercial, rubro, plan, estado) VALUES (1, 'maquinarias', 'Maquinarias', 'Automotriz / Maquinaria', 'profesional', 'activo');

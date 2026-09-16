@@ -4,11 +4,11 @@
 -- Ejecutar primero este archivo, luego seed_maquinarias.sql
 -- =============================================================
 
-CREATE DATABASE IF NOT EXISTS factor_iq
+CREATE DATABASE IF NOT EXISTS factoriq
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
-USE factor_iq;
+USE factoriq;
 
 -- -------------------------------------------------------------
 -- 1. CLIENTES (empresas a las que Factor IQ les presta el servicio)
