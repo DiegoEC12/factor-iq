@@ -93,14 +93,33 @@ export function DumbbellChart({
   rows: DumbbellRow[];
   onSelect?: (id: string) => void;
 }) {
+  const [hovered, setHovered] = useState<DumbbellRow | null>(null);
   return (
     <div className="flex flex-col">
-      <div className="mb-2 flex items-center gap-4 pl-52.5 text-[11px] font-semibold text-muted-foreground max-md:pl-0">
+      <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-2 pl-52.5 text-[11px] font-semibold text-muted-foreground max-md:pl-0">
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-black" /> Maquinarias
         </span>
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-gray-500" /> Competencia
+        </span>
+        <span
+          className={cn(
+            "rounded-md bg-muted px-2 py-1 font-medium text-foreground transition-opacity",
+            hovered ? "opacity-100" : "opacity-0",
+          )}
+          aria-live="polite"
+        >
+          {hovered && (
+            <>
+              <span className="mr-2 font-semibold">{hovered.label}</span>
+              <span className="mr-2">Maquinarias {fmtPct(hovered.maq)}</span>
+              <span className="mr-2">Competencia {fmtPct(hovered.comp)}</span>
+              <span className={hovered.brecha !== null && hovered.brecha < 0 ? "text-danger" : "text-success"}>
+                Brecha {fmtPp(hovered.brecha)}
+              </span>
+            </>
+          )}
         </span>
       </div>
       {rows.map((r) => {
@@ -113,6 +132,10 @@ export function DumbbellChart({
           <button
             key={r.id}
             onClick={() => onSelect?.(r.id)}
+            onMouseEnter={() => setHovered(r)}
+            onMouseLeave={() => setHovered(null)}
+            onFocus={() => setHovered(r)}
+            onBlur={() => setHovered(null)}
             className="transition-ui group grid grid-cols-[200px_minmax(0,1fr)_64px] items-center gap-3 rounded-lg px-2 py-2 text-left hover:bg-accent max-md:grid-cols-[minmax(0,1fr)] max-md:gap-1"
             title={`Indicador: ${r.label}\nMaquinarias: ${fmtPct(r.maq)}\nCompetencia: ${fmtPct(r.comp)}\nBrecha: ${fmtPp(r.brecha)}\nEvaluaciones: ${r.nMaq} vs ${r.nComp}`}
           >

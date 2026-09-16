@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, ChevronRight, X } from "lucide-react";
+import { ArrowRight, ChevronRight, Lightbulb, MessageSquareQuote, X } from "lucide-react";
 import { PageHeader } from "@/components/mystery/page-header";
 import { EmptyState, GapChip, SectionHeader, StatusBadge } from "@/components/mystery/primitives";
-import { Heatmap, MiniBars, RankingBars } from "@/components/mystery/charts";
+import { Heatmap, RankingBars } from "@/components/mystery/charts";
 import {
   calculateBenchmark,
   calculateWeightedScore,
@@ -14,7 +14,7 @@ import {
   statusFor,
   type GroupScore,
 } from "@/lib/mystery/calculations";
-import { localKey } from "@/lib/analytics";
+import { evaluaciones as evaluatorEvaluations, localKey } from "@/lib/analytics";
 import { dataset } from "@/lib/mystery/dataset";
 import { fmtPct } from "@/lib/mystery/format";
 import { useFilters } from "@/lib/mystery/filter-context";
@@ -205,19 +205,6 @@ function ConcesionariasPage() {
     return drilled.filter((e) => localKey(e.concesionaria, e.marca, e.ubicacion) === selected.key);
   }, [selected, level, drilled]);
 
-  const selectedIndicators = useMemo(() => {
-    const ids = selectedEvals.map((e) => e.id);
-    let indicators = availableIndicators(scopes.selection.map((evaluation) => evaluation.id));
-    if (indicatorFilter?.length) {
-      indicators = indicators.filter((i) => indicatorFilter.includes(i.id));
-    }
-    return indicators.map((i) => ({
-      label: i.nombre,
-      value: indicatorScore(ids, i.id),
-      n: ids.length,
-    }));
-  }, [selectedEvals, scopes.selection, indicatorFilter]);
-
   function handleRankingSelect(key: string) {
     setSelectedKey(key === selectedKey ? null : key);
   }
@@ -274,7 +261,7 @@ function ConcesionariasPage() {
         title="Concesionarias"
         description="¿Dónde están los mejores y peores resultados? Ranking, mapa y drill-down."
       />
-      <CompactFilterControls />
+      <CompactFilterControls showIndicator={false} />
 
       <div className="flex flex-col gap-6 p-5 md:p-8">
         {scopes.selection.length === 0 && (
@@ -395,10 +382,7 @@ function ConcesionariasPage() {
                   </div>
                 </div>
 
-                <div className="mt-4">
-                  <SectionHeader title="Desempeño por indicador" className="mb-3" />
-                  <MiniBars rows={selectedIndicators} />
-                </div>
+                <EvaluatorComments evaluations={selectedEvals} />
 
                 <button
                   onClick={handleDrillDown}
@@ -420,7 +404,7 @@ function ConcesionariasPage() {
                 <p className="max-w-xs text-[13px] text-muted-foreground">
                   {drilled.length === 0
                     ? "Ajusta los filtros globales para visualizar resultados y luego selecciona un elemento."
-                    : "Verás su puntaje, benchmark, brecha y desempeño por indicador, con opción de profundizar hasta el local."}
+                    : "Verás su puntaje, benchmark, brecha y los comentarios del evaluador, con opción de profundizar hasta el local."}
                 </p>
               </div>
             )}
@@ -458,5 +442,35 @@ function ConcesionariasPage() {
         </section>
       </div>
     </>
+  );
+}
+
+function EvaluatorComments({ evaluations }: { evaluations: typeof dataset.evaluations }) {
+  const [tab, setTab] = useState<"resumen" | "recomendaciones">("resumen");
+  const evaluatorById = new Map(evaluatorEvaluations.map((evaluation) => [evaluation.id, evaluation]));
+  const content = tab === "resumen"
+    ? evaluations.map((evaluation) => ({ id: evaluation.id, text: evaluatorById.get(evaluation.id)?.resumen, label: `${evaluation.marca} · ${evaluation.ubicacion}` }))
+    : evaluations.map((evaluation) => ({ id: evaluation.id, text: evaluatorById.get(evaluation.id)?.recomendaciones, label: `${evaluation.marca} · ${evaluation.ubicacion}` }));
+  const Icon = tab === "resumen" ? MessageSquareQuote : Lightbulb;
+
+  return (
+    <div className="mt-4 border-t border-border pt-4">
+      <div className="mb-3 flex gap-3 border-b border-border text-xs font-semibold">
+        <button type="button" onClick={() => setTab("resumen")} className={cn("pb-2", tab === "resumen" ? "border-b-2 border-primary text-primary" : "text-muted-foreground")}>
+          Resumen
+        </button>
+        <button type="button" onClick={() => setTab("recomendaciones")} className={cn("pb-2", tab === "recomendaciones" ? "border-b-2 border-primary text-primary" : "text-muted-foreground")}>
+          Recomendaciones
+        </button>
+      </div>
+      <div className="max-h-56 space-y-3 overflow-y-auto pr-1">
+        {content.map((item) => (
+          <div key={item.id} className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+            <p className="mb-1 text-xs font-semibold text-foreground">{item.label}</p>
+            <p className="flex gap-2 whitespace-pre-line"><Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />{item.text ?? `Sin ${tab} registrado.`}</p>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

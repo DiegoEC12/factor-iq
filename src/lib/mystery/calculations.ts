@@ -52,12 +52,12 @@ export function filterEvaluations(evals: Evaluation[], f: GlobalFilters): Evalua
   const selectedIndicators = f.indicador;
   return evals.filter(
     (e) =>
-      (!f.periodo?.length || f.periodo.includes(e.periodo)) &&
-      (!f.concesionaria?.length || f.concesionaria.includes(e.concesionaria)) &&
-      (!f.marca?.length || f.marca.includes(e.marca)) &&
-      (!f.ubicacion?.length || f.ubicacion.includes(e.ubicacion)) &&
-      includesTipoEvaluacion(f.tipoEvaluacion, e.tipoEvaluacion) &&
-      (!selectedIndicators?.length ||
+      (f.periodo === null || f.periodo.includes(e.periodo)) &&
+      (f.concesionaria === null || f.concesionaria.includes(e.concesionaria)) &&
+      (f.marca === null || f.marca.includes(e.marca)) &&
+      (f.ubicacion === null || f.ubicacion.includes(e.ubicacion)) &&
+      (f.tipoEvaluacion === null || includesTipoEvaluacion(f.tipoEvaluacion, e.tipoEvaluacion)) &&
+      (selectedIndicators === null ||
         dataset.indicatorResults.some(
           (result) =>
             result.idEvaluacion === e.id &&
@@ -81,6 +81,23 @@ export interface Scopes {
 }
 
 export function getScopes(f: GlobalFilters): Scopes {
+  const isAnyFilterEmpty =
+    (f.periodo !== null && f.periodo.length === 0) ||
+    (f.marca !== null && f.marca.length === 0) ||
+    (f.ubicacion !== null && f.ubicacion.length === 0) ||
+    (f.indicador !== null && f.indicador.length === 0);
+
+  if (isAnyFilterEmpty) {
+    return {
+      selection: [],
+      maquinarias: [],
+      competencia: [],
+      selectionLabel: "Ninguna evaluación",
+      maquinariasLabel: "Maquinarias (ninguna)",
+      competenciaLabel: "Competencia (ninguna)",
+    };
+  }
+
   const universe = filterEvaluations(dataset.evaluations, {
     ...EMPTY_FILTERS,
     periodo: f.periodo,
@@ -102,18 +119,25 @@ export function getScopes(f: GlobalFilters): Scopes {
   const maqAll = universe.filter((e) => e.tipoEmpresa === "MAQUINARIAS");
   const compAll = universe.filter((e) => e.tipoEmpresa === "COMPETENCIA");
 
-  let maq = f.concesionaria?.length
-    ? selection.filter((e) => e.tipoEmpresa === "MAQUINARIAS")
-    : maqAll;
-  let comp = f.concesionaria?.length
-    ? selection.filter((e) => e.tipoEmpresa === "COMPETENCIA")
-    : compAll;
+  let maq = f.concesionaria === null
+    ? maqAll
+    : f.concesionaria.length === 0
+      ? []
+      : selection.filter((e) => e.tipoEmpresa === "MAQUINARIAS");
+  let comp = f.concesionaria === null
+    ? compAll
+    : f.concesionaria.length === 0
+      ? []
+      : selection.filter((e) => e.tipoEmpresa === "COMPETENCIA");
   let maqLabel = "Maquinarias (todas)";
   let compLabel = "Competencia (todas)";
   const selectedConcesionarias = f.concesionaria;
   const selectedConcesionaria = selectedConcesionarias?.[0];
 
-  if (selectedConcesionarias?.length === 1 && selectedConcesionaria) {
+  if (selectedConcesionarias && selectedConcesionarias.length === 0) {
+    maqLabel = "Maquinarias (ninguna)";
+    compLabel = "Competencia (ninguna)";
+  } else if (selectedConcesionarias?.length === 1 && selectedConcesionaria) {
     const selectedType =
       universe.find((e) => e.concesionaria === selectedConcesionaria)?.tipoEmpresa ?? null;
     if (selectedType === "MAQUINARIAS") {
@@ -125,9 +149,7 @@ export function getScopes(f: GlobalFilters): Scopes {
       maq = maqAll;
       compLabel = selectedConcesionaria;
     }
-  }
-
-  if (selectedConcesionarias?.length && maqLabel === "Maquinarias (todas)") {
+  } else if (selectedConcesionarias?.length && maqLabel === "Maquinarias (todas)") {
     maqLabel = `Maquinarias (${selectedConcesionarias.length} seleccionadas)`;
   }
   if (selectedConcesionarias?.length && compLabel === "Competencia (todas)") {
@@ -138,7 +160,11 @@ export function getScopes(f: GlobalFilters): Scopes {
     selection,
     maquinarias: maq,
     competencia: comp,
-    selectionLabel: f.concesionaria?.length ? f.concesionaria.join(", ") : "Todas las evaluaciones",
+    selectionLabel: f.concesionaria === null
+      ? "Todas las evaluaciones"
+      : f.concesionaria.length === 0
+        ? "Ninguna evaluación"
+        : f.concesionaria.join(", "),
     maquinariasLabel: maqLabel,
     competenciaLabel: compLabel,
   };

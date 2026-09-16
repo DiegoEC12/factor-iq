@@ -117,10 +117,15 @@ export const EMPTY_FILTERS: Filters = {
 export function filterEvaluaciones(f: Filters) {
   return evaluaciones.filter(
     (e) =>
-      (!f.concesionaria || f.concesionaria.includes(e.concesionaria)) &&
-      (!f.marca || f.marca.includes(e.marca)) &&
-      (!f.ubicacion || f.ubicacion.includes(e.ubicacion)) &&
-      includesTipoEvaluacion(f.tipoEvaluacion, e.tipoEvaluacion),
+      (f.concesionaria === null || f.concesionaria.includes(e.concesionaria)) &&
+      (f.marca === null || f.marca.includes(e.marca)) &&
+      (f.ubicacion === null || f.ubicacion.includes(e.ubicacion)) &&
+      (f.tipoEvaluacion === null || includesTipoEvaluacion(f.tipoEvaluacion, e.tipoEvaluacion)) &&
+      (f.indicador === null ||
+        f.indicador.some((indicatorId) => {
+          const match = indicatorId.match(/(\d+)$/);
+          return match !== null && indicadores.some((indicator) => indicator.ev === e.id && indicator.n === Number(match[1]));
+        })),
   );
 }
 
