@@ -13,7 +13,7 @@ INSERT INTO usuarios (cliente_id, usuario, password_hash, nombre, rol) VALUES
 (1, 'admMaqui', '$2b$10$REEMPLAZAR_HASH_ADMMAQUI', 'Admin Maquinarias', 'admin_cliente');
 
 -- Proyecto (id=1)
-INSERT INTO proyectos (id, cliente_id, nombre, tipo, periodo, fuente) VALUES (1, 1, 'Mystery Shopping Maquinarias', 'mystery_shopping', '', '');
+INSERT INTO proyectos (id, cliente_id, nombre, tipo, periodo, fuente) VALUES (1, 1, 'Mystery Shopping Maquinarias', 'mystery_shopping', 'Base consolidada 2025', 'Base_Mystery_Shopping_Consolidada (8).xlsx');
 
 -- Sucursales
 INSERT INTO sucursales (id, cliente_id, nombre, marca, ubicacion) VALUES
