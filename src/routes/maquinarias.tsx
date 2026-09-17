@@ -12,7 +12,7 @@ export const Route = createFileRoute("/maquinarias")({
     if (!user) {
       throw redirect({ to: "/pages/servicio_nube.html" });
     }
-    if (user.clienteId !== "maquinarias") {
+    if (user.rol !== "superadmin" && user.clienteId !== "maquinarias") {
       throw redirect({ to: "/pages/servicio_nube.html" });
     }
     return { user };

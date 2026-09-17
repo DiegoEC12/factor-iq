@@ -73,18 +73,18 @@ function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen text-slate-100 flex flex-col font-sans">
       {/* Barra superior de navegación */}
-      <header className="border-b border-slate-800/80 bg-slate-900/90 backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex items-center justify-between">
+      <header className="border-b border-slate-800/80  backdrop-blur-md sticky top-0 z-40 px-4 lg:px-8 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <ShieldAlert className="w-5 h-5" />
+          <div className="flex items-center justify-center">
+            <img src="/favicon.png" alt="favicon.png" className="w-10 h-10 object-cover" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold tracking-tight text-white">Factor IQ</span>
-              <span className="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                SuperAdmin
+              <span className="font-bold tracking-tight text-slate-700">Factor IQ</span>
+              <span className="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider rounded-full bg-emerald-500/15 text-slate-500 border border-slate-500/30">
+                Administrador
               </span>
             </div>
             <p className="text-xs text-slate-400 hidden sm:block">
@@ -386,11 +386,10 @@ function AdminDashboard() {
                       <td className="p-3 text-slate-300">{u.cliente_nombre || "Global"}</td>
                       <td className="p-3">
                         <span
-                          className={`px-2 py-0.5 rounded font-medium ${
-                            u.rol === "superadmin"
-                              ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                              : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                          }`}
+                          className={`px-2 py-0.5 rounded font-medium ${u.rol === "superadmin"
+                            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
+                            : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                            }`}
                         >
                           {u.rol}
                         </span>
@@ -488,11 +487,10 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 text-xs font-semibold rounded-lg transition-colors ${
-        active
-          ? "bg-slate-800 text-white border border-slate-700 shadow-sm"
-          : "text-slate-400 hover:text-slate-200 hover:bg-slate-850"
-      }`}
+      className={`px-4 py-2 text-xs font-semibold rounded-lg transition-colors ${active
+        ? "bg-slate-800 text-white border border-slate-700 shadow-sm"
+        : "text-slate-400 hover:text-slate-200 hover:bg-slate-850"
+        }`}
     >
       {label}
     </button>

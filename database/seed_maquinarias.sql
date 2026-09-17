@@ -3081,4 +3081,3 @@ INSERT INTO evaluacion_preguntas (id, evaluacion_id, indicador_id, pregunta, res
 (2492, 42, 19, '¿El canal facilitó el siguiente paso del proceso (agendar cita, cotizar, resolver dudas)?', 'No', 0, 'Asesor no agenda visita al concesionario con el cliente.'),
 (2493, 42, 19, '¿Fue derivado correctamente al área correspondiente sin perder continuidad?', 'No', 0, 'NO Deriva la llamada de forma inmediata con un asesor, simplemente brinda el teléfono de un asesor.'),
 (2494, 42, 19, '¿Recibiste algún correo, mensaje o llamada posterior?', 'No', 0, 'Ningún asesor se contacta con el cliente.');
-
