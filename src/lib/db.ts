@@ -25,10 +25,10 @@ export function getPool(): mysql.Pool {
 
   if (!pool) {
     pool = mysql.createPool({
-      host: process.env["DB_HOST"],
+      host: process.env["DB_HOST"] || "localhost",
       port: Number(process.env["DB_PORT"] ?? 3306),
-      database: process.env["DB_NAME"],
-      user: process.env["DB_USER"],
+      database: process.env["DB_NAME"] || "",
+      user: process.env["DB_USER"] || "",
       password: process.env["DB_PASSWORD"] ?? "",
       waitForConnections: true,
       connectionLimit: 5, // hosting compartido: mantener bajo
@@ -45,6 +45,6 @@ export async function query<T = Record<string, unknown>>(
   sql: string,
   params: ReadonlyArray<unknown> = [],
 ): Promise<T[]> {
-  const [rows] = await getPool().execute(sql, params as unknown[]);
+  const [rows] = await getPool().query(sql, params as unknown as any[]);
   return rows as T[];
 }

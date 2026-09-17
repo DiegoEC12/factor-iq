@@ -32,34 +32,38 @@ Todas las tablas de negocio cuelgan de `clientes` (multi-tenant por `cliente_id`
 | Archivo                         | Contenido                                                                                                                                                                                             |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `database/schema.sql`           | Creación de la base`factor_iq` y 9 tablas (clientes, usuarios, proyectos, sucursales, indicadores, evaluaciones, evaluacion\_indicadores, evaluacion\_preguntas, auditoria)                           |
-| `database/seed_maquinarias.sql` | Datos reales migrados desde el JSON: cliente Maquinarias, 1 proyecto, 29 sucursales, 12 indicadores, 42 evaluaciones, 434 resultados por indicador, 2 494 respuestas a preguntas + usuarios iniciales |
+| `database/seed_maquinarias.sql` | Datos reales migrados desde el JSON: cliente Maquinarias, 1 proyecto, 29 sucursales, 19 indicadores (12 Ventas + 7 Call Center), 42 evaluaciones con `tipo_evaluacion`, 434 resultados por indicador, 2 494 respuestas a preguntas + usuarios iniciales |
+| `scripts/generate-sql-seed.cjs` | Generador reproducible del seed SQL desde `src/data/mystery-shopping-imported.json` con integridad relacional validada |
 | `scripts/hash-password.mjs`     | Generador de hashes bcrypt para contraseñas de usuarios                                                                                                                                               |
+| `src/lib/db.ts`                 | Pool de conexiones MySQL con `mysql2/promise`, lectura de `.env` y tipado TypeScript estricto                                                                                                         |
+| `src/lib/mystery/server-data.ts`| Server functions TanStack Start para lectura de evaluaciones desde MySQL con fallback automático a JSON estático                                                                                     |
+| `src/routes/admin.tsx`          | Panel SuperAdmin `/admin` protegido por rol con métricas, directorio de clientes, usuarios y auditoría                                                                                                |
 
 ## 4. Avance
 
 * [x] Revisión del stack (TanStack Start, auth por sesión, datos en JSON).
 
-* [x] Diseño del esquema multi-cliente (`database/schema.sql`).
+* [x] Diseño y corrección del esquema multi-cliente (`database/schema.sql` con `tipo_evaluacion`, `codigo` de indicador y clave única compuesta).
 
-* [x] Script de seed con los datos reales de Maquinarias (`database/seed_maquinarias.sql`).
+* [x] Script de seed íntegro con los datos reales de Maquinarias (`database/seed_maquinarias.sql` y generador `scripts/generate-sql-seed.cjs`).
 
 * [x] Utilidad para generar hashes de contraseña (`scripts/hash-password.mjs`).
 
 * [x] Crear la base MySQL en el hosting GoDaddy (cPanel → MySQL Databases) y usuario con permisos.
 
-* [x] Ejecutar `schema.sql` y `seed_maquinarias.sql` (phpMyAdmin del hosting o cliente MySQL local con tunnel).
+* [x] Ejecutar `schema.sql` y `seed_maquinarias.sql` (probado y validado en MySQL local WAMP y listo para phpMyAdmin en GoDaddy).
 
-* [ ] `npm install mysql2 bcryptjs` y crear `src/lib/db.ts` (pool de conexiones con variables de entorno).
+* [x] `npm install mysql2 bcryptjs @types/bcryptjs` y crear `src/lib/db.ts` (pool de conexiones con variables de entorno).
 
-* [ ] Reemplazar `DEMO_USERS` de `src/lib/auth.ts` por validación contra la tabla `usuarios` (bcrypt).
+* [x] Reemplazar `DEMO_USERS` de `src/lib/auth.ts` por validación contra la tabla `usuarios` (bcrypt) con fallback automático transparente.
 
-* [ ] Migrar la lectura de dashboards de Maquinarias del JSON a consultas SQL (manteniendo los JSON como fallback durante la transición).
+* [x] Migrar la lectura de dashboards de Maquinarias a consultas SQL mediante `getMysteryShoppingDataFn` en `src/lib/mystery/server-data.ts` (manteniendo `mystery-shopping-imported.json` como fallback seguro).
 
-* [ ] Construir el panel `/admin` (superadmin): gestión de clientes, usuarios, credenciales, proyectos.
+* [x] Construir el panel `/admin` (superadmin) en `src/routes/admin.tsx`: métricas de BD, directorio de clientes, usuarios, credenciales y bitácora de auditoría.
 
 * [ ] Panel de auto-gestión del cliente: sus usuarios viewer, datos de empresa.
 
-* [ ] Pruebas en staging y despliegue.
+* [ ] Pruebas en staging y despliegue final en producción.
 
 ## 5. Paso a paso de la migración
 

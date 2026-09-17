@@ -129,3 +129,60 @@ Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproduc
 - [X] Conservado `icon-logo.png` únicamente para la experiencia interna de Maquinarias.
 - [X] Verificado que el archivo público mide 48×48 px, formato admitido por Google.
 - [!] `npm run lint` no pudo iniciarse por una instalación global rota de npm en el equipo (`npm-cli.js` no encontrado); no corresponde a un error del proyecto.
+
+## Migración a Base de Datos MySQL y Arquitectura Multi-Tenant
+
+- [X] **Detección y corrección de inconsistencias en scripts SQL (`database/`)**:
+  - Se identificó que `evaluaciones` omitía el campo `tipo_evaluacion`, lo que rompía la segmentación en BD de las 22 evaluaciones de Ventas, 14 de Call Center y 6 de Seminuevos.
+  - Se corrigió el catálogo truncado de `indicadores`: el seed previo contenía solo 12 registros mezclando Call Center con Ventas, perdiendo los indicadores 1..7 de Ventas (*Instalaciones y Ambiente General*, *Protocolo de atención*, etc.) y vinculando relaciones a indicadores erróneos.
+  - Se actualizó `database/schema.sql` con `tipo_evaluacion` y `codigo` en `indicadores`, clave única compuesta `(proyecto_id, tipo_evaluacion, orden)` y `tipo_evaluacion` en `evaluaciones`.
+- [X] **Generador reproducible de Seed SQL (`scripts/generate-sql-seed.cjs`)**:
+  - Creado script que lee directamente `src/data/mystery-shopping-imported.json` (la fuente de verdad del dashboard).
+  - Regenerado `database/seed_maquinarias.sql` con integridad relacional 100% verificada:
+    - 1 cliente (`Maquinarias`)
+    - 2 usuarios con hashes bcrypt operativos (`superadmin` con `admin123` y `admMaqui` con `adm123`)
+    - 1 proyecto (`Mystery Shopping Maquinarias`)
+    - 29 sucursales normalizadas
+    - 19 indicadores (12 Ventas + 7 Call Center aislados por prefijo `IND_` y `IND_CAL_`)
+    - 42 evaluaciones con su `tipo_evaluacion` real
+    - 434 resultados en `evaluacion_indicadores`
+    - 2,494 respuestas en `evaluacion_preguntas`
+- [X] **Validación en MySQL Local (WAMP)**:
+  - Se ejecutaron `schema.sql` y `seed_maquinarias.sql` en la base `factoriq` de MySQL 8.2 local.
+  - Validada la integridad con consultas de verificación cruzada (`JOIN` de evaluaciones, indicadores y preguntas).
+- [X] **Dependencias y Pool de Conexiones**:
+  - Instalados `mysql2`, `bcryptjs` y `@types/bcryptjs`.
+  - Corregido `src/lib/db.ts` con tipado estricto `exactOptionalPropertyTypes` y pool seguro para hosting compartido.
+- [X] **Capa de Datos Híbrida (`src/lib/mystery/server-data.ts`)**:
+  - Creada función de servidor `getMysteryShoppingDataFn` con consultas SQL dinámicas por cliente.
+  - Implementado fallback automático y transparente a `mystery-shopping-imported.json` cuando `isDbEnabled()` sea falso o haya error de red, garantizando cero caídas.
+  - Integrada la carga y rehidratación de datos en `src/routes/maquinarias.tsx`.
+- [X] **Panel SuperAdmin (`src/routes/admin.tsx`)**:
+  - Nueva ruta `/admin` protegida con `beforeLoad`: acceso exclusivo para usuarios con `rol === 'superadmin'`.
+  - Panel visual de monitoreo: estado de MySQL, métricas relacionales (clientes, usuarios, proyectos, locales, evaluaciones, auditoría), directorio de clientes con enlaces directos a sus paneles, listado de usuarios con roles y visualizador de bitácora de auditoría.
+- [X] **Validación de Compilación**:
+  - `npx tsc --noEmit` completado con 0 errores.
+  - `npm run build` ejecutado exitosamente generando el bundle Nitro para producción (`.output/server/index.mjs`).
+
+### Sugerencias para Producción en GoDaddy
+
+1. **Variables de Entorno en cPanel**:
+   En el panel de GoDaddy Node.js Hosting, configurar:
+   ```env
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_NAME=factoriq
+   DB_USER=usuario_cpanel
+   DB_PASSWORD=password_cpanel
+   SESSION_SECRET=generar_cadena_secreta_minimo_32_caracteres_produccion
+   ```
+2. **Importación inicial en GoDaddy**:
+   En cPanel → phpMyAdmin (o terminal SSH):
+   - Importar primero `database/schema.sql`.
+   - Importar luego `database/seed_maquinarias.sql`.
+3. **Credenciales iniciales**:
+   - SuperAdmin: usuario `superadmin` / contraseña `admin123` (cambiar contraseña en producción).
+   - Cliente Maquinarias: usuario `admMaqui` / contraseña `adm123`.
+4. **Respaldo Automático**:
+   Configurar una tarea cron en cPanel para ejecutar un volcado diario de la base `factoriq`:
+   `mysqldump -u factoriq_user -p'password' factoriq > /home/user/backups/factoriq_$(date +\%F).sql`.

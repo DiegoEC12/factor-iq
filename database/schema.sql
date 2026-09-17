@@ -10,6 +10,18 @@ CREATE DATABASE IF NOT EXISTS factoriq
 
 USE factoriq;
 
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS auditoria;
+DROP TABLE IF EXISTS evaluacion_preguntas;
+DROP TABLE IF EXISTS evaluacion_indicadores;
+DROP TABLE IF EXISTS evaluaciones;
+DROP TABLE IF EXISTS indicadores;
+DROP TABLE IF EXISTS sucursales;
+DROP TABLE IF EXISTS proyectos;
+DROP TABLE IF EXISTS usuarios;
+DROP TABLE IF EXISTS clientes;
+SET FOREIGN_KEY_CHECKS = 1;
+
 -- -------------------------------------------------------------
 -- 1. CLIENTES (empresas a las que Factor IQ les presta el servicio)
 -- -------------------------------------------------------------
@@ -100,17 +112,20 @@ CREATE TABLE sucursales (
 ) ENGINE=InnoDB;
 
 -- -------------------------------------------------------------
--- 5. CATÁLOGO DE INDICADORES por proyecto
+-- 5. CATÁLOGO DE INDICADORES por proyecto y tipo de evaluación
 -- -------------------------------------------------------------
 CREATE TABLE indicadores (
-  id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  proyecto_id BIGINT UNSIGNED NOT NULL,
-  orden       SMALLINT UNSIGNED NOT NULL,               -- n: 1..N
-  nombre      VARCHAR(200) NOT NULL,
-  peso        DECIMAL(5,4) NOT NULL DEFAULT 0,          -- 0.05, 0.10...
-  created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  proyecto_id     BIGINT UNSIGNED NOT NULL,
+  codigo          VARCHAR(30)  NULL,                     -- IND_01..IND_12, IND_CAL_01..IND_CAL_07
+  tipo_evaluacion VARCHAR(60)  NOT NULL DEFAULT 'Ventas',-- 'Ventas' (aplica a Ventas y Seminuevos) o 'Call Center'
+  orden           SMALLINT UNSIGNED NOT NULL,            -- n: 1..12 o 1..7
+  nombre          VARCHAR(200) NOT NULL,
+  peso            DECIMAL(5,4) NOT NULL DEFAULT 0,       -- 0.05, 0.10...
+  created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uq_indicador (proyecto_id, orden),
+  UNIQUE KEY uq_indicador (proyecto_id, tipo_evaluacion, orden),
+  KEY ix_indicadores_codigo (proyecto_id, codigo),
   CONSTRAINT fk_indicadores_proyecto FOREIGN KEY (proyecto_id)
     REFERENCES proyectos (id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
@@ -119,19 +134,21 @@ CREATE TABLE indicadores (
 -- 6. EVALUACIONES (una visita/evaluación a una sucursal)
 -- -------------------------------------------------------------
 CREATE TABLE evaluaciones (
-  id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-  codigo        VARCHAR(30)  NOT NULL,                  -- EV_VEN_6C68AAC811
-  proyecto_id   BIGINT UNSIGNED NOT NULL,
-  sucursal_id   BIGINT UNSIGNED NOT NULL,
-  puntaje       DECIMAL(7,6) NOT NULL DEFAULT 0,        -- 0..1
-  resumen       TEXT NULL,
+  id              BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  codigo          VARCHAR(30)  NOT NULL,                  -- EV_VEN_6C68AAC811
+  proyecto_id     BIGINT UNSIGNED NOT NULL,
+  sucursal_id     BIGINT UNSIGNED NOT NULL,
+  tipo_evaluacion VARCHAR(60)  NOT NULL DEFAULT 'Ventas', -- 'Ventas', 'Call Center', 'Seminuevos', 'Posventa'
+  puntaje         DECIMAL(7,6) NOT NULL DEFAULT 0,        -- 0..1
+  resumen         TEXT NULL,
   recomendaciones TEXT NULL,
   fecha_evaluacion DATE NULL,
-  created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_evaluaciones_codigo (codigo),
   KEY ix_eval_proyecto (proyecto_id),
   KEY ix_eval_sucursal (sucursal_id),
+  KEY ix_eval_tipo (tipo_evaluacion),
   CONSTRAINT fk_eval_proyecto FOREIGN KEY (proyecto_id)
     REFERENCES proyectos (id) ON DELETE CASCADE,
   CONSTRAINT fk_eval_sucursal FOREIGN KEY (sucursal_id)

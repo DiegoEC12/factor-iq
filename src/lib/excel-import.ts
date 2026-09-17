@@ -259,7 +259,7 @@ function buildDatasetFromRows(
   };
 }
 
-function buildDatasetFromAnalytics(
+export function buildDatasetFromAnalytics(
   analytics: ImportedPayload["analytics"],
   source = "excel-import",
 ): Dataset {

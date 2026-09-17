@@ -1,7 +1,10 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { AppSidebar } from "@/components/mystery/app-sidebar";
 import { FilterProvider } from "@/lib/mystery/filter-context";
 import { getAuthUserFn } from "@/lib/auth";
+import { getMysteryShoppingDataFn } from "@/lib/mystery/server-data";
+import { applyImportedPayload, buildDatasetFromAnalytics } from "@/lib/excel-import";
 
 export const Route = createFileRoute("/maquinarias")({
   beforeLoad: async () => {
@@ -14,10 +17,30 @@ export const Route = createFileRoute("/maquinarias")({
     }
     return { user };
   },
+  loader: async () => {
+    const data = await getMysteryShoppingDataFn({ data: "maquinarias" });
+    return { data };
+  },
   component: MaquinariasLayout,
 });
 
 function MaquinariasLayout() {
+  const { data } = Route.useLoaderData();
+
+  useEffect(() => {
+    if (data && data.evaluaciones && data.evaluaciones.length > 0) {
+      const analytics = {
+        evaluations: data.evaluaciones,
+        indicators: data.indicadores,
+        questions: data.preguntas,
+      };
+      applyImportedPayload({
+        dataset: buildDatasetFromAnalytics(analytics, data.meta.source),
+        analytics,
+      });
+    }
+  }, [data]);
+
   return (
     <FilterProvider>
       <div className="flex min-h-screen w-full flex-col lg:flex-row">
