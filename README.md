@@ -77,6 +77,15 @@ npm run dev
 
 El servidor de desarrollo queda disponible en la URL que indique Vite, normalmente `http://localhost:5173`.
 
+## Acceso temporal sin MySQL
+
+Cuando `DB_HOST`, `DB_NAME` y `DB_USER` no están configurados —por ejemplo, durante el despliegue inicial en Vercel— la aplicación utiliza acceso temporal de demostración:
+
+- `superadmin` / `admin123` abre `/admin`.
+- `admMaqui` / `adm123` abre `/maquinarias`.
+
+En Vercel se debe configurar igualmente `SESSION_SECRET` con una cadena aleatoria de al menos 32 caracteres. Reemplaza estas credenciales al habilitar MySQL; no son apropiadas para una instancia pública definitiva.
+
 ## Validación
 
 ```bash

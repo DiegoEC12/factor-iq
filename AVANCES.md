@@ -184,6 +184,12 @@ Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproduc
 - [!] El modelo de CMS está preparado en base de datos, pero todavía no publica contenido en la landing: falta elegir los bloques editables y su flujo de revisión.
 - [X] Validado con `npx tsc --noEmit` y `npm run build`.
 
+## Acceso temporal del SuperAdmin en Vercel sin MySQL
+
+- [X] Agregada la cuenta de respaldo `superadmin` / `admin123` al modo sin base de datos; crea una sesión con rol `superadmin` y redirige correctamente a `/admin`.
+- [X] Conservado el acceso temporal existente `admMaqui` / `adm123` para el portal Maquinarias.
+- [!] Vercel debe contar con `SESSION_SECRET` de mínimo 32 caracteres, incluso mientras MySQL no esté habilitado; las credenciales temporales deben reemplazarse antes de abrir el panel a usuarios finales.
+
 ### Sugerencias para Producción en GoDaddy
 
 1. **Variables de Entorno en cPanel**:

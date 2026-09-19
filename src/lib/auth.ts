@@ -42,6 +42,14 @@ function getSessionPassword(): string {
 // Usado únicamente cuando la base de datos no está configurada (modo transición).
 const DEMO_USERS = [
   {
+    usuario: "superadmin",
+    password: "admin123",
+    clienteId: "",
+    nombre: "Super Admin Factor IQ",
+    rol: "superadmin" as const,
+    redirectTo: "/admin",
+  },
+  {
     usuario: "admMaqui",
     password: "adm123",
     clienteId: "maquinarias",
