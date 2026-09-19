@@ -12,6 +12,9 @@ USE factoriq;
 
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS auditoria;
+DROP TABLE IF EXISTS ticket_comentarios;
+DROP TABLE IF EXISTS tickets;
+DROP TABLE IF EXISTS contenidos_web;
 DROP TABLE IF EXISTS evaluacion_preguntas;
 DROP TABLE IF EXISTS evaluacion_indicadores;
 DROP TABLE IF EXISTS evaluaciones;
@@ -58,7 +61,7 @@ CREATE TABLE usuarios (
   email          VARCHAR(150) NULL,
   password_hash  VARCHAR(255) NOT NULL,                 -- bcrypt/argon2, NUNCA texto plano
   nombre         VARCHAR(150) NOT NULL,
-  rol            ENUM('superadmin','admin_cliente','viewer') NOT NULL DEFAULT 'viewer',
+  rol            ENUM('superadmin','admin_cliente','editor_web','soporte','viewer') NOT NULL DEFAULT 'viewer',
   estado         ENUM('activo','bloqueado','inactivo') NOT NULL DEFAULT 'activo',
   ultimo_acceso  DATETIME NULL,
   intentos_fallidos TINYINT UNSIGNED NOT NULL DEFAULT 0,
@@ -206,4 +209,56 @@ CREATE TABLE auditoria (
   KEY ix_aud_cliente (cliente_id),
   CONSTRAINT fk_aud_usuario FOREIGN KEY (usuario_id)
     REFERENCES usuarios (id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- -------------------------------------------------------------
+-- 10. SOPORTE Y CONTENIDO WEB (operación central Factor IQ)
+-- -------------------------------------------------------------
+CREATE TABLE tickets (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  cliente_id BIGINT UNSIGNED NULL,
+  proyecto_id BIGINT UNSIGNED NULL,
+  creado_por_usuario_id BIGINT UNSIGNED NULL,
+  asunto VARCHAR(180) NOT NULL,
+  descripcion TEXT NULL,
+  estado ENUM('abierto','en_analisis','resuelto') NOT NULL DEFAULT 'abierto',
+  prioridad ENUM('alta','media','baja') NOT NULL DEFAULT 'media',
+  asignado_a_usuario_id BIGINT UNSIGNED NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY ix_tickets_cliente (cliente_id),
+  KEY ix_tickets_proyecto (proyecto_id),
+  KEY ix_tickets_estado (estado),
+  CONSTRAINT fk_tickets_cliente FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE SET NULL,
+  CONSTRAINT fk_tickets_proyecto FOREIGN KEY (proyecto_id) REFERENCES proyectos(id) ON DELETE SET NULL,
+  CONSTRAINT fk_tickets_creado_por FOREIGN KEY (creado_por_usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL,
+  CONSTRAINT fk_tickets_asignado_a FOREIGN KEY (asignado_a_usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE ticket_comentarios (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  ticket_id BIGINT UNSIGNED NOT NULL,
+  usuario_id BIGINT UNSIGNED NULL,
+  comentario TEXT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY ix_ticket_comentarios_ticket (ticket_id),
+  CONSTRAINT fk_ticket_comentarios_ticket FOREIGN KEY (ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+  CONSTRAINT fk_ticket_comentarios_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE contenidos_web (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  clave VARCHAR(120) NOT NULL,
+  titulo VARCHAR(255) NULL,
+  contenido TEXT NULL,
+  imagen_url VARCHAR(255) NULL,
+  estado ENUM('borrador','publicado') NOT NULL DEFAULT 'borrador',
+  actualizado_por_usuario_id BIGINT UNSIGNED NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_contenidos_web_clave (clave),
+  CONSTRAINT fk_contenidos_web_usuario FOREIGN KEY (actualizado_por_usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;

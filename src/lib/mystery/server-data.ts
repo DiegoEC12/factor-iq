@@ -160,6 +160,7 @@ export interface AdminStatsPayload {
     evaluaciones: number;
     indicadores: number;
     auditoria: number;
+    tickets: number;
   };
   clientes: Array<{
     id: number;
@@ -189,6 +190,25 @@ export interface AdminStatsPayload {
     detalle: string | null;
     created_at: string;
   }>;
+  proyectos: Array<{
+    id: number;
+    cliente_id: number;
+    cliente_nombre: string;
+    nombre: string;
+    tipo: string;
+    periodo: string | null;
+    estado: string;
+    fecha_inicio: string | null;
+    fecha_fin: string | null;
+  }>;
+  tickets: Array<{
+    id: number;
+    asunto: string;
+    cliente_nombre: string | null;
+    estado: string;
+    prioridad: string;
+    created_at: string;
+  }>;
 }
 
 export const getAdminStatsFn = createServerFn({ method: "GET" }).handler(
@@ -204,6 +224,7 @@ export const getAdminStatsFn = createServerFn({ method: "GET" }).handler(
         evaluaciones: 42,
         indicadores: 19,
         auditoria: 0,
+        tickets: 0,
       },
       clientes: [
         {
@@ -241,6 +262,20 @@ export const getAdminStatsFn = createServerFn({ method: "GET" }).handler(
         },
       ],
       auditoria: [],
+      proyectos: [
+        {
+          id: 1,
+          cliente_id: 1,
+          cliente_nombre: "Maquinarias",
+          nombre: "Mystery Shopping Maquinarias",
+          tipo: "mystery_shopping",
+          periodo: "Base consolidada 2025",
+          estado: "activo",
+          fecha_inicio: null,
+          fecha_fin: null,
+        },
+      ],
+      tickets: [],
     };
 
     if (!isDbEnabled()) {
@@ -255,6 +290,7 @@ export const getAdminStatsFn = createServerFn({ method: "GET" }).handler(
       const [eCount] = await query<{ count: number }>("SELECT count(*) AS count FROM evaluaciones");
       const [iCount] = await query<{ count: number }>("SELECT count(*) AS count FROM indicadores");
       const [aCount] = await query<{ count: number }>("SELECT count(*) AS count FROM auditoria");
+      const [tCount] = await query<{ count: number }>("SELECT count(*) AS count FROM tickets");
 
       const clientes = await query<AdminStatsPayload["clientes"][0]>(
         "SELECT id, slug, nombre_comercial, razon_social, ruc, rubro, plan, estado, created_at FROM clientes ORDER BY id ASC",
@@ -276,6 +312,23 @@ export const getAdminStatsFn = createServerFn({ method: "GET" }).handler(
           LIMIT 20`,
       );
 
+      const proyectos = await query<AdminStatsPayload["proyectos"][0]>(
+        `SELECT p.id, p.cliente_id, c.nombre_comercial AS cliente_nombre, p.nombre, p.tipo,
+                p.periodo, p.estado, p.fecha_inicio, p.fecha_fin
+           FROM proyectos p
+           JOIN clientes c ON c.id = p.cliente_id
+          ORDER BY p.updated_at DESC, p.id DESC`,
+      );
+
+      const tickets = await query<AdminStatsPayload["tickets"][0]>(
+        `SELECT t.id, t.asunto, c.nombre_comercial AS cliente_nombre, t.estado, t.prioridad,
+                t.created_at
+           FROM tickets t
+           LEFT JOIN clientes c ON c.id = t.cliente_id
+          ORDER BY FIELD(t.estado, 'abierto', 'en_analisis', 'resuelto'), t.updated_at DESC
+          LIMIT 30`,
+      );
+
       return {
         dbEnabled: true,
         connected: true,
@@ -287,10 +340,13 @@ export const getAdminStatsFn = createServerFn({ method: "GET" }).handler(
           evaluaciones: Number(eCount?.count || 0),
           indicadores: Number(iCount?.count || 0),
           auditoria: Number(aCount?.count || 0),
+          tickets: Number(tCount?.count || 0),
         },
         clientes: clientes || [],
         usuarios: usuarios || [],
         auditoria: auditoria || [],
+        proyectos: proyectos || [],
+        tickets: tickets || [],
       };
     } catch (err) {
       console.warn("No se pudo conectar a MySQL para admin stats:", err);

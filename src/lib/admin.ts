@@ -24,9 +24,26 @@ export interface UserInput {
   nombre: string;
   email?: string;
   password?: string;
-  rol: "superadmin" | "admin_cliente" | "viewer";
+  rol: "superadmin" | "admin_cliente" | "editor_web" | "soporte" | "viewer";
   cliente_id?: number | null;
   estado: "activo" | "bloqueado" | "inactivo";
+}
+
+export interface ProjectInput {
+  cliente_id: number;
+  nombre: string;
+  tipo?: string;
+  periodo?: string;
+  estado: "borrador" | "activo" | "cerrado";
+  fecha_inicio?: string;
+  fecha_fin?: string;
+}
+
+export interface TicketInput {
+  cliente_id?: number | null;
+  asunto: string;
+  descripcion?: string;
+  prioridad: "alta" | "media" | "baja";
 }
 
 async function assertSuperAdmin() {
@@ -63,9 +80,14 @@ export const saveClientFn = createServerFn({ method: "POST" })
       return { success: true, message: "Operación simulada en modo memoria (MySQL inactivo)." };
     }
 
-    const cleanSlug = data.slug.trim().toLowerCase().replace(/[^a-z0-9-_]/g, "");
+    const cleanSlug = data.slug
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]/g, "");
     if (!cleanSlug) {
-      throw new Error("El slug es obligatorio y solo debe contener caracteres alfanuméricos y guiones.");
+      throw new Error(
+        "El slug es obligatorio y solo debe contener caracteres alfanuméricos y guiones.",
+      );
     }
     if (!data.nombre_comercial?.trim()) {
       throw new Error("El nombre comercial es obligatorio.");
@@ -95,14 +117,21 @@ export const saveClientFn = createServerFn({ method: "POST" })
         ],
       );
 
-      await recordAudit("actualizar_cliente", { clienteId: data.id, slug: cleanSlug, modificadoPor: admin.nombre });
-      return { success: true, message: `Cliente "${data.nombre_comercial}" actualizado con éxito.` };
+      await recordAudit("actualizar_cliente", {
+        clienteId: data.id,
+        slug: cleanSlug,
+        modificadoPor: admin.nombre,
+      });
+      return {
+        success: true,
+        message: `Cliente "${data.nombre_comercial}" actualizado con éxito.`,
+      };
     } else {
       // Creación
-      const existing = await query("SELECT id FROM clientes WHERE slug = ? OR (ruc IS NOT NULL AND ruc = ?)", [
-        cleanSlug,
-        data.ruc || "",
-      ]);
+      const existing = await query(
+        "SELECT id FROM clientes WHERE slug = ? OR (ruc IS NOT NULL AND ruc = ?)",
+        [cleanSlug, data.ruc || ""],
+      );
       if (existing.length > 0) {
         throw new Error("Ya existe un cliente con el mismo Slug o RUC.");
       }
@@ -125,7 +154,11 @@ export const saveClientFn = createServerFn({ method: "POST" })
         ],
       );
 
-      await recordAudit("crear_cliente", { slug: cleanSlug, nombre: data.nombre_comercial, creadoPor: admin.nombre });
+      await recordAudit("crear_cliente", {
+        slug: cleanSlug,
+        nombre: data.nombre_comercial,
+        creadoPor: admin.nombre,
+      });
       return { success: true, message: `Cliente "${data.nombre_comercial}" registrado con éxito.` };
     }
   });
@@ -171,7 +204,10 @@ export const saveUserFn = createServerFn({ method: "POST" })
             data.id,
           ],
         );
-        await recordAudit("cambio_clave_admin", { usuarioModificado: cleanUsername, modificadoPor: admin.nombre });
+        await recordAudit("cambio_clave_admin", {
+          usuarioModificado: cleanUsername,
+          modificadoPor: admin.nombre,
+        });
       } else {
         await query(
           `UPDATE usuarios
@@ -189,7 +225,11 @@ export const saveUserFn = createServerFn({ method: "POST" })
         );
       }
 
-      await recordAudit("actualizar_usuario", { usuarioId: data.id, usuario: cleanUsername, modificadoPor: admin.nombre });
+      await recordAudit("actualizar_usuario", {
+        usuarioId: data.id,
+        usuario: cleanUsername,
+        modificadoPor: admin.nombre,
+      });
       return { success: true, message: `Usuario "${cleanUsername}" actualizado con éxito.` };
     } else {
       // Crear nuevo usuario
@@ -197,10 +237,10 @@ export const saveUserFn = createServerFn({ method: "POST" })
         throw new Error("La contraseña inicial es requerida (mínimo 6 caracteres).");
       }
 
-      const existing = await query("SELECT id FROM usuarios WHERE usuario = ? OR (email IS NOT NULL AND email = ?)", [
-        cleanUsername,
-        data.email || "",
-      ]);
+      const existing = await query(
+        "SELECT id FROM usuarios WHERE usuario = ? OR (email IS NOT NULL AND email = ?)",
+        [cleanUsername, data.email || ""],
+      );
       if (existing.length > 0) {
         throw new Error("Ya existe un usuario con ese nombre de usuario o correo electrónico.");
       }
@@ -221,7 +261,11 @@ export const saveUserFn = createServerFn({ method: "POST" })
         ],
       );
 
-      await recordAudit("crear_usuario", { usuario: cleanUsername, rol: data.rol, creadoPor: admin.nombre });
+      await recordAudit("crear_usuario", {
+        usuario: cleanUsername,
+        rol: data.rol,
+        creadoPor: admin.nombre,
+      });
       return { success: true, message: `Usuario "${cleanUsername}" creado exitosamente.` };
     }
   });
@@ -243,10 +287,10 @@ export const resetUserPasswordFn = createServerFn({ method: "POST" })
     }
 
     const hash = await bcrypt.hash(data.newPassword, 10);
-    await query("UPDATE usuarios SET password_hash = ?, intentos_fallidos = 0, updated_at = NOW() WHERE id = ?", [
-      hash,
-      data.userId,
-    ]);
+    await query(
+      "UPDATE usuarios SET password_hash = ?, intentos_fallidos = 0, updated_at = NOW() WHERE id = ?",
+      [hash, data.userId],
+    );
 
     await recordAudit("reset_password", {
       usuarioId: data.userId,
@@ -254,14 +298,23 @@ export const resetUserPasswordFn = createServerFn({ method: "POST" })
       restablecidoPor: admin.nombre,
     });
 
-    return { success: true, message: `Contraseña restablecida con éxito para el usuario ${data.usuarioName}.` };
+    return {
+      success: true,
+      message: `Contraseña restablecida con éxito para el usuario ${data.usuarioName}.`,
+    };
   });
 
 /**
  * Cambiar estado de usuario (activo / bloqueado / inactivo)
  */
 export const toggleUserStatusFn = createServerFn({ method: "POST" })
-  .validator((data: { userId: number; nuevoEstado: "activo" | "bloqueado" | "inactivo"; usuarioName: string }) => data)
+  .validator(
+    (data: {
+      userId: number;
+      nuevoEstado: "activo" | "bloqueado" | "inactivo";
+      usuarioName: string;
+    }) => data,
+  )
   .handler(async ({ data }) => {
     const admin = await assertSuperAdmin();
 
@@ -269,7 +322,10 @@ export const toggleUserStatusFn = createServerFn({ method: "POST" })
       return { success: true, message: "Estado cambiado (simulación)." };
     }
 
-    await query("UPDATE usuarios SET estado = ?, updated_at = NOW() WHERE id = ?", [data.nuevoEstado, data.userId]);
+    await query("UPDATE usuarios SET estado = ?, updated_at = NOW() WHERE id = ?", [
+      data.nuevoEstado,
+      data.userId,
+    ]);
 
     await recordAudit("cambio_estado_usuario", {
       usuarioId: data.userId,
@@ -278,14 +334,20 @@ export const toggleUserStatusFn = createServerFn({ method: "POST" })
       modificadoPor: admin.nombre,
     });
 
-    return { success: true, message: `Estado del usuario ${data.usuarioName} cambiado a ${data.nuevoEstado}.` };
+    return {
+      success: true,
+      message: `Estado del usuario ${data.usuarioName} cambiado a ${data.nuevoEstado}.`,
+    };
   });
 
 /**
  * Cambiar estado de cliente (activo / suspendido / inactivo)
  */
 export const toggleClientStatusFn = createServerFn({ method: "POST" })
-  .validator((data: { clientId: number; nuevoEstado: "activo" | "suspendido" | "inactivo"; slug: string }) => data)
+  .validator(
+    (data: { clientId: number; nuevoEstado: "activo" | "suspendido" | "inactivo"; slug: string }) =>
+      data,
+  )
   .handler(async ({ data }) => {
     const admin = await assertSuperAdmin();
 
@@ -293,7 +355,10 @@ export const toggleClientStatusFn = createServerFn({ method: "POST" })
       return { success: true, message: "Estado de cliente cambiado (simulación)." };
     }
 
-    await query("UPDATE clientes SET estado = ?, updated_at = NOW() WHERE id = ?", [data.nuevoEstado, data.clientId]);
+    await query("UPDATE clientes SET estado = ?, updated_at = NOW() WHERE id = ?", [
+      data.nuevoEstado,
+      data.clientId,
+    ]);
 
     await recordAudit("cambio_estado_cliente", {
       clientId: data.clientId,
@@ -303,4 +368,84 @@ export const toggleClientStatusFn = createServerFn({ method: "POST" })
     });
 
     return { success: true, message: `Estado del cliente cambiado a ${data.nuevoEstado}.` };
+  });
+
+/** Crea un proyecto aislado para una empresa. */
+export const saveProjectFn = createServerFn({ method: "POST" })
+  .validator((data: ProjectInput) => data)
+  .handler(async ({ data }) => {
+    const admin = await assertSuperAdmin();
+    if (!data.nombre.trim()) throw new Error("El nombre del proyecto es obligatorio.");
+
+    if (!isDbEnabled()) {
+      return { success: true, message: "Proyecto validado en modo demostración (MySQL inactivo)." };
+    }
+
+    await query(
+      `INSERT INTO proyectos (cliente_id, nombre, tipo, periodo, estado, fecha_inicio, fecha_fin)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.cliente_id,
+        data.nombre.trim(),
+        data.tipo?.trim() || "mystery_shopping",
+        data.periodo?.trim() || null,
+        data.estado,
+        data.fecha_inicio || null,
+        data.fecha_fin || null,
+      ],
+    );
+    await recordAudit("crear_proyecto", {
+      clienteId: data.cliente_id,
+      nombre: data.nombre,
+      creadoPor: admin.nombre,
+    });
+    return { success: true, message: `Proyecto "${data.nombre}" creado correctamente.` };
+  });
+
+/** Registra un ticket de soporte para la operación de Factor IQ. */
+export const createTicketFn = createServerFn({ method: "POST" })
+  .validator((data: TicketInput) => data)
+  .handler(async ({ data }) => {
+    const admin = await assertSuperAdmin();
+    if (!data.asunto.trim()) throw new Error("El asunto del ticket es obligatorio.");
+
+    if (!isDbEnabled()) {
+      return { success: true, message: "Ticket registrado en modo demostración (MySQL inactivo)." };
+    }
+
+    await query(
+      `INSERT INTO tickets (cliente_id, creado_por_usuario_id, asunto, descripcion, prioridad)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        data.cliente_id || null,
+        Number(admin.userId),
+        data.asunto.trim(),
+        data.descripcion?.trim() || null,
+        data.prioridad,
+      ],
+    );
+    await recordAudit("crear_ticket", {
+      clienteId: data.cliente_id || null,
+      asunto: data.asunto,
+      creadoPor: admin.nombre,
+    });
+    return { success: true, message: "Ticket creado y enviado a la bandeja de soporte." };
+  });
+
+export const updateTicketStatusFn = createServerFn({ method: "POST" })
+  .validator((data: { ticketId: number; estado: "abierto" | "en_analisis" | "resuelto" }) => data)
+  .handler(async ({ data }) => {
+    const admin = await assertSuperAdmin();
+    if (!isDbEnabled())
+      return { success: true, message: "Estado actualizado en modo demostración." };
+    await query("UPDATE tickets SET estado = ?, updated_at = NOW() WHERE id = ?", [
+      data.estado,
+      data.ticketId,
+    ]);
+    await recordAudit("actualizar_ticket", {
+      ticketId: data.ticketId,
+      estado: data.estado,
+      modificadoPor: admin.nombre,
+    });
+    return { success: true, message: "Estado del ticket actualizado." };
   });

@@ -42,7 +42,9 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rol, setRol] = useState<"superadmin" | "admin_cliente" | "viewer">("admin_cliente");
+  const [rol, setRol] = useState<
+    "superadmin" | "admin_cliente" | "editor_web" | "soporte" | "viewer"
+  >("admin_cliente");
   const [clienteId, setClienteId] = useState<number | null>(null);
   const [estado, setEstado] = useState<"activo" | "bloqueado" | "inactivo">("activo");
 
@@ -58,7 +60,11 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
         setNombre(userToEdit.nombre);
         setEmail(userToEdit.email || "");
         setPassword("");
-        setRol((userToEdit.rol as "superadmin" | "admin_cliente" | "viewer") || "admin_cliente");
+        setRol(
+          (userToEdit.rol as
+            "superadmin" | "admin_cliente" | "editor_web" | "soporte" | "viewer") ||
+            "admin_cliente",
+        );
         setClienteId(userToEdit.cliente_id || null);
         setEstado((userToEdit.estado as "activo" | "bloqueado" | "inactivo") || "activo");
       } else {
@@ -119,7 +125,11 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
         ...(email.trim() ? { email: email.trim() } : {}),
         ...(password.trim() ? { password: password.trim() } : {}),
         rol,
-        ...(rol === "superadmin" ? { cliente_id: null } : clienteId !== null ? { cliente_id: clienteId } : {}),
+        ...(rol === "superadmin"
+          ? { cliente_id: null }
+          : clienteId !== null
+            ? { cliente_id: clienteId }
+            : {}),
         estado,
       };
 
@@ -150,7 +160,9 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
               <h3 className="text-base font-bold text-white">
                 {isEditing ? `Editar Usuario: ${userToEdit?.usuario}` : "Crear Nuevo Usuario"}
               </h3>
-              <p className="text-xs text-slate-400">Configura accesos, rol y pertenencia de empresa</p>
+              <p className="text-xs text-slate-400">
+                Configura accesos, rol y pertenencia de empresa
+              </p>
             </div>
           </div>
           <button
@@ -227,6 +239,8 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
                 className="w-full text-xs bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
               >
                 <option value="admin_cliente">Administrador de Cliente</option>
+                <option value="editor_web">Editor Web (CMS)</option>
+                <option value="soporte">Soporte / Operaciones</option>
                 <option value="viewer">Lector / Visualizador (Viewer)</option>
                 <option value="superadmin">SuperAdmin (Factor IQ)</option>
               </select>
@@ -287,7 +301,11 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
                   className="p-1 text-slate-400 hover:text-slate-200"
                   title={showPassword ? "Ocultar" : "Mostrar"}
                 >
-                  {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-3.5 h-3.5" />
+                  ) : (
+                    <Eye className="w-3.5 h-3.5" />
+                  )}
                 </button>
                 {password && (
                   <button
@@ -296,7 +314,11 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
                     className="p-1 text-slate-400 hover:text-emerald-400"
                     title="Copiar"
                   >
-                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
                   </button>
                 )}
               </div>
@@ -317,8 +339,8 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
                       ? st === "activo"
                         ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
                         : st === "bloqueado"
-                        ? "bg-amber-500/20 border-amber-500/40 text-amber-300"
-                        : "bg-rose-500/20 border-rose-500/40 text-rose-300"
+                          ? "bg-amber-500/20 border-amber-500/40 text-amber-300"
+                          : "bg-rose-500/20 border-rose-500/40 text-rose-300"
                       : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
                   }`}
                 >

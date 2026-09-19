@@ -7,7 +7,7 @@ export type AuthUser = {
   userId: string;
   clienteId: string;
   nombre: string;
-  rol: "superadmin" | "admin_cliente" | "viewer";
+  rol: "superadmin" | "admin_cliente" | "editor_web" | "soporte" | "viewer";
   redirectTo: string;
 };
 
@@ -98,10 +98,9 @@ async function findUsuario(usuario: string): Promise<UsuarioRow | null> {
 async function registrarAcceso(usuarioId: number, ok: boolean): Promise<void> {
   try {
     if (ok) {
-      await query(
-        "UPDATE usuarios SET ultimo_acceso = NOW(), intentos_fallidos = 0 WHERE id = ?",
-        [usuarioId],
-      );
+      await query("UPDATE usuarios SET ultimo_acceso = NOW(), intentos_fallidos = 0 WHERE id = ?", [
+        usuarioId,
+      ]);
     } else {
       await query("UPDATE usuarios SET intentos_fallidos = intentos_fallidos + 1 WHERE id = ?", [
         usuarioId,

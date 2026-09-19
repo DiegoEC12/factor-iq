@@ -4,6 +4,8 @@ import {
   Users,
   FileCheck2,
   Database,
+  FolderKanban,
+  LifeBuoy,
   PanelLeftClose,
   PanelLeftOpen,
   Menu,
@@ -18,7 +20,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { logoutFn, type AuthUser } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
-export type AdminTab = "general" | "clientes" | "usuarios" | "auditoria" | "database";
+export type AdminTab =
+  "general" | "clientes" | "proyectos" | "usuarios" | "tickets" | "auditoria" | "database";
 
 interface NavItem {
   id: AdminTab;
@@ -33,7 +36,9 @@ interface AdminSidebarProps {
   user: AuthUser;
   stats?: {
     clientes?: number;
+    proyectos?: number;
     usuarios?: number;
+    tickets?: number;
     auditoria?: number;
   };
 }
@@ -43,13 +48,19 @@ export function AdminSidebar({ activeTab, onSelectTab, user, stats }: AdminSideb
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  const NAV_ITEMS: NavItem[] = [
-    { id: "general", label: "Resumen General", icon: LayoutDashboard },
-    { id: "clientes", label: "Directorio Clientes", icon: Building2, ...(stats?.clientes !== undefined ? { badge: stats.clientes } : {}) },
-    { id: "usuarios", label: "Usuarios & Accesos", icon: Users, ...(stats?.usuarios !== undefined ? { badge: stats.usuarios } : {}) },
-    { id: "auditoria", label: "Bitácora Auditoría", icon: FileCheck2, ...(stats?.auditoria !== undefined ? { badge: stats.auditoria } : {}) },
-    { id: "database", label: "Salud del Sistema", icon: Database },
+  const navItems: NavItem[] = [
+    { id: "general", label: "Resumen general", icon: LayoutDashboard },
+    { id: "clientes", label: "Clientes", icon: Building2, badge: stats?.clientes },
+    {
+      id: "proyectos",
+      label: "Proyectos e importación",
+      icon: FolderKanban,
+      badge: stats?.proyectos,
+    },
+    { id: "usuarios", label: "Usuarios y accesos", icon: Users, badge: stats?.usuarios },
+    { id: "tickets", label: "Soporte y tickets", icon: LifeBuoy, badge: stats?.tickets },
+    { id: "auditoria", label: "Bitácora", icon: FileCheck2, badge: stats?.auditoria },
+    { id: "database", label: "Salud del sistema", icon: Database },
   ];
 
   const handleLogout = async () => {
@@ -62,242 +73,191 @@ export function AdminSidebar({ activeTab, onSelectTab, user, stats }: AdminSideb
     }
   };
 
+  const nav = (compact: boolean, onNavigate?: () => void) => (
+    <nav className="flex flex-col gap-1 px-3">
+      {!compact && (
+        <p className="px-3 pt-2 pb-1 text-[10px] font-bold tracking-[0.16em] text-slate-400">
+          GESTIÓN DE PLATAFORMA
+        </p>
+      )}
+      {navItems.map((item) => {
+        const active = activeTab === item.id;
+        const Icon = item.icon;
+        return (
+          <button
+            key={item.id}
+            onClick={() => {
+              onSelectTab(item.id);
+              onNavigate?.();
+            }}
+            title={compact ? item.label : undefined}
+            className={cn(
+              "group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-ui",
+              active
+                ? "bg-[#eef0f8] text-[#1b2447] shadow-[inset_2px_0_0_0_#d6452c]"
+                : "text-slate-500 hover:bg-slate-100 hover:text-[#1b2447]",
+              compact && "justify-center px-0",
+            )}
+          >
+            <Icon
+              className={cn(
+                "h-[18px] w-[18px] shrink-0",
+                active ? "text-[#d6452c]" : "text-slate-400 group-hover:text-[#1b2447]",
+              )}
+            />
+            {!compact && <span className="min-w-0 flex-1 truncate">{item.label}</span>}
+            {!compact && item.badge !== undefined && (
+              <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-500 ring-1 ring-slate-200">
+                {item.badge}
+              </span>
+            )}
+          </button>
+        );
+      })}
+      <div className="mt-3 border-t border-sidebar-border pt-3">
+        <Link
+          to="/maquinarias"
+          onClick={onNavigate}
+          title={compact ? "Abrir portal Maquinarias" : undefined}
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-ui hover:bg-slate-100 hover:text-[#1b2447]",
+            compact && "justify-center px-0",
+          )}
+        >
+          <ExternalLink className="h-[18px] w-[18px] shrink-0 text-[#d6452c]" />
+          {!compact && <span className="truncate">Portal Maquinarias</span>}
+        </Link>
+      </div>
+    </nav>
+  );
+
+  const brand = (compact: boolean) => (
+    <div className={cn("flex items-center gap-3 px-4 pt-5 pb-4", compact && "justify-center px-2")}>
+      <img src="/favicon.png" alt="Factor IQ" className="h-9 w-9 shrink-0 object-contain" />
+      {!compact && (
+        <div className="min-w-0">
+          <p className="text-[13px] font-bold tracking-[0.18em] text-[#1b2447]">FACTOR IQ</p>
+          <div className="mt-1 flex items-center gap-2 border-t border-sidebar-border pt-2">
+            <span className="text-[10px] font-semibold tracking-[0.13em] text-[#d6452c]">
+              CONTROL CENTRAL
+            </span>
+            <span className="rounded bg-[#fff0ec] px-1.5 py-0.5 text-[9px] font-bold text-[#b63320]">
+              ADMIN
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <>
-      {/* Sidebar Desktop */}
       <aside
         className={cn(
-          "transition-all duration-300 border-r border-slate-800/80 sticky top-0 hidden h-screen shrink-0 flex-col bg-slate-950/95 backdrop-blur-md lg:flex z-30",
-          collapsed ? "w-[72px]" : "w-64",
+          "sticky top-0 z-30 hidden h-screen shrink-0 flex-col border-2 bg-sidebar lg:flex",
+          collapsed ? "w-[68px]" : "w-60",
         )}
       >
-        {/* Encabezado con Marca */}
-        <div className={cn("p-4 border-b border-slate-800/80 flex items-center gap-3", collapsed && "justify-center px-2")}>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 shadow-inner">
-            <img src="/favicon.png" alt="Factor IQ" className="w-6 h-6 object-contain" />
-          </div>
+        {brand(collapsed)}
+        <div className="mt-2 flex-1 overflow-y-auto">{nav(collapsed)}</div>
+        <div className="space-y-2 border-t border-sidebar-border p-3">
           {!collapsed && (
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm text-white tracking-tight">Factor IQ</span>
-                <span className="px-1.5 py-0.2 text-[9px] font-bold uppercase rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  Admin
-                </span>
+            <div className="flex items-center gap-2.5 rounded-lg bg-[#eef0f8] px-3 py-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#d6452c] shadow-sm">
+                <ShieldCheck className="h-4 w-4" />
               </div>
-              <p className="text-[11px] text-slate-400 truncate">SuperAdministrador</p>
-            </div>
-          )}
-        </div>
-
-        {/* Lista de Navegación */}
-        <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
-          {NAV_ITEMS.map((item) => {
-            const active = activeTab === item.id;
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onSelectTab(item.id)}
-                title={collapsed ? item.label : undefined}
-                className={cn(
-                  "w-full transition-all group flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-semibold text-left relative",
-                  active
-                    ? "bg-slate-800/90 text-white shadow-sm border border-slate-700/60"
-                    : "text-slate-400 hover:bg-slate-850/60 hover:text-slate-200 border border-transparent",
-                  collapsed && "justify-center px-0",
-                )}
-              >
-                {active && (
-                  <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-emerald-500 rounded-r-full" />
-                )}
-                <Icon
-                  className={cn(
-                    "h-4 w-4 shrink-0 transition-colors",
-                    active ? "text-emerald-400" : "text-slate-400 group-hover:text-slate-200",
-                  )}
-                />
-                {!collapsed && (
-                  <div className="flex-1 flex items-center justify-between truncate">
-                    <span className="truncate">{item.label}</span>
-                    {item.badge !== undefined && (
-                      <span className="ml-2 px-1.5 py-0.5 text-[10px] font-mono rounded bg-slate-800 text-slate-400 border border-slate-700">
-                        {item.badge}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </button>
-            );
-          })}
-
-          {/* Enlace rápido a Maquinarias */}
-          <div className="pt-3 mt-3 border-t border-slate-800/60">
-            <Link
-              to="/maquinarias"
-              title={collapsed ? "Ver Portal Maquinarias" : undefined}
-              className={cn(
-                "w-full group flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium text-slate-400 hover:text-emerald-300 hover:bg-emerald-950/20 transition-all border border-slate-800/40 hover:border-emerald-500/30",
-                collapsed && "justify-center px-0",
-              )}
-            >
-              <ExternalLink className="h-4 w-4 text-emerald-400 shrink-0" />
-              {!collapsed && (
-                <span className="truncate">Portal Maquinarias</span>
-              )}
-            </Link>
-          </div>
-        </nav>
-
-        {/* Footer con Usuario & Logout */}
-        <div className="p-3 border-t border-slate-800/80 bg-slate-950/40 space-y-2">
-          {!collapsed && (
-            <div className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800/60">
-              <div className="w-7 h-7 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs font-semibold text-slate-200 truncate">{user.nombre}</div>
-                <div className="text-[10px] text-emerald-400/80 font-mono capitalize">SuperAdmin</div>
+              <div className="min-w-0">
+                <p className="truncate text-xs font-semibold text-[#1b2447]">{user.nombre}</p>
+                <p className="text-[10px] text-slate-500">Superadministrador</p>
               </div>
             </div>
           )}
-
-          <div className="flex items-center gap-1">
-            <button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              title={collapsed ? "Cerrar sesión" : undefined}
-              className={cn(
-                "flex-1 flex items-center gap-2 px-3 py-2 text-xs font-medium text-rose-400/90 hover:text-rose-300 bg-rose-950/20 hover:bg-rose-950/40 border border-rose-900/30 rounded-lg transition-colors disabled:opacity-50",
-                collapsed && "justify-center px-0",
-              )}
-            >
-              {isLoggingOut ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-400 shrink-0" />
-              ) : (
-                <LogOut className="w-3.5 h-3.5 shrink-0" />
-              )}
-              {!collapsed && <span>{isLoggingOut ? "Saliendo..." : "Cerrar Sesión"}</span>}
-            </button>
-
-            <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors border border-slate-800/60"
-              title={collapsed ? "Expandir menú" : "Contraer menú"}
-            >
-              {collapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
-            </button>
-          </div>
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className={cn(
+              "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium text-[#b63320] transition-ui hover:bg-[#fff0ec] disabled:opacity-60",
+              collapsed && "justify-center px-0",
+            )}
+          >
+            {isLoggingOut ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <LogOut className="h-4 w-4" />
+            )}
+            {!collapsed && <span>{isLoggingOut ? "Cerrando sesión..." : "Cerrar sesión"}</span>}
+          </button>
+          <button
+            onClick={() => setCollapsed((value) => !value)}
+            className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-500 transition-ui hover:bg-sidebar-accent hover:text-[#1b2447]"
+            aria-label={collapsed ? "Expandir menú" : "Contraer menú"}
+          >
+            {collapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <>
+                <PanelLeftClose className="h-4 w-4" />
+                <span>Contraer menú</span>
+              </>
+            )}
+          </button>
         </div>
       </aside>
-
-      {/* Barra Móvil / Tablet */}
-      <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-slate-800 bg-slate-950 px-4 lg:hidden">
-        <div className="flex items-center gap-2.5">
+      <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-sidebar-border bg-sidebar px-4 lg:hidden">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setMobileOpen(true)}
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-900 hover:text-white border border-slate-800"
+            className="rounded-md p-2 text-[#1b2447] hover:bg-sidebar-accent"
             aria-label="Abrir menú"
           >
             <Menu className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <img src="/favicon.png" alt="Factor IQ" className="w-6 h-6 object-contain" />
-            <span className="font-bold text-sm text-white">Factor IQ</span>
-            <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              Admin
-            </span>
-          </div>
+          <img src="/favicon.png" alt="Factor IQ" className="h-6 w-6" />
+          <span className="text-sm font-bold tracking-[0.12em] text-[#1b2447]">FACTOR IQ</span>
         </div>
-
         <button
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="p-2 rounded-lg text-rose-400 bg-rose-950/20 border border-rose-900/30"
-          title="Cerrar sesión"
+          className="rounded-md p-2 text-[#b63320] hover:bg-[#fff0ec]"
+          aria-label="Cerrar sesión"
         >
-          {isLoggingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
+          {isLoggingOut ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <LogOut className="h-4 w-4" />
+          )}
         </button>
       </div>
-
-      {/* Drawer Móvil */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-[#1b2447]/30"
             onClick={() => !isLoggingOut && setMobileOpen(false)}
           />
-          <aside className="absolute top-0 left-0 flex h-full w-72 flex-col bg-slate-950 border-r border-slate-800 shadow-2xl animate-in slide-in-from-left duration-200">
-            <div className="flex items-center justify-between p-4 border-b border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <img src="/favicon.png" alt="Factor IQ" className="w-6 h-6 object-contain" />
-                <div>
-                  <span className="font-bold text-sm text-white">Factor IQ Admin</span>
-                  <p className="text-[10px] text-slate-400">Panel Central de Control</p>
-                </div>
-              </div>
+          <aside className="absolute left-0 top-0 flex h-full w-72 flex-col bg-sidebar shadow-2xl">
+            <div className="flex items-start justify-between">
+              {brand(false)}
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-900 hover:text-white"
+                className="m-3 rounded-md p-2 text-slate-500 hover:bg-sidebar-accent"
+                aria-label="Cerrar menú"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-
-            <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
-              {NAV_ITEMS.map((item) => {
-                const active = activeTab === item.id;
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      onSelectTab(item.id);
-                      setMobileOpen(false);
-                    }}
-                    className={cn(
-                      "w-full flex items-center justify-between rounded-lg px-3 py-2.5 text-xs font-semibold text-left transition-colors",
-                      active
-                        ? "bg-slate-800 text-white border border-slate-700"
-                        : "text-slate-400 hover:bg-slate-900 hover:text-white",
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className={cn("h-4 w-4", active ? "text-emerald-400" : "text-slate-400")} />
-                      <span>{item.label}</span>
-                    </div>
-                    {item.badge !== undefined && (
-                      <span className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-slate-800 text-slate-400 border border-slate-700">
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-
-              <div className="pt-3 border-t border-slate-800">
-                <Link
-                  to="/maquinarias"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-slate-300 hover:text-emerald-400 hover:bg-slate-900 rounded-lg"
-                >
-                  <ExternalLink className="w-4 h-4 text-emerald-400" />
-                  <span>Ver Portal Maquinarias</span>
-                </Link>
-              </div>
-            </nav>
-
-            <div className="p-4 border-t border-slate-800 space-y-3">
-              <div className="text-xs text-slate-400">
-                Conectado como <strong className="text-slate-200">{user.nombre}</strong>
-              </div>
+            <div className="flex-1 overflow-y-auto">{nav(false, () => setMobileOpen(false))}</div>
+            <div className="border-t border-sidebar-border p-4">
               <button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-rose-300 bg-rose-950/40 border border-rose-900/40 rounded-lg"
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#fff0ec] px-3 py-2 text-xs font-medium text-[#b63320]"
               >
-                {isLoggingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
-                <span>{isLoggingOut ? "Cerrando sesión..." : "Cerrar Sesión"}</span>
+                {isLoggingOut ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <LogOut className="h-4 w-4" />
+                )}
+                <span>{isLoggingOut ? "Cerrando sesión..." : "Cerrar sesión"}</span>
               </button>
             </div>
           </aside>

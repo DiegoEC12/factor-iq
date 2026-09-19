@@ -2,7 +2,13 @@ import { useState, useCallback } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { getAuthUserFn } from "@/lib/auth";
 import { getAdminStatsFn, type AdminStatsPayload } from "@/lib/mystery/server-data";
-import { toggleUserStatusFn, toggleClientStatusFn } from "@/lib/admin";
+import {
+  createTicketFn,
+  saveProjectFn,
+  toggleUserStatusFn,
+  toggleClientStatusFn,
+  updateTicketStatusFn,
+} from "@/lib/admin";
 import { AdminSidebar, type AdminTab } from "@/components/admin/AdminSidebar";
 import { ResetPasswordModal } from "@/components/admin/ResetPasswordModal";
 import { UserModal } from "@/components/admin/UserModal";
@@ -31,8 +37,24 @@ import {
   Wifi,
   WifiOff,
   RefreshCw,
+  Bell,
+  Moon,
+  Sun,
+  FolderKanban,
+  LifeBuoy,
+  Upload,
+  UserRound,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { Switch } from "@/components/ui/switch";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/admin")({
   beforeLoad: async () => {
@@ -65,6 +87,8 @@ export const Route = createFileRoute("/admin")({
 type UsuarioRow = AdminStatsPayload["usuarios"][0];
 type ClienteRow = AdminStatsPayload["clientes"][0];
 type AuditoriaRow = AdminStatsPayload["auditoria"][0];
+type ProyectoRow = AdminStatsPayload["proyectos"][0];
+type TicketRow = AdminStatsPayload["tickets"][0];
 
 // ─── Componente Principal ─────────────────────────────────────────────────────
 function AdminDashboard() {
@@ -73,17 +97,31 @@ function AdminDashboard() {
 
   const [activeTab, setActiveTab] = useState<AdminTab>("general");
   const [searchTerm, setSearchTerm] = useState("");
-  const [toastMsg, setToastMsg] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [toastMsg, setToastMsg] = useState<{ text: string; type: "success" | "error" } | null>(
+    null,
+  );
 
   // Modales
-  const [resetModal, setResetModal] = useState<{ open: boolean; user: UsuarioRow | null }>({ open: false, user: null });
-  const [userModal, setUserModal] = useState<{ open: boolean; user: UsuarioRow | null }>({ open: false, user: null });
-  const [clientModal, setClientModal] = useState<{ open: boolean; client: ClienteRow | null }>({ open: false, client: null });
+  const [resetModal, setResetModal] = useState<{ open: boolean; user: UsuarioRow | null }>({
+    open: false,
+    user: null,
+  });
+  const [userModal, setUserModal] = useState<{ open: boolean; user: UsuarioRow | null }>({
+    open: false,
+    user: null,
+  });
+  const [clientModal, setClientModal] = useState<{ open: boolean; client: ClienteRow | null }>({
+    open: false,
+    client: null,
+  });
+  const [projectModalOpen, setProjectModalOpen] = useState(false);
+  const [ticketModalOpen, setTicketModalOpen] = useState(false);
 
   // Estado local de datos (para actualizaciones optimistas)
   const [localUsuarios, setLocalUsuarios] = useState<UsuarioRow[]>(data.usuarios);
   const [localClientes, setLocalClientes] = useState<ClienteRow[]>(data.clientes);
   const [localAuditoria] = useState<AuditoriaRow[]>(data.auditoria);
+  const [localTickets, setLocalTickets] = useState<TicketRow[]>(data.tickets);
 
   const showToast = useCallback((text: string, type: "success" | "error" = "success") => {
     setToastMsg({ text, type });
@@ -93,7 +131,9 @@ function AdminDashboard() {
   const handleToggleUserStatus = async (u: UsuarioRow) => {
     const next = u.estado === "activo" ? "bloqueado" : "activo";
     try {
-      await toggleUserStatusFn({ data: { userId: u.id, nuevoEstado: next, usuarioName: u.usuario } });
+      await toggleUserStatusFn({
+        data: { userId: u.id, nuevoEstado: next, usuarioName: u.usuario },
+      });
       setLocalUsuarios((prev) => prev.map((x) => (x.id === u.id ? { ...x, estado: next } : x)));
       showToast(`Usuario ${u.usuario} ahora está ${next}.`);
     } catch (err: any) {
@@ -123,6 +163,21 @@ function AdminDashboard() {
     setTimeout(() => window.location.reload(), 1000);
   };
 
+  const handleTicketStatus = async (
+    ticket: TicketRow,
+    estado: "abierto" | "en_analisis" | "resuelto",
+  ) => {
+    try {
+      await updateTicketStatusFn({ data: { ticketId: ticket.id, estado } });
+      setLocalTickets((current) =>
+        current.map((item) => (item.id === ticket.id ? { ...item, estado } : item)),
+      );
+      showToast("Estado del ticket actualizado.");
+    } catch (err: any) {
+      showToast(err?.message || "No se pudo actualizar el ticket.", "error");
+    }
+  };
+
   const filteredUsuarios = localUsuarios.filter(
     (u) =>
       u.usuario.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -138,7 +193,7 @@ function AdminDashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex">
+    <div className="factor-admin min-h-screen flex">
       {/* Sidebar */}
       <AdminSidebar
         activeTab={activeTab}
@@ -149,7 +204,9 @@ function AdminDashboard() {
         user={user}
         stats={{
           clientes: data.stats.clientes,
+          proyectos: data.stats.proyectos,
           usuarios: data.stats.usuarios,
+          tickets: data.stats.tickets,
           auditoria: data.stats.auditoria,
         }}
       />
@@ -157,7 +214,13 @@ function AdminDashboard() {
       {/* Contenido principal */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Header de sección */}
-        <SectionHeader activeTab={activeTab} data={data} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+        <SectionHeader
+          activeTab={activeTab}
+          data={data}
+          user={user}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
 
         <main className="flex-1 p-4 lg:p-6 space-y-5 overflow-auto">
           {/* KPIs Siempre Visibles */}
@@ -165,42 +228,42 @@ function AdminDashboard() {
             <AdminKpiCard
               title="Clientes"
               value={data.stats.clientes}
-              icon={<Building2 className="w-4 h-4 text-sky-400" />}
-              accent="border-sky-500/20 bg-sky-950/15"
+              icon={<Building2 className="w-4 h-4 text-[#1b2447]" />}
+              accent="border-[#d8dcec] bg-white"
               active={activeTab === "clientes"}
               onClick={() => setActiveTab("clientes")}
             />
             <AdminKpiCard
               title="Usuarios"
               value={data.stats.usuarios}
-              icon={<Users className="w-4 h-4 text-violet-400" />}
-              accent="border-violet-500/20 bg-violet-950/15"
+              icon={<Users className="w-4 h-4 text-[#d6452c]" />}
+              accent="border-[#f3d4cd] bg-white"
               active={activeTab === "usuarios"}
               onClick={() => setActiveTab("usuarios")}
             />
             <AdminKpiCard
               title="Proyectos"
               value={data.stats.proyectos}
-              icon={<Layers className="w-4 h-4 text-blue-400" />}
-              accent="border-blue-500/20 bg-blue-950/15"
+              icon={<Layers className="w-4 h-4 text-[#1b2447]" />}
+              accent="border-[#d8dcec] bg-white"
             />
             <AdminKpiCard
               title="Locales"
               value={data.stats.sucursales}
-              icon={<Building2 className="w-4 h-4 text-amber-400" />}
-              accent="border-amber-500/20 bg-amber-950/15"
+              icon={<Building2 className="w-4 h-4 text-[#d6452c]" />}
+              accent="border-[#f3d4cd] bg-white"
             />
             <AdminKpiCard
               title="Evaluaciones"
               value={data.stats.evaluaciones}
-              icon={<FileCheck2 className="w-4 h-4 text-emerald-400" />}
-              accent="border-emerald-500/20 bg-emerald-950/15"
+              icon={<FileCheck2 className="w-4 h-4 text-[#1b2447]" />}
+              accent="border-[#d8dcec] bg-white"
             />
             <AdminKpiCard
               title="Auditorías"
               value={data.stats.auditoria}
-              icon={<Activity className="w-4 h-4 text-rose-400" />}
-              accent="border-rose-500/20 bg-rose-950/15"
+              icon={<Activity className="w-4 h-4 text-[#d6452c]" />}
+              accent="border-[#f3d4cd] bg-white"
               active={activeTab === "auditoria"}
               onClick={() => setActiveTab("auditoria")}
             />
@@ -208,7 +271,13 @@ function AdminDashboard() {
 
           {/* Vista General */}
           {activeTab === "general" && (
-            <GeneralView data={data} onGoToClientes={() => setActiveTab("clientes")} />
+            <GeneralView
+              data={data}
+              onGoToClientes={() => setActiveTab("clientes")}
+              onGoToUsuarios={() => setActiveTab("usuarios")}
+              onGoToProyectos={() => setActiveTab("proyectos")}
+              onGoToTickets={() => setActiveTab("tickets")}
+            />
           )}
 
           {/* Vista Clientes */}
@@ -231,6 +300,22 @@ function AdminDashboard() {
               onResetPassword={(u) => setResetModal({ open: true, user: u })}
               onToggleStatus={handleToggleUserStatus}
               onNew={() => setUserModal({ open: true, user: null })}
+            />
+          )}
+
+          {activeTab === "proyectos" && (
+            <ProyectosView
+              proyectos={data.proyectos}
+              onNew={() => setProjectModalOpen(true)}
+              showToast={showToast}
+            />
+          )}
+
+          {activeTab === "tickets" && (
+            <TicketsView
+              tickets={localTickets}
+              onNew={() => setTicketModalOpen(true)}
+              onStatusChange={handleTicketStatus}
             />
           )}
 
@@ -272,7 +357,11 @@ function AdminDashboard() {
         isOpen={userModal.open}
         onClose={() => setUserModal({ open: false, user: null })}
         userToEdit={userModal.user}
-        clientes={localClientes.map((c) => ({ id: c.id, nombre_comercial: c.nombre_comercial, slug: c.slug }))}
+        clientes={localClientes.map((c) => ({
+          id: c.id,
+          nombre_comercial: c.nombre_comercial,
+          slug: c.slug,
+        }))}
         onSuccess={handleUserSaved}
       />
 
@@ -280,6 +369,18 @@ function AdminDashboard() {
         isOpen={clientModal.open}
         onClose={() => setClientModal({ open: false, client: null })}
         clientToEdit={clientModal.client}
+        onSuccess={handleClientSaved}
+      />
+      <ProjectModal
+        isOpen={projectModalOpen}
+        clientes={localClientes}
+        onClose={() => setProjectModalOpen(false)}
+        onSuccess={handleClientSaved}
+      />
+      <TicketModal
+        isOpen={ticketModalOpen}
+        clientes={localClientes}
+        onClose={() => setTicketModalOpen(false)}
         onSuccess={handleClientSaved}
       />
     </div>
@@ -291,19 +392,32 @@ function AdminDashboard() {
 function SectionHeader({
   activeTab,
   data,
+  user,
   searchTerm,
   setSearchTerm,
 }: {
   activeTab: AdminTab;
   data: AdminStatsPayload & { connected: boolean };
+  user: { nombre: string; rol: string };
   searchTerm: string;
   setSearchTerm: (v: string) => void;
 }) {
   const titles: Record<AdminTab, { label: string; sub: string }> = {
-    general: { label: "Resumen General", sub: "Estado de la plataforma Factor IQ" },
-    clientes: { label: "Directorio de Clientes", sub: "Gestiona empresas y portales multi-tenant" },
-    usuarios: { label: "Usuarios & Credenciales", sub: "Administra cuentas, roles y contraseñas" },
-    auditoria: { label: "Bitácora de Auditoría", sub: "Registro de eventos y acciones del sistema" },
+    general: { label: "Resumen general", sub: "Visión operativa de la plataforma Factor IQ" },
+    clientes: { label: "Clientes", sub: "Empresas, portales y estado de la cuenta" },
+    usuarios: { label: "Usuarios y accesos", sub: "Cuentas, roles, credenciales y actividad" },
+    proyectos: {
+      label: "Proyectos e importación",
+      sub: "Estudios aislados, periodos y validación de archivos",
+    },
+    tickets: {
+      label: "Soporte y tickets",
+      sub: "Incidencias, prioridades y seguimiento operativo",
+    },
+    auditoria: {
+      label: "Bitácora de Auditoría",
+      sub: "Registro de eventos y acciones del sistema",
+    },
     database: { label: "Salud del Sistema", sub: "Diagnóstico de base de datos MySQL" },
   };
 
@@ -311,15 +425,15 @@ function SectionHeader({
   const showSearch = activeTab === "clientes" || activeTab === "usuarios";
 
   return (
-    <header className="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-sm sticky top-0 z-20 px-4 lg:px-6 py-3.5 flex items-center justify-between gap-4">
+    <header className="border-b border-slate-200 bg-white/95 backdrop-blur-sm sticky top-0 z-20 px-4 lg:px-6 py-3.5 flex items-center justify-between gap-4">
       <div>
-        <h1 className="text-sm font-bold text-white">{label}</h1>
-        <p className="text-xs text-slate-400 hidden sm:block">{sub}</p>
+        <h1 className="text-sm font-bold text-[#1b2447]">{label}</h1>
+        <p className="text-xs text-slate-500 hidden sm:block">{sub}</p>
       </div>
 
       <div className="flex items-center gap-3">
         {/* Indicador MySQL */}
-        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-400">
+        <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#eef0f8] border border-[#d8dcec] text-[11px] text-slate-600">
           <div
             className={`w-1.5 h-1.5 rounded-full ${data.connected ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`}
           />
@@ -335,12 +449,62 @@ function SectionHeader({
               placeholder={activeTab === "clientes" ? "Buscar cliente..." : "Buscar usuario..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 pr-3 py-1.5 text-xs bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-48 sm:w-56"
+              className="pl-8 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#d6452c] w-48 sm:w-56"
             />
           </div>
         )}
+        <SwitchTheme />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="relative rounded-lg p-2 text-slate-500 transition-ui hover:bg-[#eef0f8] hover:text-[#1b2447]"
+              aria-label="Ver notificaciones"
+            >
+              <Bell className="h-4 w-4" />
+              {!data.connected && (
+                <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-[#d6452c]" />
+              )}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-72 border-slate-200 bg-white p-2 text-slate-700"
+          >
+            <DropdownMenuLabel className="text-xs text-[#1b2447]">Notificaciones</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="px-2 py-3 text-xs text-slate-500">
+              {data.connected
+                ? "No hay alertas operativas pendientes."
+                : "MySQL no está disponible: la plataforma usa el respaldo JSON."}
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-white px-2 py-1.5 sm:flex">
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#eef0f8] text-[#d6452c]">
+            <UserRound className="h-3.5 w-3.5" />
+          </div>
+          <div className="max-w-28">
+            <p className="truncate text-[11px] font-semibold text-[#1b2447]">{user.nombre}</p>
+            <p className="text-[9px] text-slate-500">{user.rol}</p>
+          </div>
+        </div>
       </div>
     </header>
+  );
+}
+
+function SwitchTheme() {
+  const [dark, setDark] = useState(false);
+  const toggle = (enabled: boolean) => {
+    setDark(enabled);
+    document.documentElement.classList.toggle("dark", enabled);
+  };
+  return (
+    <div className="hidden items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2 py-1 sm:flex">
+      <Sun className="h-3.5 w-3.5 text-amber-500" />
+      <Switch checked={dark} onCheckedChange={toggle} aria-label="Alternar modo oscuro" />
+      <Moon className="h-3.5 w-3.5 text-[#1b2447]" />
+    </div>
   );
 }
 
@@ -371,7 +535,7 @@ function AdminKpiCard({
         <span className="text-[11px] font-medium text-slate-400">{title}</span>
         {icon}
       </div>
-      <div className="text-2xl font-bold tracking-tight text-white">{value}</div>
+      <div className="text-2xl font-bold tracking-tight text-[#1b2447]">{value}</div>
     </div>
   );
 }
@@ -380,9 +544,15 @@ function AdminKpiCard({
 function GeneralView({
   data,
   onGoToClientes,
+  onGoToUsuarios,
+  onGoToProyectos,
+  onGoToTickets,
 }: {
   data: AdminStatsPayload & { connected: boolean };
   onGoToClientes: () => void;
+  onGoToUsuarios: () => void;
+  onGoToProyectos: () => void;
+  onGoToTickets: () => void;
 }) {
   return (
     <div className="space-y-5">
@@ -407,7 +577,9 @@ function GeneralView({
           )}
           <div>
             <h2 className="text-sm font-bold text-white">
-              {data.connected ? "MySQL Conectado — Base de Datos Activa" : "Modo Fallback — Sin conexión MySQL"}
+              {data.connected
+                ? "MySQL Conectado — Base de Datos Activa"
+                : "Modo Fallback — Sin conexión MySQL"}
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
               {data.connected
@@ -434,9 +606,17 @@ function GeneralView({
             Infraestructura y Conectividad MySQL
           </h2>
           <div className="space-y-0 divide-y divide-slate-800/60 text-xs text-slate-300">
-            <InfoRow label="Estado de Conexión" value={data.connected ? "✅ Conectado a MySQL" : "⚠️ Fallback JSON"} mono={false} />
+            <InfoRow
+              label="Estado de Conexión"
+              value={data.connected ? "✅ Conectado a MySQL" : "⚠️ Fallback JSON"}
+              mono={false}
+            />
             <InfoRow label="Base de Datos" value="factoriq" mono />
-            <InfoRow label="Indicadores Registrados" value="19 indicadores (12 Ventas + 7 Call Center)" mono={false} />
+            <InfoRow
+              label="Indicadores Registrados"
+              value="19 indicadores (12 Ventas + 7 Call Center)"
+              mono={false}
+            />
             <InfoRow label="Esquema Relacional" value="database/schema.sql" mono />
             <InfoRow label="Seed de Datos" value="database/seed_maquinarias.sql" mono />
           </div>
@@ -454,39 +634,51 @@ function GeneralView({
             </span>
           </div>
           <p className="text-xs text-slate-400">
-            Primer cliente migrado al esquema multi-tenant con acceso dedicado y aislamiento de datos.
+            Primer cliente migrado al esquema multi-tenant con acceso dedicado y aislamiento de
+            datos.
           </p>
           <div className="space-y-0 divide-y divide-slate-800/60 text-xs text-slate-300">
             <InfoRow label="Ruta de acceso" value="/maquinarias" mono accent />
             <InfoRow label="Tipo de Estudio" value="Mystery Shopping Automotriz" mono={false} />
-            <InfoRow label="Evaluaciones Totales" value="42 evaluaciones (Venta, Call Center, Seminuevos)" mono={false} />
+            <InfoRow
+              label="Evaluaciones Totales"
+              value="42 evaluaciones (Venta, Call Center, Seminuevos)"
+              mono={false}
+            />
             <InfoRow label="Administrador" value="admMaqui" mono />
           </div>
         </div>
       </div>
 
       {/* Acciones Rápidas */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
         <QuickActionCard
-          icon={<Building2 className="w-5 h-5 text-sky-400" />}
-          title="Nuevo Cliente"
-          desc="Registrar empresa en la plataforma"
-          accent="bg-sky-950/15 border-sky-800/30 hover:border-sky-600/50"
+          icon={<Building2 className="w-5 h-5 text-[#1b2447]" />}
+          title="Gestionar clientes"
+          desc="Registrar empresas, portales y planes"
+          accent="bg-white border-[#d8dcec] hover:border-[#1b2447]"
           onClick={onGoToClientes}
         />
         <QuickActionCard
-          icon={<Users className="w-5 h-5 text-violet-400" />}
-          title="Nuevo Usuario"
-          desc="Crear acceso a un cliente o global"
-          accent="bg-violet-950/15 border-violet-800/30 hover:border-violet-600/50"
-          onClick={onGoToClientes}
+          icon={<Users className="w-5 h-5 text-[#d6452c]" />}
+          title="Gestionar accesos"
+          desc="Crear cuentas, roles y credenciales"
+          accent="bg-white border-[#f3d4cd] hover:border-[#d6452c]"
+          onClick={onGoToUsuarios}
         />
         <QuickActionCard
-          icon={<TrendingUp className="w-5 h-5 text-emerald-400" />}
-          title="Ver Estadísticas"
-          desc="Dashboard de análisis Maquinarias"
-          accent="bg-emerald-950/15 border-emerald-800/30 hover:border-emerald-600/50"
-          onClick={onGoToClientes}
+          icon={<FolderKanban className="w-5 h-5 text-[#1b2447]" />}
+          title="Nuevo proyecto"
+          desc="Preparar un estudio y validar su Excel"
+          accent="bg-white border-[#d8dcec] hover:border-[#1b2447]"
+          onClick={onGoToProyectos}
+        />
+        <QuickActionCard
+          icon={<LifeBuoy className="w-5 h-5 text-[#d6452c]" />}
+          title="Crear ticket"
+          desc="Registrar una incidencia operativa"
+          accent="bg-white border-[#f3d4cd] hover:border-[#d6452c]"
+          onClick={onGoToTickets}
         />
       </div>
     </div>
@@ -606,7 +798,9 @@ function ClientesView({
             {clientes.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-4 py-12 text-center text-slate-500">
-                  {searchTerm ? "No se encontraron clientes con ese término." : "No hay clientes registrados aún."}
+                  {searchTerm
+                    ? "No se encontraron clientes con ese término."
+                    : "No hay clientes registrados aún."}
                 </td>
               </tr>
             ) : (
@@ -626,12 +820,16 @@ function ClientesView({
                   <td className="px-4 py-3 font-mono text-slate-400">{c.ruc || "—"}</td>
                   <td className="px-4 py-3 text-slate-400">{c.rubro || "General"}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded border text-[11px] font-semibold capitalize ${planColors[c.plan] || "bg-slate-800 text-slate-300"}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded border text-[11px] font-semibold capitalize ${planColors[c.plan] || "bg-slate-800 text-slate-300"}`}
+                    >
                       {c.plan}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded border text-[11px] font-semibold capitalize ${estadoColors[c.estado] || "bg-slate-800 text-slate-300"}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded border text-[11px] font-semibold capitalize ${estadoColors[c.estado] || "bg-slate-800 text-slate-300"}`}
+                    >
                       {c.estado}
                     </span>
                   </td>
@@ -737,7 +935,9 @@ function UsuariosView({
             {usuarios.length === 0 ? (
               <tr>
                 <td colSpan={9} className="px-4 py-12 text-center text-slate-500">
-                  {searchTerm ? "No se encontraron usuarios con ese término." : "No hay usuarios registrados."}
+                  {searchTerm
+                    ? "No se encontraron usuarios con ese término."
+                    : "No hay usuarios registrados."}
                 </td>
               </tr>
             ) : (
@@ -755,12 +955,16 @@ function UsuariosView({
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded border text-[11px] font-semibold capitalize ${rolColors[u.rol] || "bg-slate-800 text-slate-300"}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded border text-[11px] font-semibold capitalize ${rolColors[u.rol] || "bg-slate-800 text-slate-300"}`}
+                    >
                       {u.rol}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded border text-[11px] font-semibold capitalize ${estadoColors[u.estado] || "bg-slate-800 text-slate-300"}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded border text-[11px] font-semibold capitalize ${estadoColors[u.estado] || "bg-slate-800 text-slate-300"}`}
+                    >
                       {u.estado}
                     </span>
                   </td>
@@ -842,7 +1046,10 @@ function AuditoriaView({ auditoria }: { auditoria: AuditoriaRow[] }) {
             Últimas {auditoria.length} acciones registradas en el sistema
           </p>
         </div>
-        <button className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Actualizar">
+        <button
+          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          title="Actualizar"
+        >
           <RefreshCw className="w-4 h-4" />
         </button>
       </div>
@@ -851,7 +1058,9 @@ function AuditoriaView({ auditoria }: { auditoria: AuditoriaRow[] }) {
         <div className="py-16 text-center space-y-2">
           <FileCheck2 className="w-8 h-8 text-slate-700 mx-auto" />
           <p className="text-sm text-slate-500 font-medium">Sin eventos registrados</p>
-          <p className="text-xs text-slate-600">Los accesos, cambios de clave y acciones del sistema quedarán aquí.</p>
+          <p className="text-xs text-slate-600">
+            Los accesos, cambios de clave y acciones del sistema quedarán aquí.
+          </p>
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -870,7 +1079,9 @@ function AuditoriaView({ auditoria }: { auditoria: AuditoriaRow[] }) {
                 <tr key={a.id} className="hover:bg-slate-800/30 transition-colors">
                   <td className="px-4 py-3 font-mono text-slate-500 text-[11px]">#{a.id}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded border text-[11px] font-semibold ${actionColors[a.accion] || "text-slate-300 bg-slate-800 border-slate-700"}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded border text-[11px] font-semibold ${actionColors[a.accion] || "text-slate-300 bg-slate-800 border-slate-700"}`}
+                    >
                       {a.accion}
                     </span>
                   </td>
@@ -895,26 +1106,62 @@ function AuditoriaView({ auditoria }: { auditoria: AuditoriaRow[] }) {
 // ─── Vista Base de Datos ──────────────────────────────────────────────────────
 function DatabaseView({ data }: { data: AdminStatsPayload & { connected: boolean } }) {
   const tables = [
-    { name: "clientes", count: data.stats.clientes, icon: <Building2 className="w-3.5 h-3.5 text-sky-400" />, color: "text-sky-400" },
-    { name: "usuarios", count: data.stats.usuarios, icon: <Users className="w-3.5 h-3.5 text-violet-400" />, color: "text-violet-400" },
-    { name: "proyectos", count: data.stats.proyectos, icon: <Layers className="w-3.5 h-3.5 text-blue-400" />, color: "text-blue-400" },
-    { name: "sucursales", count: data.stats.sucursales, icon: <Server className="w-3.5 h-3.5 text-amber-400" />, color: "text-amber-400" },
-    { name: "evaluaciones", count: data.stats.evaluaciones, icon: <FileCheck2 className="w-3.5 h-3.5 text-emerald-400" />, color: "text-emerald-400" },
-    { name: "auditoria", count: data.stats.auditoria, icon: <Shield className="w-3.5 h-3.5 text-rose-400" />, color: "text-rose-400" },
+    {
+      name: "clientes",
+      count: data.stats.clientes,
+      icon: <Building2 className="w-3.5 h-3.5 text-sky-400" />,
+      color: "text-sky-400",
+    },
+    {
+      name: "usuarios",
+      count: data.stats.usuarios,
+      icon: <Users className="w-3.5 h-3.5 text-violet-400" />,
+      color: "text-violet-400",
+    },
+    {
+      name: "proyectos",
+      count: data.stats.proyectos,
+      icon: <Layers className="w-3.5 h-3.5 text-blue-400" />,
+      color: "text-blue-400",
+    },
+    {
+      name: "sucursales",
+      count: data.stats.sucursales,
+      icon: <Server className="w-3.5 h-3.5 text-amber-400" />,
+      color: "text-amber-400",
+    },
+    {
+      name: "evaluaciones",
+      count: data.stats.evaluaciones,
+      icon: <FileCheck2 className="w-3.5 h-3.5 text-emerald-400" />,
+      color: "text-emerald-400",
+    },
+    {
+      name: "auditoria",
+      count: data.stats.auditoria,
+      icon: <Shield className="w-3.5 h-3.5 text-rose-400" />,
+      color: "text-rose-400",
+    },
   ];
 
   return (
     <div className="space-y-5">
       {/* Estado de conexión */}
-      <div className={`rounded-xl border p-5 space-y-4 ${data.connected ? "border-emerald-800/40 bg-emerald-950/10" : "border-amber-800/40 bg-amber-950/10"}`}>
+      <div
+        className={`rounded-xl border p-5 space-y-4 ${data.connected ? "border-emerald-800/40 bg-emerald-950/10" : "border-amber-800/40 bg-amber-950/10"}`}
+      >
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl border flex items-center justify-center ${data.connected ? "border-emerald-700/50 bg-emerald-950/30 text-emerald-400" : "border-amber-700/50 bg-amber-950/30 text-amber-400"}`}>
+          <div
+            className={`w-10 h-10 rounded-xl border flex items-center justify-center ${data.connected ? "border-emerald-700/50 bg-emerald-950/30 text-emerald-400" : "border-amber-700/50 bg-amber-950/30 text-amber-400"}`}
+          >
             <HardDrive className="w-5 h-5" />
           </div>
           <div>
             <h2 className="text-sm font-bold text-white">Base de Datos MySQL — Factoriq</h2>
             <div className="flex items-center gap-2 mt-0.5">
-              <div className={`w-1.5 h-1.5 rounded-full ${data.connected ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+              <div
+                className={`w-1.5 h-1.5 rounded-full ${data.connected ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`}
+              />
               <span className="text-xs text-slate-400">
                 {data.connected ? "Conectado y operativo" : "Sin conexión — Usando fallback JSON"}
               </span>
@@ -966,10 +1213,459 @@ function DatabaseView({ data }: { data: AdminStatsPayload & { connected: boolean
         <div className="space-y-0 divide-y divide-slate-800/60 text-xs">
           <InfoRow label="Esquema principal" value="database/schema.sql" mono />
           <InfoRow label="Datos de prueba" value="database/seed_maquinarias.sql" mono />
-          <InfoRow label="Variable de entorno" value=".env (DB_HOST, DB_USER, DB_PASS, DB_NAME)" mono />
+          <InfoRow
+            label="Variable de entorno"
+            value=".env (DB_HOST, DB_USER, DB_PASS, DB_NAME)"
+            mono
+          />
           <InfoRow label="Librerías" value="mysql2/promise, bcryptjs" mono />
         </div>
       </div>
+    </div>
+  );
+}
+
+function ProyectosView({
+  proyectos,
+  onNew,
+  showToast,
+}: {
+  proyectos: ProyectoRow[];
+  onNew: () => void;
+  showToast: (text: string, type?: "success" | "error") => void;
+}) {
+  const handleFile = async (file: File | undefined) => {
+    if (!file) return;
+    if (!/\.(xlsx|xls)$/i.test(file.name)) {
+      showToast("Selecciona un archivo Excel (.xlsx o .xls).", "error");
+      return;
+    }
+    try {
+      const { importExcelFile } = await import("@/lib/excel-import");
+      const result = await importExcelFile(file);
+      showToast(
+        `Archivo validado: ${result.dataset.meta["evaluationCount"]} evaluaciones cargadas en la sesión local.`,
+      );
+    } catch (err: any) {
+      showToast(err?.message || "No se pudo validar el archivo.", "error");
+    }
+  };
+
+  return (
+    <div className="space-y-5">
+      <section className="rounded-xl border border-[#d8dcec] bg-white p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-sm font-bold text-[#1b2447]">Proyectos y estudios</h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              Cada proyecto se vincula a una empresa y conserva su periodo operativo.
+            </p>
+          </div>
+          <button
+            onClick={onNew}
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#1b2447] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#2b396d]"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Nuevo proyecto
+          </button>
+        </div>
+      </section>
+      <section className="overflow-hidden rounded-xl border border-[#d8dcec] bg-white">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="border-b border-slate-200 bg-[#eef0f8] text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              <tr>
+                <th className="px-4 py-3">Proyecto</th>
+                <th className="px-4 py-3">Empresa</th>
+                <th className="px-4 py-3">Tipo / periodo</th>
+                <th className="px-4 py-3">Fechas</th>
+                <th className="px-4 py-3">Estado</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-600">
+              {proyectos.map((project) => (
+                <tr key={project.id}>
+                  <td className="px-4 py-3 font-semibold text-[#1b2447]">{project.nombre}</td>
+                  <td className="px-4 py-3">{project.cliente_nombre}</td>
+                  <td className="px-4 py-3">
+                    <p>{project.tipo.replaceAll("_", " ")}</p>
+                    <p className="mt-0.5 text-[11px] text-slate-400">
+                      {project.periodo || "Sin periodo"}
+                    </p>
+                  </td>
+                  <td className="px-4 py-3 text-slate-500">
+                    {project.fecha_inicio || "—"}{" "}
+                    {project.fecha_fin ? `— ${project.fecha_fin}` : ""}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge value={project.estado} />
+                  </td>
+                </tr>
+              ))}
+              {!proyectos.length && (
+                <tr>
+                  <td className="px-4 py-12 text-center text-slate-500" colSpan={5}>
+                    No hay proyectos registrados.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section className="rounded-xl border border-dashed border-[#d8dcec] bg-[#f7f8fc] p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="flex items-center gap-2 text-sm font-bold text-[#1b2447]">
+              <Upload className="h-4 w-4 text-[#d6452c]" />
+              Validar e importar Excel
+            </h3>
+            <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-500">
+              Se verifican las hojas <code>Evaluaciones</code>, <code>Indicadores</code> y{" "}
+              <code>Preguntas</code> por encabezado, sin depender de la posición de sus columnas. La
+              carga queda disponible en la sesión local; la persistencia masiva se habilita al
+              ejecutar la migración y definir el flujo de aprobación.
+            </p>
+          </div>
+          <label className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-[#d6452c] bg-white px-3 py-2 text-xs font-semibold text-[#b63320] transition-colors hover:bg-[#fff0ec]">
+            <Upload className="h-3.5 w-3.5" />
+            Seleccionar Excel
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              className="sr-only"
+              onChange={(event) => void handleFile(event.target.files?.[0])}
+            />
+          </label>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function TicketsView({
+  tickets,
+  onNew,
+  onStatusChange,
+}: {
+  tickets: TicketRow[];
+  onNew: () => void;
+  onStatusChange: (ticket: TicketRow, estado: "abierto" | "en_analisis" | "resuelto") => void;
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-[#d8dcec] bg-white">
+      <div className="flex items-center justify-between border-b border-slate-200 p-5">
+        <div>
+          <h2 className="text-sm font-bold text-[#1b2447]">Bandeja de soporte</h2>
+          <p className="mt-0.5 text-xs text-slate-500">
+            Incidencias y solicitudes registradas por empresa.
+          </p>
+        </div>
+        <button
+          onClick={onNew}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[#1b2447] px-3 py-2 text-xs font-semibold text-white hover:bg-[#2b396d]"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Crear ticket
+        </button>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-xs">
+          <thead className="border-b border-slate-200 bg-[#eef0f8] text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+            <tr>
+              <th className="px-4 py-3">Ticket</th>
+              <th className="px-4 py-3">Empresa</th>
+              <th className="px-4 py-3">Prioridad</th>
+              <th className="px-4 py-3">Creado</th>
+              <th className="px-4 py-3">Estado</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 text-slate-600">
+            {tickets.map((ticket) => (
+              <tr key={ticket.id}>
+                <td className="px-4 py-3">
+                  <p className="font-semibold text-[#1b2447]">
+                    #{ticket.id} · {ticket.asunto}
+                  </p>
+                </td>
+                <td className="px-4 py-3">{ticket.cliente_nombre || "Factor IQ"}</td>
+                <td className="px-4 py-3">
+                  <StatusBadge value={ticket.prioridad} />
+                </td>
+                <td className="px-4 py-3 text-slate-500">
+                  {new Date(ticket.created_at).toLocaleDateString("es-PE")}
+                </td>
+                <td className="px-4 py-3">
+                  <select
+                    value={ticket.estado}
+                    onChange={(event) =>
+                      onStatusChange(
+                        ticket,
+                        event.target.value as "abierto" | "en_analisis" | "resuelto",
+                      )
+                    }
+                    className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-[#1b2447] focus:border-[#d6452c] focus:outline-none"
+                  >
+                    <option value="abierto">Abierto</option>
+                    <option value="en_analisis">En análisis</option>
+                    <option value="resuelto">Resuelto</option>
+                  </select>
+                </td>
+              </tr>
+            ))}
+            {!tickets.length && (
+              <tr>
+                <td className="px-4 py-12 text-center text-slate-500" colSpan={5}>
+                  No hay tickets abiertos. Crea uno para iniciar el seguimiento.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function StatusBadge({ value }: { value: string }) {
+  const colors: Record<string, string> = {
+    activo: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    abierto: "bg-[#fff0ec] text-[#b63320] border-[#f3d4cd]",
+    en_analisis: "bg-amber-50 text-amber-700 border-amber-200",
+    resuelto: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    alta: "bg-rose-50 text-rose-700 border-rose-200",
+    media: "bg-amber-50 text-amber-700 border-amber-200",
+    baja: "bg-[#eef0f8] text-[#1b2447] border-[#d8dcec]",
+    borrador: "bg-[#eef0f8] text-[#1b2447] border-[#d8dcec]",
+    cerrado: "bg-slate-100 text-slate-600 border-slate-200",
+  };
+  return (
+    <span
+      className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold capitalize ${colors[value] || colors["borrador"]}`}
+    >
+      {value.replaceAll("_", " ")}
+    </span>
+  );
+}
+
+function ProjectModal({
+  isOpen,
+  clientes,
+  onClose,
+  onSuccess,
+}: {
+  isOpen: boolean;
+  clientes: ClienteRow[];
+  onClose: () => void;
+  onSuccess: (message: string) => void;
+}) {
+  const [nombre, setNombre] = useState("");
+  const [clienteId, setClienteId] = useState("");
+  const [periodo, setPeriodo] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!isOpen) return null;
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await saveProjectFn({
+        data: { cliente_id: Number(clienteId), nombre, periodo, estado: "borrador" },
+      });
+      onSuccess(response.message);
+      onClose();
+    } catch (err: any) {
+      setError(err?.message || "No se pudo crear el proyecto.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <AdminModal title="Crear proyecto" onClose={onClose}>
+      <form onSubmit={submit} className="space-y-4">
+        {error && <p className="rounded-lg bg-rose-50 p-3 text-xs text-rose-700">{error}</p>}
+        <label className="block text-xs font-semibold text-slate-600">
+          Empresa
+          <select
+            required
+            value={clienteId}
+            onChange={(event) => setClienteId(event.target.value)}
+            className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700"
+          >
+            <option value="">Seleccionar empresa</option>
+            {clientes.map((client) => (
+              <option key={client.id} value={client.id}>
+                {client.nombre_comercial}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-xs font-semibold text-slate-600">
+          Nombre del proyecto
+          <input
+            required
+            value={nombre}
+            onChange={(event) => setNombre(event.target.value)}
+            className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-700"
+            placeholder="Ej. Mystery Shopping 2026"
+          />
+        </label>
+        <label className="block text-xs font-semibold text-slate-600">
+          Periodo
+          <input
+            value={periodo}
+            onChange={(event) => setPeriodo(event.target.value)}
+            className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-700"
+            placeholder="Ej. Q1 2026"
+          />
+        </label>
+        <ModalActions loading={loading} label="Crear proyecto" onClose={onClose} />
+      </form>
+    </AdminModal>
+  );
+}
+
+function TicketModal({
+  isOpen,
+  clientes,
+  onClose,
+  onSuccess,
+}: {
+  isOpen: boolean;
+  clientes: ClienteRow[];
+  onClose: () => void;
+  onSuccess: (message: string) => void;
+}) {
+  const [asunto, setAsunto] = useState("");
+  const [clienteId, setClienteId] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [prioridad, setPrioridad] = useState<"alta" | "media" | "baja">("media");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!isOpen) return null;
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await createTicketFn({
+        data: { cliente_id: clienteId ? Number(clienteId) : null, asunto, descripcion, prioridad },
+      });
+      onSuccess(response.message);
+      onClose();
+    } catch (err: any) {
+      setError(err?.message || "No se pudo crear el ticket.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <AdminModal title="Crear ticket de soporte" onClose={onClose}>
+      <form onSubmit={submit} className="space-y-4">
+        {error && <p className="rounded-lg bg-rose-50 p-3 text-xs text-rose-700">{error}</p>}
+        <label className="block text-xs font-semibold text-slate-600">
+          Empresa
+          <select
+            value={clienteId}
+            onChange={(event) => setClienteId(event.target.value)}
+            className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700"
+          >
+            <option value="">Factor IQ (interno)</option>
+            {clientes.map((client) => (
+              <option key={client.id} value={client.id}>
+                {client.nombre_comercial}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="block text-xs font-semibold text-slate-600">
+          Asunto
+          <input
+            required
+            value={asunto}
+            onChange={(event) => setAsunto(event.target.value)}
+            className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-700"
+            placeholder="Describe brevemente la incidencia"
+          />
+        </label>
+        <label className="block text-xs font-semibold text-slate-600">
+          Detalle
+          <textarea
+            value={descripcion}
+            onChange={(event) => setDescripcion(event.target.value)}
+            className="mt-1.5 min-h-24 w-full rounded-lg border border-slate-200 px-3 py-2 text-slate-700"
+          />
+        </label>
+        <label className="block text-xs font-semibold text-slate-600">
+          Prioridad
+          <select
+            value={prioridad}
+            onChange={(event) => setPrioridad(event.target.value as "alta" | "media" | "baja")}
+            className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700"
+          >
+            <option value="alta">Alta</option>
+            <option value="media">Media</option>
+            <option value="baja">Baja</option>
+          </select>
+        </label>
+        <ModalActions loading={loading} label="Crear ticket" onClose={onClose} />
+      </form>
+    </AdminModal>
+  );
+}
+
+function AdminModal({
+  title,
+  children,
+  onClose,
+}: {
+  title: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1b2447]/35 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-base font-bold text-[#1b2447]">{title}</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md px-2 py-1 text-sm text-slate-500 hover:bg-slate-100"
+          >
+            ×
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+function ModalActions({
+  loading,
+  label,
+  onClose,
+}: {
+  loading: boolean;
+  label: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
+      <button
+        type="button"
+        onClick={onClose}
+        className="rounded-lg px-3 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100"
+      >
+        Cancelar
+      </button>
+      <button
+        disabled={loading}
+        className="rounded-lg bg-[#1b2447] px-3 py-2 text-xs font-semibold text-white disabled:opacity-60"
+      >
+        {loading ? "Guardando..." : label}
+      </button>
     </div>
   );
 }

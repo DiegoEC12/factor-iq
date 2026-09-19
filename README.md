@@ -1,6 +1,6 @@
-# Dashboard Maquinarias
+# Factor IQ — Plataforma de Insights
 
-Panel ejecutivo de Mystery Shopping para analizar evaluaciones de concesionarias, indicadores, locales, benchmark, ranking y preguntas críticas.
+Factor IQ reúne el portal ejecutivo de Mystery Shopping de Maquinarias y un panel central para administrar la plataforma multi-cliente.
 
 ## Funcionalidades
 
@@ -18,6 +18,27 @@ Panel ejecutivo de Mystery Shopping para analizar evaluaciones de concesionarias
 - Deduplicación de locales por la combinación `concesionaria + marca + ubicación`.
 - Importación de archivos `.xlsx` y `.xls` desde la interfaz.
 - Restauración del dataset original después de una importación.
+- Panel SuperAdmin protegido en `/admin`, con una interfaz alineada al sistema visual claro del portal Maquinarias y los acentos institucionales azul marino y coral de Factor IQ.
+- Gestión de clientes, usuarios y accesos, bitácora de auditoría y estado de la base de datos.
+
+## Panel de administración
+
+La ruta `/admin` es exclusiva para cuentas con rol `superadmin`. Organiza la operación en cuatro frentes:
+
+- **Clientes:** empresas, portales, plan y estado de cuenta.
+- **Usuarios y accesos:** cuentas, roles, credenciales, último acceso y bloqueo/activación.
+- **Bitácora:** trazabilidad de inicios de sesión y cambios administrativos.
+- **Salud del sistema:** conectividad MySQL, conteo de registros y archivos de esquema/seed.
+
+La siguiente evolución sugerida, antes de añadir nuevos módulos, es incorporar filtros por fecha y cliente en la bitácora, métricas temporales de uso (usuarios activos, inicios de sesión y evaluaciones) y alertas configurables para fallas de conexión o cuentas suspendidas. Así se mantiene el panel centrado en operación y no solo en mantenimiento técnico.
+
+## Operación central: proyectos y soporte
+
+El panel incorpora los módulos **Proyectos e importación** y **Soporte y tickets**. El primero registra estudios por empresa y valida archivos Excel mediante las hojas y encabezados requeridos; la carga validada se mantiene actualmente en la sesión del navegador. El segundo permite crear tickets y cambiar su estado entre `abierto`, `en_analisis` y `resuelto`.
+
+Para una instalación MySQL que ya existe, ejecutar una sola vez [database/migrations/002_admin_operaciones.sql](database/migrations/002_admin_operaciones.sql). La migración es incremental: amplía los roles y añade tickets, comentarios y la base de contenidos web sin eliminar información existente. Las instalaciones nuevas ya reciben esas tablas desde [database/schema.sql](database/schema.sql).
+
+El esquema de CMS está incluido en la base de datos, pero aún no se enlaza a los bloques públicos: antes de publicar ediciones desde el panel debe definirse el flujo editorial y qué secciones de la landing quedan administrables.
 
 ## Datos
 

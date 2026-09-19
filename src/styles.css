@@ -102,7 +102,8 @@
 
   --gradient-brand: linear-gradient(135deg, oklch(0.545 0.2 25.5), oklch(0.44 0.17 20));
   --gradient-graphite: linear-gradient(140deg, oklch(0.32 0.008 286), oklch(0.24 0.01 286));
-  --shadow-card: 0 1px 2px oklch(0.26 0.008 286 / 0.05), 0 8px 24px -16px oklch(0.26 0.008 286 / 0.35);
+  --shadow-card:
+    0 1px 2px oklch(0.26 0.008 286 / 0.05), 0 8px 24px -16px oklch(0.26 0.008 286 / 0.35);
   --shadow-lift: 0 12px 40px -18px oklch(0.26 0.008 286 / 0.45);
   --transition-smooth: 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -201,28 +202,64 @@
 }
 
 /* Semáforo: mapeos de clases legacy y aliases */
-.bg-alto { background-color: var(--color-good) !important; }
-.bg-medio { background-color: var(--color-warn) !important; }
-.bg-bajo { background-color: var(--color-bad) !important; }
-.text-alto { color: var(--color-good) !important; }
-.text-medio { color: var(--color-warn) !important; }
-.text-bajo { color: var(--color-bad) !important; }
+.bg-alto {
+  background-color: var(--color-good) !important;
+}
+.bg-medio {
+  background-color: var(--color-warn) !important;
+}
+.bg-bajo {
+  background-color: var(--color-bad) !important;
+}
+.text-alto {
+  color: var(--color-good) !important;
+}
+.text-medio {
+  color: var(--color-warn) !important;
+}
+.text-bajo {
+  color: var(--color-bad) !important;
+}
 
 /* Aliases preferidos */
-.bg-success { background-color: var(--color-good) !important; }
-.bg-warning { background-color: var(--color-warn) !important; }
-.bg-danger { background-color: var(--color-bad) !important; }
-.text-success { color: var(--color-good) !important; }
-.text-warning { color: var(--color-warn) !important; }
-.text-danger { color: var(--color-bad) !important; }
+.bg-success {
+  background-color: var(--color-good) !important;
+}
+.bg-warning {
+  background-color: var(--color-warn) !important;
+}
+.bg-danger {
+  background-color: var(--color-bad) !important;
+}
+.text-success {
+  color: var(--color-good) !important;
+}
+.text-warning {
+  color: var(--color-warn) !important;
+}
+.text-danger {
+  color: var(--color-bad) !important;
+}
 
 /* Catch-all for Tailwind-style alpha suffixes (e.g. bg-danger/15) */
-[class*="bg-success"] { background-color: var(--color-good) !important; }
-[class*="bg-warning"] { background-color: var(--color-warn) !important; }
-[class*="bg-danger"] { background-color: var(--color-bad) !important; }
-[class*="text-success"] { color: var(--color-good) !important; }
-[class*="text-warning"] { color: var(--color-warn) !important; }
-[class*="text-danger"] { color: var(--color-bad) !important; }
+[class*="bg-success"] {
+  background-color: var(--color-good) !important;
+}
+[class*="bg-warning"] {
+  background-color: var(--color-warn) !important;
+}
+[class*="bg-danger"] {
+  background-color: var(--color-bad) !important;
+}
+[class*="text-success"] {
+  color: var(--color-good) !important;
+}
+[class*="text-warning"] {
+  color: var(--color-warn) !important;
+}
+[class*="text-danger"] {
+  color: var(--color-bad) !important;
+}
 
 .font-primary {
   font-family: var(--font-primary);
@@ -239,6 +276,93 @@
   --muted-foreground: #6b7184;
   color: #16192b;
   background: #ffffff;
+}
+
+/* Factor IQ Admin: mismo lenguaje de superficies claras y paneles del portal
+   Maquinarias, con azul institucional y coral del isotipo como acentos. */
+.factor-admin {
+  --admin-navy: #1b2447;
+  --admin-coral: #d6452c;
+  --admin-coral-soft: #fff0ec;
+  --admin-navy-soft: #eef0f8;
+  min-height: 100vh;
+  background: #f7f8fc;
+  color: #334155;
+}
+
+.factor-admin [class*="bg-slate-900"],
+.factor-admin [class*="bg-slate-950"] {
+  background-color: #ffffff !important;
+}
+
+.factor-admin [class*="bg-slate-800"] {
+  background-color: #eef0f8 !important;
+}
+
+.factor-admin [class*="border-slate-800"],
+.factor-admin [class*="border-slate-700"] {
+  border-color: #d8dcec !important;
+}
+
+.factor-admin [class*="divide-slate-800"] {
+  --tw-divide-opacity: 1;
+  border-color: #e6e9f1 !important;
+}
+
+.factor-admin [class*="text-white"] {
+  color: var(--admin-navy) !important;
+}
+
+.factor-admin [class*="text-slate-200"],
+.factor-admin [class*="text-slate-300"] {
+  color: #334155 !important;
+}
+
+.factor-admin [class*="text-slate-400"] {
+  color: #64748b !important;
+}
+
+.factor-admin [class*="text-slate-500"],
+.factor-admin [class*="text-slate-600"] {
+  color: #64748b !important;
+}
+
+.factor-admin [class*="hover:bg-slate-800"]:hover {
+  background-color: #eef0f8 !important;
+}
+
+.factor-admin [class*="text-sky"],
+.factor-admin [class*="text-violet"],
+.factor-admin [class*="text-purple"] {
+  color: var(--admin-navy) !important;
+}
+
+.factor-admin [class*="bg-sky"],
+.factor-admin [class*="bg-violet"],
+.factor-admin [class*="bg-purple"] {
+  background-color: var(--admin-navy-soft) !important;
+}
+
+.factor-admin [class*="border-sky"],
+.factor-admin [class*="border-violet"],
+.factor-admin [class*="border-purple"] {
+  border-color: #d8dcec !important;
+}
+
+.factor-admin [class*="bg-emerald-600"] {
+  background-color: var(--admin-navy) !important;
+}
+
+.factor-admin [class*="hover:bg-emerald-500"]:hover {
+  background-color: #2b396d !important;
+}
+
+.factor-admin [class*="focus:border-emerald"] {
+  border-color: var(--admin-coral) !important;
+}
+
+.factor-admin table tbody tr:hover {
+  background: #f6f7fb !important;
 }
 
 #contacto {

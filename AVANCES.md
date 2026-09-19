@@ -2,29 +2,29 @@
 
 ## Unificación de la web pública y acceso al dashboard
 
-- [X] Se consolidó la web corporativa y el dashboard de Maquinarias en la misma aplicación React, TypeScript y TanStack Start.
-- [X] La ruta principal `/` muestra la web pública de Factor IQ; `/index.html` se mantiene como acceso compatible y redirige al inicio.
-- [X] Se migraron las páginas públicas a rutas de la aplicación: Inicio, Nosotros, Servicios y Contacto.
-- [X] Se conservaron las URLs públicas históricas bajo `/pages/*.html`, incluyendo `/pages/servicio_nube.html`, para evitar enlaces rotos durante el despliegue.
-- [X] `/pages/servicio_nube.html` muestra el inicio de sesión; `/login` ofrece el mismo acceso mediante una URL moderna.
-- [X] Se implementó una autenticación temporal del lado servidor con sesión mediante cookie `HttpOnly`, `SameSite=Lax` y expiración de ocho horas.
-- [X] Se agregó `.env.example`; producción exige un `SESSION_SECRET` de al menos 32 caracteres y `.env` queda excluido del control de versiones.
-- [X] Se usaron, solo mientras se conecta la base de datos, las credenciales de prueba heredadas: usuario `admMaqui` y contraseña `adm123`.
-- [X] Al autenticarse correctamente, el usuario de Maquinarias es dirigido a `/maquinarias`.
-- [X] Las rutas del dashboard (`/maquinarias`, Benchmark, Concesionarias e Indicadores) requieren una sesión válida y del cliente Maquinarias; sin ella redirigen al acceso de plataforma.
-- [X] Los accesos antiguos `/benchmark`, `/concesionarias` e `/indicadores` redirigen a sus equivalentes protegidos dentro de `/maquinarias`.
-- [X] El cierre de sesión elimina la sesión y devuelve al usuario a `/pages/servicio_nube.html`.
-- [X] Validaciones realizadas: comprobación de TypeScript sin emisión y build de producción completados sin errores.
-- [X] Corregida la separación cliente/servidor de autenticación: las funciones RPC se encuentran en `src/lib/auth.ts`, evitando el bloqueo de Vite al importar desde `src/server/` en rutas del navegador.
-- [X] Revisión visual local realizada: portada pública y pantalla de acceso alineadas; inicio de sesión probado de extremo a extremo hasta el dashboard de Maquinarias.
-- [X] Identidad visual separada: `icon-logo.png` se conserva para el módulo Maquinarias y su favicon; `Isotipo IQ.png` se muestra en el encabezado, pie y acceso de la web pública de Factor IQ.
-- [X] El favicon cambia según el módulo activo: Factor IQ para la parte pública y el icono de Maquinarias dentro de `/maquinarias`.
-- [X] Ajustada la vista de acceso: cabecera de altura estable, formulario de columna clara desde tablet y diseño de dos columnas solo en pantallas amplias para evitar cortes en laptop y tablet.
-- [X] Logotipo público ajustado: solo el isotipo en móvil y solo el logotipo completo de Factor IQ desde tablet en adelante, con una altura máxima de `h-14`.
-- [X] Configurado el destino de compilación para Vercel (`nitro.preset = vercel`) y añadida detección explícita de TanStack Start mediante `vercel.json`; corrige la salida previa dirigida a Cloudflare Workers.
-- [X] Excluida la salida generada `.vercel/` para que Vercel compile desde el código fuente y no despliegue artefactos locales versionados.
-- [X] Preparado despliegue dual: Vercel conserva su preset propio y GoDaddy compila con `node-server`, generando `.output/server/index.mjs` para `npm start`. Se añadió `GODADDY_DEPLOY.md` con los pasos de cPanel.
-- [X] `npm start` ahora compila antes de iniciar, compatible con el flujo de GoDaddy Node.js Hosting (`npm install` seguido por `npm start`).
+- [x] Se consolidó la web corporativa y el dashboard de Maquinarias en la misma aplicación React, TypeScript y TanStack Start.
+- [x] La ruta principal `/` muestra la web pública de Factor IQ; `/index.html` se mantiene como acceso compatible y redirige al inicio.
+- [x] Se migraron las páginas públicas a rutas de la aplicación: Inicio, Nosotros, Servicios y Contacto.
+- [x] Se conservaron las URLs públicas históricas bajo `/pages/*.html`, incluyendo `/pages/servicio_nube.html`, para evitar enlaces rotos durante el despliegue.
+- [x] `/pages/servicio_nube.html` muestra el inicio de sesión; `/login` ofrece el mismo acceso mediante una URL moderna.
+- [x] Se implementó una autenticación temporal del lado servidor con sesión mediante cookie `HttpOnly`, `SameSite=Lax` y expiración de ocho horas.
+- [x] Se agregó `.env.example`; producción exige un `SESSION_SECRET` de al menos 32 caracteres y `.env` queda excluido del control de versiones.
+- [x] Se usaron, solo mientras se conecta la base de datos, las credenciales de prueba heredadas: usuario `admMaqui` y contraseña `adm123`.
+- [x] Al autenticarse correctamente, el usuario de Maquinarias es dirigido a `/maquinarias`.
+- [x] Las rutas del dashboard (`/maquinarias`, Benchmark, Concesionarias e Indicadores) requieren una sesión válida y del cliente Maquinarias; sin ella redirigen al acceso de plataforma.
+- [x] Los accesos antiguos `/benchmark`, `/concesionarias` e `/indicadores` redirigen a sus equivalentes protegidos dentro de `/maquinarias`.
+- [x] El cierre de sesión elimina la sesión y devuelve al usuario a `/pages/servicio_nube.html`.
+- [x] Validaciones realizadas: comprobación de TypeScript sin emisión y build de producción completados sin errores.
+- [x] Corregida la separación cliente/servidor de autenticación: las funciones RPC se encuentran en `src/lib/auth.ts`, evitando el bloqueo de Vite al importar desde `src/server/` en rutas del navegador.
+- [x] Revisión visual local realizada: portada pública y pantalla de acceso alineadas; inicio de sesión probado de extremo a extremo hasta el dashboard de Maquinarias.
+- [x] Identidad visual separada: `icon-logo.png` se conserva para el módulo Maquinarias y su favicon; `Isotipo IQ.png` se muestra en el encabezado, pie y acceso de la web pública de Factor IQ.
+- [x] El favicon cambia según el módulo activo: Factor IQ para la parte pública y el icono de Maquinarias dentro de `/maquinarias`.
+- [x] Ajustada la vista de acceso: cabecera de altura estable, formulario de columna clara desde tablet y diseño de dos columnas solo en pantallas amplias para evitar cortes en laptop y tablet.
+- [x] Logotipo público ajustado: solo el isotipo en móvil y solo el logotipo completo de Factor IQ desde tablet en adelante, con una altura máxima de `h-14`.
+- [x] Configurado el destino de compilación para Vercel (`nitro.preset = vercel`) y añadida detección explícita de TanStack Start mediante `vercel.json`; corrige la salida previa dirigida a Cloudflare Workers.
+- [x] Excluida la salida generada `.vercel/` para que Vercel compile desde el código fuente y no despliegue artefactos locales versionados.
+- [x] Preparado despliegue dual: Vercel conserva su preset propio y GoDaddy compila con `node-server`, generando `.output/server/index.mjs` para `npm start`. Se añadió `GODADDY_DEPLOY.md` con los pasos de cPanel.
+- [x] `npm start` ahora compila antes de iniciar, compatible con el flujo de GoDaddy Node.js Hosting (`npm install` seguido por `npm start`).
 
 Pendiente para la siguiente fase:
 
@@ -77,6 +77,7 @@ Cambios recientes:
 
   - `Resumen Ejecutivo`: `FilterBar` (barra completa con logo y título)
   - `Benchmark` y `Concesionarias`: `CompactFilterControls` (solo selects + botón limpiar)
+
 - `Concesionarias`: portada completa desde `insight-navigator-bk` — ranking, drill-down y panel analítico portados. El mapa de calor original fue reemplazado por el mapa usado en `Resumen Ejecutivo` (component `Heatmap` en `src/components/dash/Heatmap.tsx`), y las evaluaciones se adaptaron al formato esperado. `useFilters` se usa como fuente única de filtros. TypeScript checks pasan (`npx tsc --noEmit`).
 - `Indicadores`: añadido módulo que agrupa los 12 indicadores, permite seleccionar un indicador para ver su desglose por local y muestra un sidebar con las preguntas que explican la nota (promedio y muestras). Colores de estado aplicados a los indicadores y a los locales (alto/medio/crítico). TypeScript checks pasan (`npx tsc --noEmit`).
 - `Indicadores`: añadido módulo que agrupa los 12 indicadores, permite seleccionar un indicador para ver su desglose por local y muestra un sidebar con las preguntas que explican la nota (promedio y muestras). Se añadió `CompactFilterControls` para exponer los filtros globales aquí. Colores de estado aplicados a los indicadores y a los locales (óptimo ≥85%, observación 70–84%, crítico <70%). TypeScript checks pasan (`npx tsc --noEmit`).
@@ -101,42 +102,50 @@ Prueba realizada: servidor dev iniciado en http://localhost:8081/ — verificar 
 
 ## Cierre de tareas
 
-- [X] Mostrar todos los datos del Resumen Ejecutivo al cargar la aplicación.
-- [X] Dejar los filtros globales inicialmente en estado “Todas” con todas sus casillas marcadas.
-- [X] Validar la corrección con TypeScript, diagnósticos del editor y build de producción.
+- [x] Mostrar todos los datos del Resumen Ejecutivo al cargar la aplicación.
+- [x] Dejar los filtros globales inicialmente en estado “Todas” con todas sus casillas marcadas.
+- [x] Validar la corrección con TypeScript, diagnósticos del editor y build de producción.
 
 ## Importación Excel
 
-- [X] Agregada la dependencia `xlsx` para leer workbooks en el navegador.
-- [X] Creado `src/lib/excel-import.ts` como adaptador aislado Excel -> modelo interno.
-- [X] El importador acepta encabezados normalizados en español o inglés y asigna `Venta` por defecto cuando falta el tipo de evaluación.
-- [X] Agregado el control `Importar Excel` en la barra existente, sin cambiar la estructura visual de los módulos.
-- [X] La carga reemplaza el dataset en memoria, actualiza filtros y recalcula el Resumen Ejecutivo.
-- [X] Generado `src/data/mystery-shopping-imported.json` con el mismo formato lógico del dataset actual.
+- [x] Agregada la dependencia `xlsx` para leer workbooks en el navegador.
+- [x] Creado `src/lib/excel-import.ts` como adaptador aislado Excel -> modelo interno.
+- [x] El importador acepta encabezados normalizados en español o inglés y asigna `Venta` por defecto cuando falta el tipo de evaluación.
+- [x] Agregado el control `Importar Excel` en la barra existente, sin cambiar la estructura visual de los módulos.
+- [x] La carga reemplaza el dataset en memoria, actualiza filtros y recalcula el Resumen Ejecutivo.
+- [x] Generado `src/data/mystery-shopping-imported.json` con el mismo formato lógico del dataset actual.
 - [x] Procesado `Base_Mystery_Shopping_Consolidada (8).xlsx`: 42 evaluaciones, 434 filas de indicadores y 2494 preguntas.
-- [X] Agregada la acción para restaurar el dataset original y quitar los datos importados de la sesión.
-- [X] Validaciones ejecutadas: `npx tsc --noEmit`, `npx prettier --check`, `npm run data:excel` y `npm run build`.
-- [X] Corrección en módulo de indicadores: discriminación única de indicadores por tipo de evaluación (`Call Center` 7 indicadores vs `Ventas/Seminuevos` 12 indicadores) evitando colisión y desfase de nombres y pesos.
-- [X] Agregado botón de "Cerrar sesión" en la barra de navegación lateral (`AppSidebar`) con feedback "Cerrando sesión..." y redirección a `https://factor-iq.com/pages/servicio_nube.html`.
+- [x] Agregada la acción para restaurar el dataset original y quitar los datos importados de la sesión.
+- [x] Validaciones ejecutadas: `npx tsc --noEmit`, `npx prettier --check`, `npm run data:excel` y `npm run build`.
+- [x] Corrección en módulo de indicadores: discriminación única de indicadores por tipo de evaluación (`Call Center` 7 indicadores vs `Ventas/Seminuevos` 12 indicadores) evitando colisión y desfase de nombres y pesos.
+- [x] Agregado botón de "Cerrar sesión" en la barra de navegación lateral (`AppSidebar`) con feedback "Cerrando sesión..." y redirección a `https://factor-iq.com/pages/servicio_nube.html`.
 - [ ] Revisar visualmente los datos importados en cada ruta y definir el proveedor de base de datos.
 
 Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproducible de desarrollo y encapsular después la lectura de JSON, Excel y API detrás de un único proveedor de datos. Así la UI no dependerá del formato de origen y será posible auditar cada importación.
 
 ## Favicon público de Factor IQ
 
-- [X] Reemplazado `public/favicon.png` por el isotipo de Factor IQ provisto para el sitio.
-- [X] Configurado el cliente para conservar `/favicon.png` como URL estable en las rutas públicas; esto coincide con el favicon declarado en el HTML inicial y permite que los rastreadores lo descubran sin depender de JavaScript.
-- [X] Conservado `icon-logo.png` únicamente para la experiencia interna de Maquinarias.
-- [X] Verificado que el archivo público mide 48×48 px, formato admitido por Google.
+- [x] Reemplazado `public/favicon.png` por el isotipo de Factor IQ provisto para el sitio.
+- [x] Configurado el cliente para conservar `/favicon.png` como URL estable en las rutas públicas; esto coincide con el favicon declarado en el HTML inicial y permite que los rastreadores lo descubran sin depender de JavaScript.
+- [x] Conservado `icon-logo.png` únicamente para la experiencia interna de Maquinarias.
+- [x] Verificado que el archivo público mide 48×48 px, formato admitido por Google.
 - [!] `npm run lint` no pudo iniciarse por una instalación global rota de npm en el equipo (`npm-cli.js` no encontrado); no corresponde a un error del proyecto.
 
 ## Migración a Base de Datos MySQL y Arquitectura Multi-Tenant
 
-- [X] **Detección y corrección de inconsistencias en scripts SQL (`database/`)**:
+## Refinamiento UI — Panel SuperAdmin Factor IQ
+
+- [x] Reorganizada la interfaz de `/admin` con la misma estructura visual del portal Maquinarias: barra lateral clara, encabezado fijo, tarjetas de resumen y tablas sobre superficies blancas.
+- [x] Aplicada la identidad de Factor IQ al panel administrativo: azul marino como color rector y coral como acento; se retiraron los acentos cian/violeta que no correspondían a la marca.
+- [x] Clarificados los módulos operativos: Clientes, Usuarios y accesos, Bitácora y Salud del sistema; las acciones rápidas ahora direccionan correctamente a la gestión de clientes o de accesos.
+- [x] Actualizado `README.md` con alcance, módulos actuales y evolución sugerida del panel administrativo.
+- [ ] Próxima iteración sugerida: filtros por fecha/cliente en bitácora, métricas temporales de uso y alertas configurables de operación.
+
+- [x] **Detección y corrección de inconsistencias en scripts SQL (`database/`)**:
   - Se identificó que `evaluaciones` omitía el campo `tipo_evaluacion`, lo que rompía la segmentación en BD de las 22 evaluaciones de Ventas, 14 de Call Center y 6 de Seminuevos.
-  - Se corrigió el catálogo truncado de `indicadores`: el seed previo contenía solo 12 registros mezclando Call Center con Ventas, perdiendo los indicadores 1..7 de Ventas (*Instalaciones y Ambiente General*, *Protocolo de atención*, etc.) y vinculando relaciones a indicadores erróneos.
+  - Se corrigió el catálogo truncado de `indicadores`: el seed previo contenía solo 12 registros mezclando Call Center con Ventas, perdiendo los indicadores 1..7 de Ventas (_Instalaciones y Ambiente General_, _Protocolo de atención_, etc.) y vinculando relaciones a indicadores erróneos.
   - Se actualizó `database/schema.sql` con `tipo_evaluacion` y `codigo` en `indicadores`, clave única compuesta `(proyecto_id, tipo_evaluacion, orden)` y `tipo_evaluacion` en `evaluaciones`.
-- [X] **Generador reproducible de Seed SQL (`scripts/generate-sql-seed.cjs`)**:
+- [x] **Generador reproducible de Seed SQL (`scripts/generate-sql-seed.cjs`)**:
   - Creado script que lee directamente `src/data/mystery-shopping-imported.json` (la fuente de verdad del dashboard).
   - Regenerado `database/seed_maquinarias.sql` con integridad relacional 100% verificada:
     - 1 cliente (`Maquinarias`)
@@ -147,22 +156,33 @@ Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproduc
     - 42 evaluaciones con su `tipo_evaluacion` real
     - 434 resultados en `evaluacion_indicadores`
     - 2,494 respuestas en `evaluacion_preguntas`
-- [X] **Validación en MySQL Local (WAMP)**:
+- [x] **Validación en MySQL Local (WAMP)**:
   - Se ejecutaron `schema.sql` y `seed_maquinarias.sql` en la base `factoriq` de MySQL 8.2 local.
   - Validada la integridad con consultas de verificación cruzada (`JOIN` de evaluaciones, indicadores y preguntas).
-- [X] **Dependencias y Pool de Conexiones**:
+- [x] **Dependencias y Pool de Conexiones**:
   - Instalados `mysql2`, `bcryptjs` y `@types/bcryptjs`.
   - Corregido `src/lib/db.ts` con tipado estricto `exactOptionalPropertyTypes` y pool seguro para hosting compartido.
-- [X] **Capa de Datos Híbrida (`src/lib/mystery/server-data.ts`)**:
+- [x] **Capa de Datos Híbrida (`src/lib/mystery/server-data.ts`)**:
   - Creada función de servidor `getMysteryShoppingDataFn` con consultas SQL dinámicas por cliente.
   - Implementado fallback automático y transparente a `mystery-shopping-imported.json` cuando `isDbEnabled()` sea falso o haya error de red, garantizando cero caídas.
   - Integrada la carga y rehidratación de datos en `src/routes/maquinarias.tsx`.
-- [X] **Panel SuperAdmin (`src/routes/admin.tsx`)**:
+- [x] **Panel SuperAdmin (`src/routes/admin.tsx`)**:
   - Nueva ruta `/admin` protegida con `beforeLoad`: acceso exclusivo para usuarios con `rol === 'superadmin'`.
   - Panel visual de monitoreo: estado de MySQL, métricas relacionales (clientes, usuarios, proyectos, locales, evaluaciones, auditoría), directorio de clientes con enlaces directos a sus paneles, listado de usuarios con roles y visualizador de bitácora de auditoría.
-- [X] **Validación de Compilación**:
+- [x] **Validación de Compilación**:
   - `npx tsc --noEmit` completado con 0 errores.
   - `npm run build` ejecutado exitosamente generando el bundle Nitro para producción (`.output/server/index.mjs`).
+
+## Implementación base del plan: operación central
+
+- [X] Incorporado el módulo **Proyectos e importación**: tabla de estudios por empresa, alta de proyectos aislados y validación de Excel por hojas y encabezados existentes.
+- [X] Incorporado el módulo **Soporte y tickets**: bandeja operativa, creación de tickets, prioridad y transición entre `abierto`, `en_analisis` y `resuelto`.
+- [X] Añadidos controles de cabecera para perfil, estado de conexión, notificaciones y conmutador de tema mediante componentes accesibles de Radix UI.
+- [X] Añadida la migración incremental `database/migrations/002_admin_operaciones.sql`; agrega roles de Editor Web y Soporte, tickets, comentarios y la estructura de contenidos web sin borrar datos.
+- [X] Actualizado `database/schema.sql` para que instalaciones nuevas partan con el modelo ampliado.
+- [!] La importación actual valida y conserva los datos en la sesión local. La persistencia masiva a MySQL y su aprobación editorial requieren definir la política de reemplazo/versionado del proyecto.
+- [!] El modelo de CMS está preparado en base de datos, pero todavía no publica contenido en la landing: falta elegir los bloques editables y su flujo de revisión.
+- [X] Validado con `npx tsc --noEmit` y `npm run build`.
 
 ### Sugerencias para Producción en GoDaddy
 
