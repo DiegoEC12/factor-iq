@@ -18,14 +18,15 @@ const SYMBOL_CHARS = "!@#$%^&*()_+-=[]{}|;:,.<>?";
 /**
  * Genera una contraseña criptográficamente aleatoria y segura
  */
-export function generateSecurePassword(options: PasswordOptions = {}): string {
+export function generateSecurePassword(options: PasswordOptions | number = {}): string {
+  const opts = typeof options === "number" ? { length: options } : options;
   const {
     length = 16,
     includeUppercase = true,
     includeLowercase = true,
     includeNumbers = true,
     includeSymbols = true,
-  } = options;
+  } = opts;
 
   let validChars = "";
   const guaranteedChars: string[] = [];

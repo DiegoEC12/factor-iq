@@ -449,3 +449,310 @@ export const updateTicketStatusFn = createServerFn({ method: "POST" })
     });
     return { success: true, message: "Estado del ticket actualizado." };
   });
+
+export interface NewServiceOnboardingInput {
+  cliente: {
+    slug: string;
+    nombre_comercial: string;
+    razon_social?: string;
+    ruc?: string;
+    rubro?: string;
+    plan: "basico" | "profesional" | "enterprise";
+    color_primario?: string;
+    contacto_nombre?: string;
+    contacto_email?: string;
+    contacto_telefono?: string;
+  };
+  credenciales: {
+    usuario: string;
+    nombre: string;
+    email?: string;
+    password: string;
+  };
+  servicio: {
+    nombre: string;
+    tipo?: string;
+    periodo?: string;
+  };
+  excelData: {
+    evaluaciones: {
+      id: string;
+      concesionaria: string;
+      marca: string;
+      ubicacion: string;
+      puntaje: number;
+      resumen: string | null;
+      recomendaciones: string | null;
+      tipoEvaluacion: string;
+    }[];
+    indicadores: {
+      ev: string;
+      n: number;
+      nombre: string;
+      peso: number;
+      cumpl: number;
+    }[];
+    preguntas: {
+      ev: string;
+      ind: number;
+      indicador: string;
+      q: string;
+      resp: string | null;
+      nota: number | null;
+      obs: string | null;
+    }[];
+  };
+}
+
+/**
+ * Persistencia atómica del Wizard de Onboarding:
+ * Crea Empresa + Usuario Admin + Servicio/Proyecto + Sucursales + Indicadores + Evaluaciones en MySQL.
+ */
+export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
+  .validator((data: NewServiceOnboardingInput) => data)
+  .handler(async ({ data }) => {
+    const admin = await assertSuperAdmin();
+
+    const cleanSlug = data.cliente.slug
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]/g, "");
+
+    if (!cleanSlug) {
+      throw new Error("El slug de la empresa es obligatorio.");
+    }
+    if (!data.cliente.nombre_comercial?.trim()) {
+      throw new Error("El nombre comercial de la empresa es obligatorio.");
+    }
+    if (!data.credenciales.usuario?.trim()) {
+      throw new Error("El usuario de acceso es obligatorio.");
+    }
+    if (!data.credenciales.password || data.credenciales.password.length < 6) {
+      throw new Error("La contraseña debe tener al menos 6 caracteres.");
+    }
+    if (!data.servicio.nombre?.trim()) {
+      throw new Error("El nombre del servicio/proyecto es obligatorio.");
+    }
+
+    if (!isDbEnabled()) {
+      return {
+        success: true,
+        message: `Servicio "${data.servicio.nombre}" y cliente "${data.cliente.nombre_comercial}" validados en modo demostración (MySQL inactivo).`,
+        clienteSlug: cleanSlug,
+      };
+    }
+
+    // 1. Validar unicidad de slug, ruc y usuario
+    const existingClient = await query(
+      "SELECT id FROM clientes WHERE slug = ? OR (ruc IS NOT NULL AND ruc = ?)",
+      [cleanSlug, data.cliente.ruc || ""],
+    );
+    if (existingClient.length > 0) {
+      throw new Error("Ya existe una empresa registrada con ese Slug o RUC.");
+    }
+
+    const existingUser = await query(
+      "SELECT id FROM usuarios WHERE usuario = ? OR (email IS NOT NULL AND email = ?)",
+      [data.credenciales.usuario.trim(), data.credenciales.email?.trim() || ""],
+    );
+    if (existingUser.length > 0) {
+      throw new Error("El nombre de usuario o correo ya está en uso en el sistema.");
+    }
+
+    // 2. Insertar cliente
+    const clientRes = await query<{ insertId: number }>(
+      `INSERT INTO clientes (slug, nombre_comercial, razon_social, ruc, rubro, plan, estado, color_primario, contacto_nombre, contacto_email, contacto_telefono)
+       VALUES (?, ?, ?, ?, ?, ?, 'activo', ?, ?, ?, ?)`,
+      [
+        cleanSlug,
+        data.cliente.nombre_comercial.trim(),
+        data.cliente.razon_social?.trim() || null,
+        data.cliente.ruc?.trim() || null,
+        data.cliente.rubro?.trim() || null,
+        data.cliente.plan || "basico",
+        data.cliente.color_primario || "#6366f1",
+        data.cliente.contacto_nombre?.trim() || null,
+        data.cliente.contacto_email?.trim() || null,
+        data.cliente.contacto_telefono?.trim() || null,
+      ],
+    );
+    const clienteId = (clientRes as any).insertId || (await query<any>("SELECT id FROM clientes WHERE slug = ?", [cleanSlug]))[0]?.id;
+
+    // 3. Insertar usuario admin_cliente con hash
+    const passHash = await bcrypt.hash(data.credenciales.password, 10);
+    await query(
+      `INSERT INTO usuarios (cliente_id, usuario, email, password_hash, nombre, rol, estado)
+       VALUES (?, ?, ?, ?, ?, 'admin_cliente', 'activo')`,
+      [
+        clienteId,
+        data.credenciales.usuario.trim(),
+        data.credenciales.email?.trim() || null,
+        passHash,
+        data.credenciales.nombre.trim(),
+      ],
+    );
+
+    // 4. Insertar proyecto
+    const projRes = await query<{ insertId: number }>(
+      `INSERT INTO proyectos (cliente_id, nombre, tipo, periodo, fuente, estado, fecha_inicio)
+       VALUES (?, ?, ?, ?, 'excel_onboarding_import', 'activo', CURDATE())`,
+      [
+        clienteId,
+        data.servicio.nombre.trim(),
+        data.servicio.tipo?.trim() || "mystery_shopping",
+        data.servicio.periodo?.trim() || "2025",
+      ],
+    );
+    const proyectoId = (projRes as any).insertId || (await query<any>("SELECT id FROM proyectos WHERE cliente_id = ? ORDER BY id DESC LIMIT 1", [clienteId]))[0]?.id;
+
+    // 5. Insertar sucursales únicas
+    const sucursalesMap = new Map<string, number>();
+    for (const ev of data.excelData.evaluaciones) {
+      const nom = ev.concesionaria?.trim() || "Principal";
+      const marca = ev.marca?.trim() || "General";
+      const ub = ev.ubicacion?.trim() || "Lima";
+      const key = `${nom}__${marca}__${ub}`;
+
+      if (!sucursalesMap.has(key)) {
+        await query(
+          `INSERT INTO sucursales (cliente_id, nombre, marca, ubicacion, estado)
+           VALUES (?, ?, ?, ?, 'activa')
+           ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,
+          [clienteId, nom, marca, ub],
+        );
+        const sucRows = await query<any>(
+          "SELECT id FROM sucursales WHERE cliente_id = ? AND nombre = ? AND marca = ? AND ubicacion = ? LIMIT 1",
+          [clienteId, nom, marca, ub],
+        );
+        if (sucRows.length > 0) {
+          sucursalesMap.set(key, sucRows[0].id);
+        }
+      }
+    }
+
+    // 6. Insertar catálogo de indicadores del proyecto
+    const indicadoresMap = new Map<string, number>(); // key: tipo_evaluacion__orden -> indicador_id
+    const uniqueIndicators = new Map<string, { tipo: string; orden: number; nombre: string; peso: number }>();
+
+    for (const ind of data.excelData.indicadores) {
+      const evObj = data.excelData.evaluaciones.find((e) => e.id === ind.ev);
+      const tipo = evObj?.tipoEvaluacion || "Ventas";
+      const indKey = `${tipo}__${ind.n}`;
+      if (!uniqueIndicators.has(indKey)) {
+        uniqueIndicators.set(indKey, {
+          tipo,
+          orden: ind.n,
+          nombre: ind.nombre || `Criterio ${ind.n}`,
+          peso: ind.peso || 0.1,
+        });
+      }
+    }
+
+    for (const [indKey, item] of uniqueIndicators.entries()) {
+      const codigo = item.tipo.toLowerCase().includes("call")
+        ? `IND_CAL_${String(item.orden).padStart(2, "0")}`
+        : `IND_${String(item.orden).padStart(2, "0")}`;
+
+      await query(
+        `INSERT INTO indicadores (proyecto_id, codigo, tipo_evaluacion, orden, nombre, peso)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), peso = VALUES(peso), id = LAST_INSERT_ID(id)`,
+        [proyectoId, codigo, item.tipo, item.orden, item.nombre, item.peso],
+      );
+
+      const indRows = await query<any>(
+        "SELECT id FROM indicadores WHERE proyecto_id = ? AND tipo_evaluacion = ? AND orden = ? LIMIT 1",
+        [proyectoId, item.tipo, item.orden],
+      );
+      if (indRows.length > 0) {
+        indicadoresMap.set(indKey, indRows[0].id);
+      }
+    }
+
+    // 7. Insertar evaluaciones
+    const evaluacionesMap = new Map<string, number>(); // original_code -> evaluacion_id
+    for (const ev of data.excelData.evaluaciones) {
+      const nom = ev.concesionaria?.trim() || "Principal";
+      const marca = ev.marca?.trim() || "General";
+      const ub = ev.ubicacion?.trim() || "Lima";
+      const sucId = sucursalesMap.get(`${nom}__${marca}__${ub}`) || 1;
+
+      // Código único garantizado
+      const uniqueCode = `${cleanSlug.toUpperCase().slice(0, 6)}_${ev.id}`.slice(0, 30);
+
+      const evRes = await query<{ insertId: number }>(
+        `INSERT INTO evaluaciones (codigo, proyecto_id, sucursal_id, tipo_evaluacion, puntaje, resumen, recomendaciones, fecha_evaluacion)
+         VALUES (?, ?, ?, ?, ?, ?, ?, CURDATE())
+         ON DUPLICATE KEY UPDATE puntaje = VALUES(puntaje), resumen = VALUES(resumen), id = LAST_INSERT_ID(id)`,
+        [
+          uniqueCode,
+          proyectoId,
+          sucId,
+          ev.tipoEvaluacion || "Ventas",
+          ev.puntaje || 0,
+          ev.resumen || null,
+          ev.recomendaciones || null,
+        ],
+      );
+      const evId = (evRes as any).insertId || (await query<any>("SELECT id FROM evaluaciones WHERE codigo = ? LIMIT 1", [uniqueCode]))[0]?.id;
+      if (evId) {
+        evaluacionesMap.set(ev.id, evId);
+      }
+    }
+
+    // 8. Insertar evaluacion_indicadores
+    for (const ind of data.excelData.indicadores) {
+      const evId = evaluacionesMap.get(ind.ev);
+      const evObj = data.excelData.evaluaciones.find((e) => e.id === ind.ev);
+      const tipo = evObj?.tipoEvaluacion || "Ventas";
+      const indId = indicadoresMap.get(`${tipo}__${ind.n}`);
+
+      if (evId && indId) {
+        await query(
+          `INSERT INTO evaluacion_indicadores (evaluacion_id, indicador_id, cumplimiento)
+           VALUES (?, ?, ?)
+           ON DUPLICATE KEY UPDATE cumplimiento = VALUES(cumplimiento)`,
+          [evId, indId, ind.cumpl || 0],
+        );
+      }
+    }
+
+    // 9. Insertar evaluacion_preguntas
+    for (const q of data.excelData.preguntas) {
+      const evId = evaluacionesMap.get(q.ev);
+      const evObj = data.excelData.evaluaciones.find((e) => e.id === q.ev);
+      const tipo = evObj?.tipoEvaluacion || "Ventas";
+      const indId = indicadoresMap.get(`${tipo}__${q.ind}`);
+
+      if (evId && indId) {
+        await query(
+          `INSERT INTO evaluacion_preguntas (evaluacion_id, indicador_id, pregunta, respuesta, nota, observacion)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [
+            evId,
+            indId,
+            q.q.slice(0, 500),
+            q.resp?.slice(0, 100) || null,
+            q.nota !== null && q.nota !== undefined ? String(q.nota) : null,
+            q.obs || null,
+          ],
+        );
+      }
+    }
+
+    // 10. Auditoría
+    await recordAudit("onboarding_servicio_excel", {
+      clienteId,
+      clienteSlug: cleanSlug,
+      proyectoId,
+      nombreProyecto: data.servicio.nombre,
+      evaluacionesCount: data.excelData.evaluaciones.length,
+      creadoPor: admin.nombre,
+    });
+
+    return {
+      success: true,
+      message: `Empresa "${data.cliente.nombre_comercial}" y servicio "${data.servicio.nombre}" registrados exitosamente con ${data.excelData.evaluaciones.length} evaluaciones importadas.`,
+      clienteSlug: cleanSlug,
+    };
+  });

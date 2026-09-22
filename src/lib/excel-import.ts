@@ -361,3 +361,140 @@ export function resetImportedData() {
   applyImportedPayload(loadBundledPayload());
   clearPersistedImportedPayload();
 }
+
+export interface ParsedExcelResult {
+  fileName: string;
+  fileSize: number;
+  evaluations: Evaluacion[];
+  evaluaciones: Evaluacion[];
+  indicators: IndicadorRow[];
+  questions: PreguntaRow[];
+  stats: {
+    totalEvaluaciones: number;
+    totalSucursales: number;
+    sucursalesList: string[];
+    totalIndicadores: number;
+    totalPreguntas: number;
+    promedioPuntaje: number;
+    inconsistencias: string[];
+  };
+}
+
+/**
+ * Parsea y valida el Excel sin aplicar modificaciones al estado global ni a localStorage.
+ * Ideal para la etapa de Pre-importación / Preview del Wizard.
+ */
+export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
+  const workbook = XLSX.read(await file.arrayBuffer(), { type: "array", cellDates: true });
+  const evaluationRows = sheetRows(workbook, SHEET_ALIASES.evaluations);
+  const indicatorRows = sheetRows(workbook, SHEET_ALIASES.indicators);
+  const questionRows = sheetRows(workbook, SHEET_ALIASES.questions);
+
+  const missingSheets: string[] = [];
+  if (!evaluationRows.length) missingSheets.push("Evaluaciones");
+  if (!indicatorRows.length) missingSheets.push("Indicadores");
+  if (!questionRows.length) missingSheets.push("Preguntas");
+
+  if (missingSheets.length > 0) {
+    throw new Error(
+      `El archivo no contiene las hojas obligatorias: ${missingSheets.join(", ")}. Por favor verifica el formato del archivo .xlsx.`,
+    );
+  }
+
+  const inconsistencias: string[] = [];
+
+  const evaluations = evaluationRows.map((row, index) => {
+    const concesionaria = text(findValue(row, ["concesionaria", "dealer", "cliente"]));
+    const empresaRaw = text(
+      findValue(row, ["tipoempresa", "empresa", "grupoempresa", "categoriaempresa", "companytype"]),
+      "",
+    );
+
+    const evId = text(findValue(row, ["id", "idevaluacion", "evaluacionid"]), `EV_${index + 1}`);
+    const score = number(findValue(row, ["puntaje", "puntajetotal", "score", "resultado"]));
+
+    if (!concesionaria) {
+      inconsistencias.push(`Fila ${index + 1}: Evaluación "${evId}" no especifica concesionaria/sucursal.`);
+    }
+
+    const record: Evaluacion & { __tipoEmpresaRaw: string } = {
+      id: evId,
+      concesionaria: concesionaria || "Sucursal Principal",
+      marca: text(findValue(row, ["marca", "brand"]), "General"),
+      ubicacion: text(findValue(row, ["ubicacion", "local", "sede", "location"]), "Lima"),
+      puntaje: score,
+      resumen: text(findValue(row, ["resumen", "resumenvisita", "summary"]), "") || null,
+      recomendaciones: text(findValue(row, ["recomendaciones", "recommendations"]), "") || null,
+      tipoEvaluacion: text(
+        findValue(row, ["tipoevaluacion", "origencanal", "canalorigen", "tipo", "evaluationtype"]),
+        "Venta",
+      ),
+      __tipoEmpresaRaw: empresaRaw,
+    };
+
+    record.tipoEvaluacion = normalizeTipoEvaluacion(record.tipoEvaluacion);
+    return record;
+  });
+
+  const indicators: IndicadorRow[] = indicatorRows
+    .map((row) => ({
+      ev: text(findValue(row, ["ev", "idevaluacion", "evaluacionid"])),
+      n: number(findValue(row, ["n", "orden", "numero", "indicadorn", "noindicador"])),
+      nombre: text(findValue(row, ["nombre", "nombreindicador", "indicador", "name"])),
+      peso: number(findValue(row, ["peso", "weight"])),
+      cumpl: number(findValue(row, ["cumpl", "cumplimiento", "resultado", "score", "nota"])),
+    }))
+    .filter((row) => row.ev && row.n > 0);
+
+  const questions: PreguntaRow[] = questionRows
+    .map((row) => ({
+      ev: text(findValue(row, ["ev", "idevaluacion", "evaluacionid"])),
+      ind: number(findValue(row, ["ind", "n", "indicadorn", "noindicador"])),
+      indicador: text(findValue(row, ["indicador", "nombreindicador", "indicator"])),
+      q: text(findValue(row, ["q", "pregunta", "question"])),
+      resp: text(findValue(row, ["resp", "respuesta", "answer"]), "") || null,
+      nota:
+        findValue(row, ["nota", "puntaje", "score"]) === null
+          ? null
+          : number(findValue(row, ["nota", "puntaje", "score"])),
+      obs: text(findValue(row, ["obs", "observacion", "comentario", "comment"]), "") || null,
+    }))
+    .filter((row) => row.ev && row.ind > 0 && row.q);
+
+  // Calcular puntaje promedio si vino vacío
+  const byEvaluation = new Map(indicators.map((row) => [row.ev, [] as number[]]));
+  for (const row of indicators) byEvaluation.get(row.ev)?.push(row.cumpl);
+  for (const evaluation of evaluations) {
+    if (!evaluation.puntaje) {
+      const values = byEvaluation.get(evaluation.id) ?? [];
+      evaluation.puntaje = values.length
+        ? values.reduce((sum, value) => sum + value, 0) / values.length
+        : 0;
+    }
+  }
+
+  const sucursalesSet = new Set(evaluations.map((e) => e.concesionaria));
+  const uniqueSucursales = Array.from(sucursalesSet).filter(Boolean);
+  const avgPuntaje = evaluations.length
+    ? evaluations.reduce((acc, curr) => acc + curr.puntaje, 0) / evaluations.length
+    : 0;
+
+  return {
+    fileName: file.name,
+    fileSize: file.size,
+    evaluations,
+    evaluaciones: evaluations,
+    indicators,
+    questions,
+    stats: {
+      totalEvaluaciones: evaluations.length,
+      totalSucursales: uniqueSucursales.length,
+      sucursalesList: uniqueSucursales,
+      totalIndicadores: new Set(indicators.map((i) => i.n)).size,
+      totalPreguntas: questions.length,
+      promedioPuntaje: Math.round(avgPuntaje * 100),
+      inconsistencias: inconsistencias.slice(0, 5), // Limitar a las 5 primeras
+    },
+  };
+}
+

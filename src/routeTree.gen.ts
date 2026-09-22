@@ -20,6 +20,10 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as MaquinariasRouteImport } from './routes/maquinarias'
 import { Route as NosotrosRouteImport } from './routes/nosotros'
 import { Route as ServiciosRouteImport } from './routes/servicios'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
+import { Route as AdminEmpresasRouteImport } from './routes/admin/empresas'
+import { Route as AdminUsuariosRouteImport } from './routes/admin/usuarios'
 import { Route as MaquinariasIndexRouteImport } from './routes/maquinarias/index'
 import { Route as MaquinariasBenchmarkRouteImport } from './routes/maquinarias/benchmark'
 import { Route as MaquinariasConcesionariasRouteImport } from './routes/maquinarias/concesionarias'
@@ -28,6 +32,8 @@ import { Route as PagesContactoDothtmlRouteImport } from './routes/pages/contact
 import { Route as PagesNosotrosDothtmlRouteImport } from './routes/pages/nosotros[.]html'
 import { Route as PagesServicio_nubeDothtmlRouteImport } from './routes/pages/servicio_nube[.]html'
 import { Route as PagesServiciosDothtmlRouteImport } from './routes/pages/servicios[.]html'
+import { Route as PortalDashboardRouteImport } from './routes/portal.dashboard'
+import { Route as AdminServiciosNuevoRouteImport } from './routes/admin/servicios.nuevo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -84,6 +90,26 @@ const ServiciosRoute = ServiciosRouteImport.update({
   path: '/servicios',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEmpresasRoute = AdminEmpresasRouteImport.update({
+  id: '/empresas',
+  path: '/empresas',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => AdminRoute,
+} as any)
 const MaquinariasIndexRoute = MaquinariasIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -126,10 +152,20 @@ const PagesServiciosDothtmlRoute = PagesServiciosDothtmlRouteImport.update({
   path: '/pages/servicios.html',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PortalDashboardRoute = PortalDashboardRouteImport.update({
+  id: '/portal/dashboard',
+  path: '/portal/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminServiciosNuevoRoute = AdminServiciosNuevoRouteImport.update({
+  id: '/servicios/nuevo',
+  path: '/servicios/nuevo',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/benchmark': typeof BenchmarkRoute
   '/concesionarias': typeof ConcesionariasRoute
   '/contacto': typeof ContactoRoute
@@ -139,6 +175,9 @@ export interface FileRoutesByFullPath {
   '/maquinarias': typeof MaquinariasRouteWithChildren
   '/nosotros': typeof NosotrosRoute
   '/servicios': typeof ServiciosRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/maquinarias/benchmark': typeof MaquinariasBenchmarkRoute
   '/maquinarias/concesionarias': typeof MaquinariasConcesionariasRoute
   '/maquinarias/indicadores': typeof MaquinariasIndicadoresRoute
@@ -146,11 +185,13 @@ export interface FileRoutesByFullPath {
   '/pages/nosotros.html': typeof PagesNosotrosDothtmlRoute
   '/pages/servicio_nube.html': typeof PagesServicio_nubeDothtmlRoute
   '/pages/servicios.html': typeof PagesServiciosDothtmlRoute
+  '/portal/dashboard': typeof PortalDashboardRoute
+  '/admin/': typeof AdminIndexRoute
   '/maquinarias/': typeof MaquinariasIndexRoute
+  '/admin/servicios/nuevo': typeof AdminServiciosNuevoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/benchmark': typeof BenchmarkRoute
   '/concesionarias': typeof ConcesionariasRoute
   '/contacto': typeof ContactoRoute
@@ -159,6 +200,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/nosotros': typeof NosotrosRoute
   '/servicios': typeof ServiciosRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/maquinarias/benchmark': typeof MaquinariasBenchmarkRoute
   '/maquinarias/concesionarias': typeof MaquinariasConcesionariasRoute
   '/maquinarias/indicadores': typeof MaquinariasIndicadoresRoute
@@ -166,12 +210,15 @@ export interface FileRoutesByTo {
   '/pages/nosotros.html': typeof PagesNosotrosDothtmlRoute
   '/pages/servicio_nube.html': typeof PagesServicio_nubeDothtmlRoute
   '/pages/servicios.html': typeof PagesServiciosDothtmlRoute
+  '/portal/dashboard': typeof PortalDashboardRoute
+  '/admin': typeof AdminIndexRoute
   '/maquinarias': typeof MaquinariasIndexRoute
+  '/admin/servicios/nuevo': typeof AdminServiciosNuevoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/benchmark': typeof BenchmarkRoute
   '/concesionarias': typeof ConcesionariasRoute
   '/contacto': typeof ContactoRoute
@@ -181,6 +228,9 @@ export interface FileRoutesById {
   '/maquinarias': typeof MaquinariasRouteWithChildren
   '/nosotros': typeof NosotrosRoute
   '/servicios': typeof ServiciosRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/usuarios': typeof AdminUsuariosRoute
   '/maquinarias/benchmark': typeof MaquinariasBenchmarkRoute
   '/maquinarias/concesionarias': typeof MaquinariasConcesionariasRoute
   '/maquinarias/indicadores': typeof MaquinariasIndicadoresRoute
@@ -188,7 +238,10 @@ export interface FileRoutesById {
   '/pages/nosotros.html': typeof PagesNosotrosDothtmlRoute
   '/pages/servicio_nube.html': typeof PagesServicio_nubeDothtmlRoute
   '/pages/servicios.html': typeof PagesServiciosDothtmlRoute
+  '/portal/dashboard': typeof PortalDashboardRoute
+  '/admin/': typeof AdminIndexRoute
   '/maquinarias/': typeof MaquinariasIndexRoute
+  '/admin/servicios/nuevo': typeof AdminServiciosNuevoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -204,6 +257,9 @@ export interface FileRouteTypes {
     | '/maquinarias'
     | '/nosotros'
     | '/servicios'
+    | '/admin/dashboard'
+    | '/admin/empresas'
+    | '/admin/usuarios'
     | '/maquinarias/benchmark'
     | '/maquinarias/concesionarias'
     | '/maquinarias/indicadores'
@@ -211,11 +267,13 @@ export interface FileRouteTypes {
     | '/pages/nosotros.html'
     | '/pages/servicio_nube.html'
     | '/pages/servicios.html'
+    | '/portal/dashboard'
+    | '/admin/'
     | '/maquinarias/'
+    | '/admin/servicios/nuevo'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/admin'
     | '/benchmark'
     | '/concesionarias'
     | '/contacto'
@@ -224,6 +282,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/nosotros'
     | '/servicios'
+    | '/admin/dashboard'
+    | '/admin/empresas'
+    | '/admin/usuarios'
     | '/maquinarias/benchmark'
     | '/maquinarias/concesionarias'
     | '/maquinarias/indicadores'
@@ -231,7 +292,10 @@ export interface FileRouteTypes {
     | '/pages/nosotros.html'
     | '/pages/servicio_nube.html'
     | '/pages/servicios.html'
+    | '/portal/dashboard'
+    | '/admin'
     | '/maquinarias'
+    | '/admin/servicios/nuevo'
   id:
     | '__root__'
     | '/'
@@ -245,6 +309,9 @@ export interface FileRouteTypes {
     | '/maquinarias'
     | '/nosotros'
     | '/servicios'
+    | '/admin/dashboard'
+    | '/admin/empresas'
+    | '/admin/usuarios'
     | '/maquinarias/benchmark'
     | '/maquinarias/concesionarias'
     | '/maquinarias/indicadores'
@@ -252,12 +319,15 @@ export interface FileRouteTypes {
     | '/pages/nosotros.html'
     | '/pages/servicio_nube.html'
     | '/pages/servicios.html'
+    | '/portal/dashboard'
+    | '/admin/'
     | '/maquinarias/'
+    | '/admin/servicios/nuevo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   BenchmarkRoute: typeof BenchmarkRoute
   ConcesionariasRoute: typeof ConcesionariasRoute
   ContactoRoute: typeof ContactoRoute
@@ -271,6 +341,7 @@ export interface RootRouteChildren {
   PagesNosotrosDothtmlRoute: typeof PagesNosotrosDothtmlRoute
   PagesServicio_nubeDothtmlRoute: typeof PagesServicio_nubeDothtmlRoute
   PagesServiciosDothtmlRoute: typeof PagesServiciosDothtmlRoute
+  PortalDashboardRoute: typeof PortalDashboardRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -352,6 +423,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServiciosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/empresas': {
+      id: '/admin/empresas'
+      path: '/empresas'
+      fullPath: '/admin/empresas'
+      preLoaderRoute: typeof AdminEmpresasRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/usuarios': {
+      id: '/admin/usuarios'
+      path: '/usuarios'
+      fullPath: '/admin/usuarios'
+      preLoaderRoute: typeof AdminUsuariosRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/maquinarias/': {
       id: '/maquinarias/'
       path: '/'
@@ -408,8 +507,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PagesServiciosDothtmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portal/dashboard': {
+      id: '/portal/dashboard'
+      path: '/portal/dashboard'
+      fullPath: '/portal/dashboard'
+      preLoaderRoute: typeof PortalDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/servicios/nuevo': {
+      id: '/admin/servicios/nuevo'
+      path: '/servicios/nuevo'
+      fullPath: '/admin/servicios/nuevo'
+      preLoaderRoute: typeof AdminServiciosNuevoRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminEmpresasRoute: typeof AdminEmpresasRoute
+  AdminUsuariosRoute: typeof AdminUsuariosRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminServiciosNuevoRoute: typeof AdminServiciosNuevoRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminEmpresasRoute: AdminEmpresasRoute,
+  AdminUsuariosRoute: AdminUsuariosRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminServiciosNuevoRoute: AdminServiciosNuevoRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface MaquinariasRouteChildren {
   MaquinariasBenchmarkRoute: typeof MaquinariasBenchmarkRoute
@@ -431,7 +562,7 @@ const MaquinariasRouteWithChildren = MaquinariasRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   BenchmarkRoute: BenchmarkRoute,
   ConcesionariasRoute: ConcesionariasRoute,
   ContactoRoute: ContactoRoute,
@@ -445,6 +576,7 @@ const rootRouteChildren: RootRouteChildren = {
   PagesNosotrosDothtmlRoute: PagesNosotrosDothtmlRoute,
   PagesServicio_nubeDothtmlRoute: PagesServicio_nubeDothtmlRoute,
   PagesServiciosDothtmlRoute: PagesServiciosDothtmlRoute,
+  PortalDashboardRoute: PortalDashboardRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
