@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,6 +9,7 @@ type Option = { value: string; label: string };
 
 type Props = {
   label: string;
+  shortLabel?: string;
   values: string[] | null;
   options: Option[];
   allLabel?: string;
@@ -19,6 +21,7 @@ type Props = {
 
 export function MultiFilterSelect({
   label,
+  shortLabel,
   values,
   options,
   allLabel = "Todas",
@@ -27,6 +30,8 @@ export function MultiFilterSelect({
   showAllOption = true,
   onChange,
 }: Props) {
+  const [open, setOpen] = useState(false);
+
   const allSelected = singleSelect
     ? false
     : singleOrAll
@@ -38,7 +43,7 @@ export function MultiFilterSelect({
     : singleSelect
       ? (values?.[0]
           ? (options.find((option) => option.value === values[0])?.label ?? values[0])
-          : (options[0]?.label ?? ""))
+          : (options[0]?.label ?? "Ventas"))
     : !values || values.length === 0
       ? "Ninguna"
     : values.length === 1
@@ -57,6 +62,7 @@ export function MultiFilterSelect({
     if (singleSelect) {
       if (!checked) return;
       onChange([value]);
+      setOpen(false);
       return;
     }
 
@@ -77,19 +83,21 @@ export function MultiFilterSelect({
     singleOrAll && values !== null && values.length === 1 ? values[0] : null;
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           type="button"
           variant="outline"
-          className="h-10 min-w-0 justify-between rounded-full border-border bg-card px-4 text-sm font-medium shadow-none"
+          className="h-10 min-w-0 justify-between rounded-full border-border bg-card px-3.5 text-sm font-medium shadow-none hover:bg-muted/50"
           aria-label={label}
         >
-          <span className="mr-2 min-w-0 truncate">
-            <span className="mr-1 hidden text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:inline">
-              {label}
+          <span className="mr-2 flex min-w-0 items-center gap-1.5 truncate">
+            <span className="hidden text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:inline">
+              {(shortLabel || label)}:
             </span>
-            {selectedLabel}
+            <span className={cn("truncate", singleSelect ? "font-semibold text-foreground" : "font-medium")}>
+              {selectedLabel}
+            </span>
           </span>
           <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
         </Button>

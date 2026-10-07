@@ -163,7 +163,14 @@ function text(value: unknown, fallback = "") {
 }
 
 function number(value: unknown, fallback = 0) {
-  const parsed = typeof value === "number" ? value : Number(String(value ?? "").replace(",", "."));
+  if (typeof value === "number") return Number.isFinite(value) ? value : fallback;
+  if (value === null || value === undefined) return fallback;
+  const str = String(value).trim().replace(",", ".");
+  if (str.endsWith("%")) {
+    const num = Number(str.slice(0, -1).trim());
+    return Number.isFinite(num) ? num / 100 : fallback;
+  }
+  const parsed = Number(str);
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
@@ -301,7 +308,7 @@ export async function importExcelFile(file: File): Promise<{
       recomendaciones: text(findValue(row, ["recomendaciones", "recommendations"]), "") || null,
       tipoEvaluacion: text(
         findValue(row, ["tipoevaluacion", "origencanal", "canalorigen", "tipo", "evaluationtype"]),
-        "Venta",
+        "Ventas",
       ),
       __tipoEmpresaRaw: empresaRaw,
     };
@@ -427,7 +434,7 @@ export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
       recomendaciones: text(findValue(row, ["recomendaciones", "recommendations"]), "") || null,
       tipoEvaluacion: text(
         findValue(row, ["tipoevaluacion", "origencanal", "canalorigen", "tipo", "evaluationtype"]),
-        "Venta",
+        "Ventas",
       ),
       __tipoEmpresaRaw: empresaRaw,
     };

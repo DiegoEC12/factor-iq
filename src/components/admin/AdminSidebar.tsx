@@ -3,6 +3,7 @@ import {
   Building2,
   Users,
   FolderPlus,
+  FileUp,
   PanelLeftClose,
   PanelLeftOpen,
   Menu,
@@ -56,6 +57,12 @@ export function AdminSidebar({ user, stats }: AdminSidebarProps) {
       icon: FolderPlus,
       highlight: true,
       match: (p: string) => p.startsWith("/admin/servicios"),
+    },
+    {
+      to: "/admin/importar",
+      label: "Importación segura",
+      icon: FileUp,
+      match: (p: string) => p.startsWith("/admin/importar"),
     },
     {
       to: "/admin/usuarios",
@@ -113,9 +120,7 @@ export function AdminSidebar({ user, stats }: AdminSidebarProps) {
                     : "text-slate-400 group-hover:text-slate-200",
               )}
             />
-            {!compact && (
-              <span className="flex-1 truncate tracking-tight">{item.label}</span>
-            )}
+            {!compact && <span className="flex-1 truncate tracking-tight">{item.label}</span>}
             {!compact && item.badge !== undefined && item.badge > 0 && (
               <span
                 className={cn(
@@ -252,14 +257,16 @@ export function AdminSidebar({ user, stats }: AdminSidebarProps) {
             className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-900 hover:text-white transition-colors"
             title={collapsed ? "Expandir menú" : "Colapsar menú"}
           >
-            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            {collapsed ? (
+              <PanelLeftOpen className="h-4 w-4" />
+            ) : (
+              <PanelLeftClose className="h-4 w-4" />
+            )}
           </button>
         </div>
 
         {/* Links principales */}
-        <div className="flex-1 overflow-y-auto py-4">
-          {renderNavLinks(collapsed)}
-        </div>
+        <div className="flex-1 overflow-y-auto py-4">{renderNavLinks(collapsed)}</div>
 
         {/* Sección inferior: Usuario y Logout */}
         <div className="border-t border-slate-800/80 p-3 space-y-2">

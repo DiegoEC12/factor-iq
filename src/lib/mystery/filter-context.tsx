@@ -1,17 +1,13 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, useEffect, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { EMPTY_FILTERS, type GlobalFilters } from "./calculations";
-import { dataset } from "./dataset";
+import { dataset, getDatasetVersion, subscribeDataset } from "./dataset";
 import {
-  applyImportedPayload,
-  hydrateImportedDataFromStorage,
-  importExcelFile,
-  loadPersistedImportedPayload,
-  resetImportedData,
-} from "@/lib/excel-import";
-import { coerceSingleTipoEvaluacion, includesTipoEvaluacion } from "@/lib/tipo-evaluacion";
-
-const didHydrateAtStartup = hydrateImportedDataFromStorage();
+  CANONICAL_TIPOS_EVALUACION,
+  type CanonicalTipoEvaluacion,
+  includesTipoEvaluacion,
+  normalizeTipoEvaluacion,
+} from "@/lib/tipo-evaluacion";
 
 interface FilterContextValue {
   filters: GlobalFilters;
@@ -35,10 +31,7 @@ interface FilterContextValue {
   selectedPreguntaId: string | null;
   openPregunta: (indicadorId: string, preguntaId: string) => void;
   clearPregunta: () => void;
-  importExcel: (file: File) => Promise<void>;
-  importError: string | null;
   dataVersion: number;
-  resetImportedData: () => void;
 }
 
 const FilterContext = createContext<FilterContextValue | null>(null);
@@ -48,23 +41,20 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   const [selectedIndicadorId, setSelectedIndicadorId] = useState<string | null>(null);
   const [selectedEvaluacionId, setSelectedEvaluacionId] = useState<string | null>(null);
   const [selectedPreguntaId, setSelectedPreguntaId] = useState<string | null>(null);
-  const [importError, setImportError] = useState<string | null>(null);
-  const [dataVersion, setDataVersion] = useState(didHydrateAtStartup ? 1 : 0);
-  const navigate = useNavigate();
+  const [dataVersion, setDataVersion] = useState(() => getDatasetVersion());
 
   useEffect(() => {
-    if (didHydrateAtStartup) return;
-    const persistedPayload = loadPersistedImportedPayload();
-    if (!persistedPayload) return;
-    applyImportedPayload(persistedPayload);
-    setDataVersion((version) => version + 1);
+    return subscribeDataset(() => {
+      setDataVersion(getDatasetVersion());
+    });
   }, []);
+  const navigate = useNavigate();
 
   const setFilter = useCallback((key: keyof GlobalFilters, value: string[] | null) => {
     setFilters((prev) => {
       const next: GlobalFilters = {
         ...prev,
-        [key]: key === "tipoEvaluacion" ? coerceSingleTipoEvaluacion(value, "Ventas") : value,
+        [key]: value,
       };
 
       const matchesActive = (
@@ -72,7 +62,8 @@ export function FilterProvider({ children }: { children: ReactNode }) {
         criteria: Partial<GlobalFilters>,
       ) =>
         (!criteria.periodo?.length || criteria.periodo.includes(evaluation.periodo)) &&
-        (!criteria.concesionaria?.length || criteria.concesionaria.includes(evaluation.concesionaria)) &&
+        (!criteria.concesionaria?.length ||
+          criteria.concesionaria.includes(evaluation.concesionaria)) &&
         (!criteria.marca?.length || criteria.marca.includes(evaluation.marca)) &&
         (!criteria.ubicacion?.length || criteria.ubicacion.includes(evaluation.ubicacion)) &&
         (criteria.tipoEvaluacion === null ||
@@ -104,7 +95,9 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
       if (next.indicador !== null && next.indicador.length > 0) {
         const criteria: Partial<GlobalFilters> = { ...next, indicador: null };
-        const evals = dataset.evaluations.filter((evaluation) => matchesActive(evaluation, criteria));
+        const evals = dataset.evaluations.filter((evaluation) =>
+          matchesActive(evaluation, criteria),
+        );
         const evalIds = new Set(evals.map((evaluation) => evaluation.id));
         const allowedIndicatorIds = new Set(
           dataset.indicatorResults
@@ -129,7 +122,8 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       criteria: Partial<GlobalFilters>,
     ) =>
       (!criteria.periodo?.length || criteria.periodo.includes(evaluation.periodo)) &&
-      (!criteria.concesionaria?.length || criteria.concesionaria.includes(evaluation.concesionaria)) &&
+      (!criteria.concesionaria?.length ||
+        criteria.concesionaria.includes(evaluation.concesionaria)) &&
       (!criteria.marca?.length || criteria.marca.includes(evaluation.marca)) &&
       (!criteria.ubicacion?.length || criteria.ubicacion.includes(evaluation.ubicacion)) &&
       (criteria.tipoEvaluacion === null ||
@@ -142,12 +136,32 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       const criteria: Partial<GlobalFilters> = { ...filters };
       criteria[key] = null;
 
+      if (key === "tipoEvaluacion") {
+        return [
+          ...new Set(
+            dataset.evaluations
+              .filter((evaluation) => matchesActive(evaluation, criteria))
+              .map((evaluation) => normalizeTipoEvaluacion(evaluation.tipoEvaluacion))
+              .filter(
+                (value): value is string => typeof value === "string" && value.trim().length > 0,
+              ),
+          ),
+        ].sort((a, b) => {
+          const idxA = CANONICAL_TIPOS_EVALUACION.indexOf(a as CanonicalTipoEvaluacion);
+          const idxB = CANONICAL_TIPOS_EVALUACION.indexOf(b as CanonicalTipoEvaluacion);
+          if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+          return a.localeCompare(b, "es");
+        });
+      }
+
       return [
         ...new Set(
           dataset.evaluations
             .filter((evaluation) => matchesActive(evaluation, criteria))
             .map((evaluation) => evaluation[key])
-            .filter((value): value is string => typeof value === "string" && value.trim().length > 0),
+            .filter(
+              (value): value is string => typeof value === "string" && value.trim().length > 0,
+            ),
         ),
       ].sort((a, b) => a.localeCompare(b, "es"));
     };
@@ -156,7 +170,9 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       ...filters,
       indicador: null,
     };
-    const baseEvaluations = dataset.evaluations.filter((evaluation) => matchesActive(evaluation, baseCriteria));
+    const baseEvaluations = dataset.evaluations.filter((evaluation) =>
+      matchesActive(evaluation, baseCriteria),
+    );
     const baseIds = new Set(baseEvaluations.map((evaluation) => evaluation.id));
     const availableIndicatorIds = new Set(
       dataset.indicatorResults
@@ -188,13 +204,18 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     filters.tipoEvaluacion,
   ]);
 
+  const isNonDefaultTipo =
+    filters.tipoEvaluacion !== null &&
+    filters.tipoEvaluacion.length > 0 &&
+    (filters.tipoEvaluacion.length !== 1 || filters.tipoEvaluacion[0] !== "Ventas");
+
   const hasFilters =
     filters.periodo !== null ||
     filters.concesionaria !== null ||
     filters.marca !== null ||
     filters.ubicacion !== null ||
     filters.indicador !== null ||
-    ((filters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas");
+    isNonDefaultTipo;
 
   const activeLabel = hasFilters
     ? [
@@ -202,7 +223,11 @@ export function FilterProvider({ children }: { children: ReactNode }) {
           ? [filters.periodo.length ? filters.periodo.join(", ") : "Ningún período"]
           : []),
         ...(filters.concesionaria !== null
-          ? [filters.concesionaria.length ? filters.concesionaria.join(", ") : "Ninguna concesionaria"]
+          ? [
+              filters.concesionaria.length
+                ? filters.concesionaria.join(", ")
+                : "Ninguna concesionaria",
+            ]
           : []),
         ...(filters.marca !== null
           ? [filters.marca.length ? filters.marca.join(", ") : "Ninguna marca"]
@@ -213,9 +238,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
         ...(filters.indicador !== null
           ? [filters.indicador.length ? filters.indicador.join(", ") : "Ningún indicador"]
           : []),
-        ...((filters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas"
-          ? [filters.tipoEvaluacion?.join(", ") ?? ""]
-          : []),
+        ...(isNonDefaultTipo && filters.tipoEvaluacion ? [filters.tipoEvaluacion.join(", ")] : []),
       ]
         .filter(Boolean)
         .join(" · ")
@@ -250,22 +273,6 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
   const clearPregunta = useCallback(() => setSelectedPreguntaId(null), []);
 
-  const importExcel = useCallback(async (file: File) => {
-    try {
-      setImportError(null);
-      await importExcelFile(file);
-      setDataVersion((version) => version + 1);
-    } catch (error) {
-      setImportError(error instanceof Error ? error.message : "No se pudo importar el Excel.");
-    }
-  }, []);
-
-  const restoreDataset = useCallback(() => {
-    resetImportedData();
-    setImportError(null);
-    setDataVersion((version) => version + 1);
-  }, []);
-
   const value: FilterContextValue = {
     filters,
     setFilter,
@@ -281,10 +288,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     selectedPreguntaId,
     openPregunta,
     clearPregunta,
-    importExcel,
-    importError,
     dataVersion,
-    resetImportedData: restoreDataset,
   };
 
   return <FilterContext.Provider value={value}>{children}</FilterContext.Provider>;

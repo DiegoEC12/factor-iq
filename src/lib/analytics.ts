@@ -10,6 +10,8 @@ export type Evaluacion = {
   resumen: string | null;
   recomendaciones: string | null;
   tipoEvaluacion: string;
+  fechaEvaluacion?: string | null;
+  asesorEvaluado?: string | null;
 };
 
 export type IndicadorRow = {
@@ -38,7 +40,7 @@ const data = raw as unknown as {
 
 export const evaluaciones: Evaluacion[] = data.evaluaciones.map((e) => ({
   ...e,
-  tipoEvaluacion: normalizeTipoEvaluacion(e.tipoEvaluacion ?? "Venta"),
+  tipoEvaluacion: normalizeTipoEvaluacion(e.tipoEvaluacion ?? "Ventas"),
 }));
 export const indicadores = data.indicadores;
 export const preguntas = data.preguntas;
@@ -124,7 +126,12 @@ export function filterEvaluaciones(f: Filters) {
       (f.indicador === null ||
         f.indicador.some((indicatorId) => {
           const match = indicatorId.match(/(\d+)$/);
-          return match !== null && indicadores.some((indicator) => indicator.ev === e.id && indicator.n === Number(match[1]));
+          return (
+            match !== null &&
+            indicadores.some(
+              (indicator) => indicator.ev === e.id && indicator.n === Number(match[1]),
+            )
+          );
         })),
   );
 }

@@ -20,6 +20,8 @@ type LegacyEvaluationRow = {
   marca?: unknown;
   ubicacion?: unknown;
   tipoEvaluacion?: unknown;
+  fechaEvaluacion?: unknown;
+  asesorEvaluado?: unknown;
 };
 
 type LegacyIndicatorRow = {
@@ -60,6 +62,8 @@ function normalize(rawData: LegacyRawDataset | Dataset): Dataset {
     marca: String(e.marca ?? ""),
     ubicacion: String(e.ubicacion ?? ""),
     tipoEvaluacion: normalizeTipoEvaluacion(e.tipoEvaluacion),
+    fechaEvaluacion: typeof e.fechaEvaluacion === "string" ? e.fechaEvaluacion : null,
+    asesorEvaluado: typeof e.asesorEvaluado === "string" ? e.asesorEvaluado : null,
     // Derivar tipoEmpresa: si la concesionaria literal es 'MAQUINARIAS', se considera Maquinarias
     tipoEmpresa:
       e.concesionaria && String(e.concesionaria).toUpperCase() === "MAQUINARIAS"
@@ -154,6 +158,20 @@ function normalize(rawData: LegacyRawDataset | Dataset): Dataset {
 export const dataset = normalize(raw as LegacyRawDataset);
 const initialDataset = JSON.parse(JSON.stringify(dataset)) as Dataset;
 
+let currentDatasetVersion = 1;
+const datasetSubscribers = new Set<() => void>();
+
+export function getDatasetVersion() {
+  return currentDatasetVersion;
+}
+
+export function subscribeDataset(callback: () => void) {
+  datasetSubscribers.add(callback);
+  return () => {
+    datasetSubscribers.delete(callback);
+  };
+}
+
 export function replaceDataset(next: Dataset) {
   dataset.meta = next.meta;
   dataset.indicators.splice(0, dataset.indicators.length, ...next.indicators);
@@ -161,6 +179,14 @@ export function replaceDataset(next: Dataset) {
   dataset.evaluations.splice(0, dataset.evaluations.length, ...next.evaluations);
   dataset.indicatorResults.splice(0, dataset.indicatorResults.length, ...next.indicatorResults);
   dataset.questionResponses.splice(0, dataset.questionResponses.length, ...next.questionResponses);
+  currentDatasetVersion++;
+  datasetSubscribers.forEach((cb) => {
+    try {
+      cb();
+    } catch (e) {
+      console.error(e);
+    }
+  });
 }
 
 export function resetDataset() {

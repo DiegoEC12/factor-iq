@@ -6,16 +6,27 @@ function normalizeKey(value: unknown): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
-export function normalizeTipoEvaluacion(value: unknown, fallback = "Venta"): string {
+export const CANONICAL_TIPOS_EVALUACION = [
+  "Call Center",
+  "Seminuevos",
+  "Ventas",
+  "Posventa",
+] as const;
+
+export type CanonicalTipoEvaluacion = (typeof CANONICAL_TIPOS_EVALUACION)[number];
+
+export function normalizeTipoEvaluacion(value: unknown, fallback = "Ventas"): string {
   const raw = String(value ?? "").trim();
   const key = normalizeKey(raw);
 
   if (!key) return fallback;
   if (key.includes("callcenter") || key === "call") return "Call Center";
   if (key.includes("seminuevo") || key.includes("seminuevos")) return "Seminuevos";
+  if (key.includes("posventa") || key.includes("postventa") || key.includes("aftersales"))
+    return "Posventa";
   if (key.includes("venta") || key.includes("ventas")) return "Ventas";
 
-  return raw;
+  return fallback;
 }
 
 export function includesTipoEvaluacion(selected: string[] | null, value: unknown): boolean {
@@ -24,11 +35,11 @@ export function includesTipoEvaluacion(selected: string[] | null, value: unknown
   return selected.some((item) => normalizeKey(normalizeTipoEvaluacion(item)) === currentKey);
 }
 
-export function coerceSingleTipoEvaluacion(values: string[] | null, fallback = "Ventas"): string[] {
-  if (values === null) return [normalizeTipoEvaluacion(fallback)];
-  const cleaned = values
-    .map((item) => normalizeTipoEvaluacion(item))
-    .filter((item) => item.trim().length > 0);
-  if (!cleaned.length || !cleaned[0]) return [normalizeTipoEvaluacion(fallback)];
-  return [cleaned[0]];
+export function coerceSingleTipoEvaluacion(
+  values: string[] | null,
+  _fallback = "Ventas",
+): string[] | null {
+  if (values === null) return null;
+  const cleaned = [...new Set(values.map((item) => normalizeTipoEvaluacion(item)).filter(Boolean))];
+  return cleaned.length ? cleaned : null;
 }

@@ -16,7 +16,12 @@ import { cn } from "@/lib/utils";
 import { dataset } from "@/lib/mystery/dataset";
 import { MultiFilterSelect } from "@/components/dash/MultiFilterSelect";
 import { Button } from "@/components/ui/button";
-import { coerceSingleTipoEvaluacion, includesTipoEvaluacion } from "@/lib/tipo-evaluacion";
+import {
+  CANONICAL_TIPOS_EVALUACION,
+  type CanonicalTipoEvaluacion,
+  includesTipoEvaluacion,
+  normalizeTipoEvaluacion,
+} from "@/lib/tipo-evaluacion";
 
 type BenchmarkFilters = {
   marca: string[] | null;
@@ -33,7 +38,7 @@ type CompetenciaFilters = {
 const EMPTY_BENCHMARK_FILTERS: BenchmarkFilters = {
   marca: null,
   ubicacion: null,
-  tipoEvaluacion: ["Ventas"],
+  tipoEvaluacion: null,
 };
 
 const EMPTY_COMPETENCIA_FILTERS: CompetenciaFilters = {
@@ -114,6 +119,24 @@ function BenchmarkPage() {
   const benchmarkOptions = useMemo(() => {
     const optionsFor = (key: keyof BenchmarkFilters) => {
       const criteria: BenchmarkFilters = { ...benchmarkFilters, [key]: null };
+      if (key === "tipoEvaluacion") {
+        return [
+          ...new Set(
+            maquinariasBase
+              .filter((evaluation) => matchActiveBenchmarkFilters(evaluation, criteria))
+              .map((evaluation) => normalizeTipoEvaluacion(evaluation.tipoEvaluacion))
+              .filter(
+                (value): value is string => typeof value === "string" && value.trim().length > 0,
+              ),
+          ),
+        ].sort((a, b) => {
+          const idxA = CANONICAL_TIPOS_EVALUACION.indexOf(a as CanonicalTipoEvaluacion);
+          const idxB = CANONICAL_TIPOS_EVALUACION.indexOf(b as CanonicalTipoEvaluacion);
+          if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+          return a.localeCompare(b, "es");
+        });
+      }
+
       return [
         ...new Set(
           maquinariasBase
@@ -137,7 +160,7 @@ function BenchmarkPage() {
     setBenchmarkFilters((prev) => {
       const next: BenchmarkFilters = {
         ...prev,
-        [key]: key === "tipoEvaluacion" ? coerceSingleTipoEvaluacion(value, "Ventas") : value,
+        [key]: value,
       };
 
       const optionsFor = (targetKey: keyof BenchmarkFilters) => {
@@ -445,8 +468,6 @@ function BenchmarkPage() {
                       value: item,
                       label: item,
                     }))}
-                    singleSelect
-                    showAllOption={false}
                     onChange={(values) => setBenchmarkFilter("tipoEvaluacion", values)}
                   />
                   <Button

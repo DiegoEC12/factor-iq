@@ -28,7 +28,7 @@ function MaquinariasLayout() {
   const { data } = Route.useLoaderData();
 
   useEffect(() => {
-    if (data && data.evaluaciones && data.evaluaciones.length > 0) {
+    if (data) {
       const analytics = {
         evaluations: data.evaluaciones,
         indicators: data.indicadores,
@@ -46,6 +46,19 @@ function MaquinariasLayout() {
       <div className="flex min-h-screen w-full flex-col lg:flex-row">
         <AppSidebar />
         <main className="min-w-0 flex-1">
+          {data.meta.status !== "ready" && (
+            <div className="m-4 flex items-center justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <span>{data.meta.message}</span>
+              {data.meta.status === "unavailable" && (
+                <button
+                  onClick={() => window.location.reload()}
+                  className="shrink-0 rounded-md border border-amber-300 bg-white px-2 py-1 text-xs font-semibold"
+                >
+                  Reintentar
+                </button>
+              )}
+            </div>
+          )}
           <Outlet />
         </main>
       </div>

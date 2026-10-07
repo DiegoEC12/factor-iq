@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { isDbEnabled, query } from "../db";
-import bundledRaw from "@/data/mystery-shopping-imported.json";
 import type { Evaluacion, IndicadorRow, PreguntaRow } from "../analytics";
 
 export interface MysteryShoppingPayload {
@@ -8,7 +7,9 @@ export interface MysteryShoppingPayload {
     source: string;
     importedAt: string;
     evaluationCount: number;
-    provider: "mysql" | "bundled-json";
+    provider: "mysql";
+    status: "ready" | "empty" | "unavailable";
+    message: string | null;
   };
   evaluaciones: Evaluacion[];
   indicadores: IndicadorRow[];
@@ -20,11 +21,18 @@ export const getMysteryShoppingDataFn = createServerFn({ method: "GET" })
   .handler(async ({ data: clientSlug }): Promise<MysteryShoppingPayload> => {
     if (!isDbEnabled()) {
       return {
-        ...(bundledRaw as unknown as Omit<MysteryShoppingPayload, "meta">),
         meta: {
-          ...bundledRaw.meta,
-          provider: "bundled-json",
+          source: "MySQL no configurado",
+          importedAt: new Date().toISOString(),
+          evaluationCount: 0,
+          provider: "mysql",
+          status: "unavailable",
+          message:
+            "MySQL no está configurado. Configura las variables DB_* para consultar datos operativos.",
         },
+        evaluaciones: [],
+        indicadores: [],
+        preguntas: [],
       };
     }
 
@@ -39,9 +47,11 @@ export const getMysteryShoppingDataFn = createServerFn({ method: "GET" })
         puntaje: string | number;
         resumen: string | null;
         recomendaciones: string | null;
+        fecha_evaluacion: string | null;
+        asesor_evaluado: string | null;
       }>(
         `SELECT e.codigo, s.nombre AS concesionaria, s.marca, s.ubicacion,
-                e.tipo_evaluacion, e.puntaje, e.resumen, e.recomendaciones
+                e.tipo_evaluacion, e.puntaje, e.resumen, e.recomendaciones, e.fecha_evaluacion, e.asesor_evaluado
            FROM evaluaciones e
            JOIN sucursales s ON s.id = e.sucursal_id
            JOIN proyectos p ON p.id = e.proyecto_id
@@ -52,13 +62,18 @@ export const getMysteryShoppingDataFn = createServerFn({ method: "GET" })
       );
 
       if (!evRows || evRows.length === 0) {
-        // Fallback si no hay evaluaciones en BD para este cliente
         return {
-          ...(bundledRaw as unknown as Omit<MysteryShoppingPayload, "meta">),
           meta: {
-            ...bundledRaw.meta,
-            provider: "bundled-json",
+            source: `MySQL (factoriq) - Cliente: ${clientSlug}`,
+            importedAt: new Date().toISOString(),
+            evaluationCount: 0,
+            provider: "mysql",
+            status: "empty",
+            message: "No hay evaluaciones registradas para este cliente.",
           },
+          evaluaciones: [],
+          indicadores: [],
+          preguntas: [],
         };
       }
 
@@ -109,6 +124,8 @@ export const getMysteryShoppingDataFn = createServerFn({ method: "GET" })
           importedAt: new Date().toISOString(),
           evaluationCount: evRows.length,
           provider: "mysql",
+          status: "ready",
+          message: null,
         },
         evaluaciones: evRows.map((e) => ({
           id: e.codigo,
@@ -119,6 +136,8 @@ export const getMysteryShoppingDataFn = createServerFn({ method: "GET" })
           resumen: e.resumen ?? null,
           recomendaciones: e.recomendaciones ?? null,
           tipoEvaluacion: e.tipo_evaluacion ?? "Ventas",
+          fechaEvaluacion: e.fecha_evaluacion ?? null,
+          asesorEvaluado: e.asesor_evaluado ?? null,
         })),
         indicadores: indRows.map((i) => ({
           ev: i.ev,
@@ -138,13 +157,19 @@ export const getMysteryShoppingDataFn = createServerFn({ method: "GET" })
         })),
       };
     } catch (err) {
-      console.warn("Error al consultar MySQL para Mystery Shopping, usando fallback JSON:", err);
+      console.warn("Error al consultar MySQL para Mystery Shopping:", err);
       return {
-        ...(bundledRaw as unknown as Omit<MysteryShoppingPayload, "meta">),
         meta: {
-          ...bundledRaw.meta,
-          provider: "bundled-json",
+          source: `MySQL (factoriq) - Cliente: ${clientSlug}`,
+          importedAt: new Date().toISOString(),
+          evaluationCount: 0,
+          provider: "mysql",
+          status: "unavailable",
+          message: "No fue posible consultar MySQL. Revisa la conexión e inténtalo nuevamente.",
         },
+        evaluaciones: [],
+        indicadores: [],
+        preguntas: [],
       };
     }
   });

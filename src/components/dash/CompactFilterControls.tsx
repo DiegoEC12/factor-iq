@@ -4,6 +4,8 @@ import { useMemo } from "react";
 import { useFilters } from "@/lib/mystery/filter-context";
 import { MultiFilterSelect } from "./MultiFilterSelect";
 
+import { CANONICAL_TIPOS_EVALUACION, normalizeTipoEvaluacion } from "@/lib/tipo-evaluacion";
+
 export function CompactFilterControls({ showIndicator = true }: { showIndicator?: boolean }) {
   const {
     filters,
@@ -20,6 +22,19 @@ export function CompactFilterControls({ showIndicator = true }: { showIndicator?
     () => (hasFilters ? activeLabel.split(" · ").length : 0),
     [hasFilters, activeLabel],
   );
+
+  const tipoEvaluacionOptions = useMemo(() => {
+    const dynamicTipos = new Set(
+      (options.tiposEvaluacion.length > 0
+        ? options.tiposEvaluacion
+        : CANONICAL_TIPOS_EVALUACION
+      ).map((item) => normalizeTipoEvaluacion(item)),
+    );
+
+    return CANONICAL_TIPOS_EVALUACION
+      .filter((tipo) => dynamicTipos.size === 0 || dynamicTipos.has(tipo))
+      .map((type) => ({ value: type, label: type }));
+  }, [options.tiposEvaluacion]);
 
   return (
     <div className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur-md">
@@ -51,9 +66,10 @@ export function CompactFilterControls({ showIndicator = true }: { showIndicator?
           />}
           <MultiFilterSelect
             label="Tipo de evaluación"
+            shortLabel="Tipo"
             values={filters.tipoEvaluacion}
-            options={options.tiposEvaluacion.map((type) => ({ value: type, label: type }))}
-            singleSelect
+            options={tipoEvaluacionOptions}
+            singleSelect={true}
             showAllOption={false}
             onChange={(values) => setFilter("tipoEvaluacion", values)}
           />

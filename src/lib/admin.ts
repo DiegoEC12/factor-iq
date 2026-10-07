@@ -1,7 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import bcrypt from "bcryptjs";
-import { isDbEnabled, query } from "./db";
+import { isDbEnabled, query, withTransaction } from "./db";
 import { getAuthUserFn } from "./auth";
+import type { SafeImportPayload } from "./safe-excel-import";
 
 export interface ClientInput {
   id?: number;
@@ -45,6 +46,253 @@ export interface TicketInput {
   descripcion?: string;
   prioridad: "alta" | "media" | "baja";
 }
+
+const MAQUINARIAS_PROJECT_ID = 1;
+
+type ImportContext = {
+  ready: boolean;
+  message: string | null;
+  projectName: string | null;
+  existingCodes: string[];
+  requiredColumns: string[];
+};
+
+/** Comprueba las precondiciones reales antes de habilitar una importación incremental. */
+export const getIncrementalImportContextFn = createServerFn({ method: "GET" }).handler(
+  async (): Promise<ImportContext> => {
+    await assertSuperAdmin();
+    const requiredColumns = [
+      "codigo",
+      "proyecto_id",
+      "sucursal_id",
+      "tipo_evaluacion",
+      "fecha_evaluacion",
+      "asesor_evaluado",
+    ];
+    if (!isDbEnabled())
+      return {
+        ready: false,
+        message:
+          "MySQL no está configurado. La vista previa sigue disponible, pero no se puede guardar.",
+        projectName: null,
+        existingCodes: [],
+        requiredColumns,
+      };
+    try {
+      const [project] = await query<{ id: number; nombre: string }>(
+        "SELECT id, nombre FROM proyectos WHERE id = ? LIMIT 1",
+        [MAQUINARIAS_PROJECT_ID],
+      );
+      const columns = await query<{ Field: string }>("SHOW COLUMNS FROM evaluaciones");
+      const indexes = await query<{ Column_name: string; Non_unique: number }>(
+        "SHOW INDEX FROM evaluaciones",
+      );
+      const available = new Set(columns.map((column) => column.Field));
+      const missing = requiredColumns.filter((column) => !available.has(column));
+      const hasUniqueCode = indexes.some(
+        (index) => index.Column_name === "codigo" && Number(index.Non_unique) === 0,
+      );
+      if (!project || missing.length || !hasUniqueCode)
+        return {
+          ready: false,
+          message: missing.length
+            ? `Faltan columnas en evaluaciones: ${missing.join(", ")}.`
+            : !hasUniqueCode
+              ? "Falta una restricción única para evaluaciones.codigo."
+              : "No se encontró el proyecto Maquinarias (id 1).",
+          projectName: project?.nombre ?? null,
+          existingCodes: [],
+          requiredColumns,
+        };
+      const rows = await query<{ codigo: string }>(
+        "SELECT codigo FROM evaluaciones WHERE proyecto_id = ?",
+        [MAQUINARIAS_PROJECT_ID],
+      );
+      return {
+        ready: true,
+        message: null,
+        projectName: project.nombre,
+        existingCodes: rows.map((row) => row.codigo),
+        requiredColumns,
+      };
+    } catch (error) {
+      console.warn("No se pudo verificar el esquema de importación:", error);
+      return {
+        ready: false,
+        message: "No se pudo verificar la conexión o el esquema MySQL.",
+        projectName: null,
+        existingCodes: [],
+        requiredColumns,
+      };
+    }
+  },
+);
+
+/** Inserta solo evaluaciones nuevas para el proyecto Maquinarias, de forma transaccional. */
+export const saveIncrementalImportFn = createServerFn({ method: "POST" })
+  .validator((data: SafeImportPayload) => data)
+  .handler(async ({ data }) => {
+    const admin = await assertSuperAdmin();
+    if (!isDbEnabled())
+      throw new Error("MySQL no está configurado; no es posible guardar la importación.");
+    if (data.errors.length)
+      throw new Error("La vista previa contiene errores bloqueantes. Corrígelos antes de guardar.");
+    if (!data.evaluations.length) throw new Error("El archivo no contiene evaluaciones válidas.");
+
+    const result = await withTransaction(async (connection) => {
+      const [projects] = await connection.query<any[]>(
+        "SELECT id, cliente_id, nombre FROM proyectos WHERE id = ? FOR UPDATE",
+        [MAQUINARIAS_PROJECT_ID],
+      );
+      const project = projects[0] as { id: number; cliente_id: number; nombre: string } | undefined;
+      if (!project) throw new Error("No se encontró el proyecto Maquinarias autorizado (id 1).");
+      const codes = data.evaluations.map((evaluation) => evaluation.codigo);
+      const placeholders = codes.map(() => "?").join(", ");
+      const [duplicates] = await connection.query<any[]>(
+        `SELECT codigo FROM evaluaciones WHERE codigo IN (${placeholders})`,
+        codes,
+      );
+      const existing = new Set((duplicates as Array<{ codigo: string }>).map((row) => row.codigo));
+      const fresh = data.evaluations.filter((evaluation) => !existing.has(evaluation.codigo));
+      if (!fresh.length) return { inserted: 0, skipped: existing.size };
+
+      const freshCodes = new Set(fresh.map((evaluation) => evaluation.codigo));
+      const indicatorsByEvaluation = new Map<string, typeof data.indicators>();
+      for (const indicator of data.indicators) {
+        if (!freshCodes.has(indicator.codigoEvaluacion)) continue;
+        const list = indicatorsByEvaluation.get(indicator.codigoEvaluacion) ?? [];
+        list.push(indicator);
+        indicatorsByEvaluation.set(indicator.codigoEvaluacion, list);
+      }
+      const questionsByEvaluation = new Map<string, typeof data.questions>();
+      for (const question of data.questions) {
+        if (!freshCodes.has(question.codigoEvaluacion)) continue;
+        const list = questionsByEvaluation.get(question.codigoEvaluacion) ?? [];
+        list.push(question);
+        questionsByEvaluation.set(question.codigoEvaluacion, list);
+      }
+
+      const evaluationIds = new Map<string, number>();
+      const indicatorIds = new Map<string, number>();
+      for (const evaluation of fresh) {
+        const branchName = evaluation.concesionaria.trim() || "Sin concesionaria";
+        const brand = evaluation.marca.trim() || "Sin marca";
+        const location = evaluation.ubicacion.trim() || "Sin ubicación";
+        await connection.query(
+          `INSERT INTO sucursales (cliente_id, nombre, marca, ubicacion, estado)
+           VALUES (?, ?, ?, ?, 'activa') ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)`,
+          [project.cliente_id, branchName, brand, location],
+        );
+        const [branchRows] = await connection.query<any[]>(
+          "SELECT id FROM sucursales WHERE cliente_id = ? AND nombre = ? AND marca = ? AND ubicacion = ? LIMIT 1",
+          [project.cliente_id, branchName, brand, location],
+        );
+        const branchId = (branchRows[0] as { id: number } | undefined)?.id;
+        if (!branchId) throw new Error(`No se pudo resolver la sucursal de ${evaluation.codigo}.`);
+
+        await connection.query(
+          `INSERT INTO evaluaciones (codigo, proyecto_id, sucursal_id, tipo_evaluacion, puntaje, resumen, recomendaciones, fecha_evaluacion, asesor_evaluado)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            evaluation.codigo,
+            project.id,
+            branchId,
+            evaluation.tipoEvaluacion,
+            evaluation.puntaje,
+            evaluation.resumen,
+            evaluation.recomendaciones,
+            evaluation.fechaEvaluacion,
+            evaluation.asesorEvaluado,
+          ],
+        );
+        const [evaluationRows] = await connection.query<any[]>(
+          "SELECT id FROM evaluaciones WHERE codigo = ? LIMIT 1",
+          [evaluation.codigo],
+        );
+        const evaluationId = (evaluationRows[0] as { id: number } | undefined)?.id;
+        if (!evaluationId) throw new Error(`No se pudo crear la evaluación ${evaluation.codigo}.`);
+        evaluationIds.set(evaluation.codigo, evaluationId);
+
+        for (const indicator of indicatorsByEvaluation.get(evaluation.codigo) ?? []) {
+          const indicatorKey = `${evaluation.tipoEvaluacion}:${indicator.orden}`;
+          let indicatorId = indicatorIds.get(indicatorKey);
+          if (!indicatorId) {
+            const codePrefix =
+              evaluation.tipoEvaluacion === "Call Center"
+                ? "IND_CAL"
+                : evaluation.tipoEvaluacion === "Posventa"
+                  ? "IND_POS"
+                  : "IND";
+            await connection.query(
+              `INSERT INTO indicadores (proyecto_id, codigo, tipo_evaluacion, orden, nombre, peso)
+               VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id), nombre = VALUES(nombre), peso = VALUES(peso)`,
+              [
+                project.id,
+                `${codePrefix}_${String(indicator.orden).padStart(2, "0")}`,
+                evaluation.tipoEvaluacion,
+                indicator.orden,
+                indicator.nombre || `Indicador ${indicator.orden}`,
+                indicator.peso,
+              ],
+            );
+            const [indicatorRows] = await connection.query<any[]>(
+              "SELECT id FROM indicadores WHERE proyecto_id = ? AND tipo_evaluacion = ? AND orden = ? LIMIT 1",
+              [project.id, evaluation.tipoEvaluacion, indicator.orden],
+            );
+            indicatorId = (indicatorRows[0] as { id: number } | undefined)?.id;
+            if (!indicatorId)
+              throw new Error(
+                `No se pudo resolver el indicador ${indicator.orden} de ${evaluation.codigo}.`,
+              );
+            indicatorIds.set(indicatorKey, indicatorId);
+          }
+          await connection.query(
+            "INSERT INTO evaluacion_indicadores (evaluacion_id, indicador_id, cumplimiento) VALUES (?, ?, ?)",
+            [evaluationId, indicatorId, indicator.cumplimiento],
+          );
+        }
+        for (const question of questionsByEvaluation.get(evaluation.codigo) ?? []) {
+          const indicatorId = indicatorIds.get(
+            `${evaluation.tipoEvaluacion}:${question.ordenIndicador}`,
+          );
+          if (!indicatorId)
+            throw new Error(`La pregunta de ${evaluation.codigo} no tiene un indicador válido.`);
+          await connection.query(
+            `INSERT INTO evaluacion_preguntas (evaluacion_id, indicador_id, pregunta, respuesta, nota, observacion)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+              evaluationId,
+              indicatorId,
+              question.pregunta.slice(0, 500),
+              question.respuesta?.slice(0, 100) || null,
+              question.nota === null ? null : String(question.nota),
+              question.observacion,
+            ],
+          );
+        }
+      }
+      const adminId = Number(admin.userId);
+      await connection.query(
+        "INSERT INTO auditoria (usuario_id, cliente_id, accion, detalle) VALUES (?, ?, ?, ?)",
+        [
+          Number.isFinite(adminId) ? adminId : null,
+          project.cliente_id,
+          "importar_evaluaciones_incremental",
+          JSON.stringify({
+            proyectoId: project.id,
+            insertadas: fresh.length,
+            omitidas: existing.size,
+          }),
+        ],
+      );
+      return { inserted: fresh.length, skipped: existing.size };
+    });
+    return {
+      success: true,
+      message: `Importación confirmada: ${result.inserted} evaluaciones insertadas y ${result.skipped} omitidas por duplicado.`,
+      ...result,
+    };
+  });
 
 async function assertSuperAdmin() {
   const user = await getAuthUserFn();
@@ -576,7 +824,9 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
         data.cliente.contacto_telefono?.trim() || null,
       ],
     );
-    const clienteId = (clientRes as any).insertId || (await query<any>("SELECT id FROM clientes WHERE slug = ?", [cleanSlug]))[0]?.id;
+    const clienteId =
+      (clientRes as any).insertId ||
+      (await query<any>("SELECT id FROM clientes WHERE slug = ?", [cleanSlug]))[0]?.id;
 
     // 3. Insertar usuario admin_cliente con hash
     const passHash = await bcrypt.hash(data.credenciales.password, 10);
@@ -603,7 +853,13 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
         data.servicio.periodo?.trim() || "2025",
       ],
     );
-    const proyectoId = (projRes as any).insertId || (await query<any>("SELECT id FROM proyectos WHERE cliente_id = ? ORDER BY id DESC LIMIT 1", [clienteId]))[0]?.id;
+    const proyectoId =
+      (projRes as any).insertId ||
+      (
+        await query<any>("SELECT id FROM proyectos WHERE cliente_id = ? ORDER BY id DESC LIMIT 1", [
+          clienteId,
+        ])
+      )[0]?.id;
 
     // 5. Insertar sucursales únicas
     const sucursalesMap = new Map<string, number>();
@@ -632,7 +888,10 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
 
     // 6. Insertar catálogo de indicadores del proyecto
     const indicadoresMap = new Map<string, number>(); // key: tipo_evaluacion__orden -> indicador_id
-    const uniqueIndicators = new Map<string, { tipo: string; orden: number; nombre: string; peso: number }>();
+    const uniqueIndicators = new Map<
+      string,
+      { tipo: string; orden: number; nombre: string; peso: number }
+    >();
 
     for (const ind of data.excelData.indicadores) {
       const evObj = data.excelData.evaluaciones.find((e) => e.id === ind.ev);
@@ -694,7 +953,10 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
           ev.recomendaciones || null,
         ],
       );
-      const evId = (evRes as any).insertId || (await query<any>("SELECT id FROM evaluaciones WHERE codigo = ? LIMIT 1", [uniqueCode]))[0]?.id;
+      const evId =
+        (evRes as any).insertId ||
+        (await query<any>("SELECT id FROM evaluaciones WHERE codigo = ? LIMIT 1", [uniqueCode]))[0]
+          ?.id;
       if (evId) {
         evaluacionesMap.set(ev.id, evId);
       }

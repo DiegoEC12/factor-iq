@@ -23,6 +23,7 @@ import { Route as ServiciosRouteImport } from './routes/servicios'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminEmpresasRouteImport } from './routes/admin/empresas'
+import { Route as AdminImportarRouteImport } from './routes/admin/importar'
 import { Route as AdminUsuariosRouteImport } from './routes/admin/usuarios'
 import { Route as MaquinariasIndexRouteImport } from './routes/maquinarias/index'
 import { Route as MaquinariasBenchmarkRouteImport } from './routes/maquinarias/benchmark'
@@ -105,6 +106,11 @@ const AdminEmpresasRoute = AdminEmpresasRouteImport.update({
   path: '/empresas',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminImportarRoute = AdminImportarRouteImport.update({
+  id: '/importar',
+  path: '/importar',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   id: '/usuarios',
   path: '/usuarios',
@@ -177,6 +183,7 @@ export interface FileRoutesByFullPath {
   '/servicios': typeof ServiciosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/importar': typeof AdminImportarRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/maquinarias/benchmark': typeof MaquinariasBenchmarkRoute
   '/maquinarias/concesionarias': typeof MaquinariasConcesionariasRoute
@@ -202,6 +209,7 @@ export interface FileRoutesByTo {
   '/servicios': typeof ServiciosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/importar': typeof AdminImportarRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/maquinarias/benchmark': typeof MaquinariasBenchmarkRoute
   '/maquinarias/concesionarias': typeof MaquinariasConcesionariasRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/servicios': typeof ServiciosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/importar': typeof AdminImportarRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/maquinarias/benchmark': typeof MaquinariasBenchmarkRoute
   '/maquinarias/concesionarias': typeof MaquinariasConcesionariasRoute
@@ -259,6 +268,7 @@ export interface FileRouteTypes {
     | '/servicios'
     | '/admin/dashboard'
     | '/admin/empresas'
+    | '/admin/importar'
     | '/admin/usuarios'
     | '/maquinarias/benchmark'
     | '/maquinarias/concesionarias'
@@ -284,6 +294,7 @@ export interface FileRouteTypes {
     | '/servicios'
     | '/admin/dashboard'
     | '/admin/empresas'
+    | '/admin/importar'
     | '/admin/usuarios'
     | '/maquinarias/benchmark'
     | '/maquinarias/concesionarias'
@@ -311,6 +322,7 @@ export interface FileRouteTypes {
     | '/servicios'
     | '/admin/dashboard'
     | '/admin/empresas'
+    | '/admin/importar'
     | '/admin/usuarios'
     | '/maquinarias/benchmark'
     | '/maquinarias/concesionarias'
@@ -444,6 +456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEmpresasRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/importar': {
+      id: '/admin/importar'
+      path: '/importar'
+      fullPath: '/admin/importar'
+      preLoaderRoute: typeof AdminImportarRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/usuarios': {
       id: '/admin/usuarios'
       path: '/usuarios'
@@ -527,6 +546,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminEmpresasRoute: typeof AdminEmpresasRoute
+  AdminImportarRoute: typeof AdminImportarRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   AdminIndexRoute: typeof AdminIndexRoute
   AdminServiciosNuevoRoute: typeof AdminServiciosNuevoRoute
@@ -535,6 +555,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
   AdminEmpresasRoute: AdminEmpresasRoute,
+  AdminImportarRoute: AdminImportarRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
   AdminIndexRoute: AdminIndexRoute,
   AdminServiciosNuevoRoute: AdminServiciosNuevoRoute,

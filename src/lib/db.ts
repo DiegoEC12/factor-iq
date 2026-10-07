@@ -48,3 +48,21 @@ export async function query<T = Record<string, unknown>>(
   const [rows] = await getPool().query(sql, params as unknown as any[]);
   return rows as T[];
 }
+
+/** Ejecuta un bloque de escrituras como una única unidad atómica. */
+export async function withTransaction<T>(
+  callback: (connection: mysql.PoolConnection) => Promise<T>,
+): Promise<T> {
+  const connection = await getPool().getConnection();
+  try {
+    await connection.beginTransaction();
+    const result = await callback(connection);
+    await connection.commit();
+    return result;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}

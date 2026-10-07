@@ -19,6 +19,8 @@ export interface Evaluation {
   marca: string;
   ubicacion: string;
   tipoEvaluacion: string;
+  fechaEvaluacion?: string | null;
+  asesorEvaluado?: string | null;
   tipoEmpresa: string; // 'MAQUINARIAS' | 'COMPETENCIA'
 }
 

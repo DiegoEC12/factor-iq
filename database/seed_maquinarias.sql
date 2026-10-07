@@ -8,14 +8,33 @@
 USE factoriq;
 
 SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE evaluacion_preguntas;
-TRUNCATE TABLE evaluacion_indicadores;
-TRUNCATE TABLE evaluaciones;
-TRUNCATE TABLE indicadores;
-TRUNCATE TABLE sucursales;
-TRUNCATE TABLE proyectos;
-TRUNCATE TABLE usuarios;
-TRUNCATE TABLE clientes;
+
+DELETE FROM ticket_comentarios;
+DELETE FROM tickets;
+DELETE FROM contenidos_web;
+DELETE FROM auditoria;
+DELETE FROM evaluacion_preguntas;
+DELETE FROM evaluacion_indicadores;
+DELETE FROM evaluaciones;
+DELETE FROM indicadores;
+DELETE FROM sucursales;
+DELETE FROM proyectos;
+DELETE FROM usuarios;
+DELETE FROM clientes;
+
+ALTER TABLE ticket_comentarios AUTO_INCREMENT = 1;
+ALTER TABLE tickets AUTO_INCREMENT = 1;
+ALTER TABLE contenidos_web AUTO_INCREMENT = 1;
+ALTER TABLE auditoria AUTO_INCREMENT = 1;
+ALTER TABLE evaluacion_preguntas AUTO_INCREMENT = 1;
+ALTER TABLE evaluacion_indicadores AUTO_INCREMENT = 1;
+ALTER TABLE evaluaciones AUTO_INCREMENT = 1;
+ALTER TABLE indicadores AUTO_INCREMENT = 1;
+ALTER TABLE sucursales AUTO_INCREMENT = 1;
+ALTER TABLE proyectos AUTO_INCREMENT = 1;
+ALTER TABLE usuarios AUTO_INCREMENT = 1;
+ALTER TABLE clientes AUTO_INCREMENT = 1;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 

@@ -146,12 +146,14 @@ CREATE TABLE evaluaciones (
   resumen         TEXT NULL,
   recomendaciones TEXT NULL,
   fecha_evaluacion DATE NULL,
+  asesor_evaluado VARCHAR(150) NULL,
   created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_evaluaciones_codigo (codigo),
   KEY ix_eval_proyecto (proyecto_id),
   KEY ix_eval_sucursal (sucursal_id),
   KEY ix_eval_tipo (tipo_evaluacion),
+  KEY ix_eval_proyecto_tipo_fecha (proyecto_id, tipo_evaluacion, fecha_evaluacion),
   CONSTRAINT fk_eval_proyecto FOREIGN KEY (proyecto_id)
     REFERENCES proyectos (id) ON DELETE CASCADE,
   CONSTRAINT fk_eval_sucursal FOREIGN KEY (sucursal_id)

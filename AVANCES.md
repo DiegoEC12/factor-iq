@@ -2,6 +2,7 @@
 
 ## Unificación de la web pública y acceso al dashboard
 
+- [x] Se corrigió el reset del seed de MySQL para evitar `TRUNCATE` sobre tablas con claves foráneas; ahora la limpieza se hace en orden de dependencias con `DELETE` y reinicio de `AUTO_INCREMENT`.
 - [x] Se consolidó la web corporativa y el dashboard de Maquinarias en la misma aplicación React, TypeScript y TanStack Start.
 - [x] La ruta principal `/` muestra la web pública de Factor IQ; `/index.html` se mantiene como acceso compatible y redirige al inicio.
 - [x] Se migraron las páginas públicas a rutas de la aplicación: Inicio, Nosotros, Servicios y Contacto.
@@ -87,6 +88,8 @@ Cambios transversales:
 - Umbrales globales de estado actualizados en `src/lib/mystery/calculations.ts`: `ALTO = 0.85`, `MEDIO = 0.7` para alinear colores/semáforo en todos los módulos.
 
 Prueba realizada: servidor dev iniciado en http://localhost:8081/ — verificar que los filtros compactos aparecen en `Benchmark` y `Concesionarias` y que el `Resumen Ejecutivo` mantiene su cabecera original.
+
+- Corrección reciente del filtro de tipo de evaluación: se eliminó la coerción que forzaba `Ventas` al cargar y la conversión a selección simple. El selector queda en modo multi-select real con estado “Todas” por defecto, y la normalización deja preservar combinaciones válidas como `Ventas + Posventa`. Verificación: `coerceSingleTipoEvaluacion(['Ventas','Posventa'])` devuelve ambos valores y `npm run build` termina correctamente.
 
 - Ajuste visual reciente: añadido mapeo en `src/styles.css` para las clases legacy `bg-alto|bg-medio|bg-bajo` y aliases `bg-success|bg-warning|bg-danger`, más selectores catch-all para variantes con sufijos (p. ej. `bg-danger/15`). Esto asegura que los progress bars y barras de resultado muestren los colores semáforo correctamente.
 - `Indicadores`: reemplazado el listado de preguntas por los 12 indicadores del dataset. Cada indicador despliega los locales disponibles y su nota con progress bar y porcentaje.
@@ -175,20 +178,51 @@ Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproduc
 
 ## Implementación base del plan: operación central
 
-- [X] Incorporado el módulo **Proyectos e importación**: tabla de estudios por empresa, alta de proyectos aislados y validación de Excel por hojas y encabezados existentes.
-- [X] Incorporado el módulo **Soporte y tickets**: bandeja operativa, creación de tickets, prioridad y transición entre `abierto`, `en_analisis` y `resuelto`.
-- [X] Añadidos controles de cabecera para perfil, estado de conexión, notificaciones y conmutador de tema mediante componentes accesibles de Radix UI.
-- [X] Añadida la migración incremental `database/migrations/002_admin_operaciones.sql`; agrega roles de Editor Web y Soporte, tickets, comentarios y la estructura de contenidos web sin borrar datos.
-- [X] Actualizado `database/schema.sql` para que instalaciones nuevas partan con el modelo ampliado.
+- [x] Incorporado el módulo **Proyectos e importación**: tabla de estudios por empresa, alta de proyectos aislados y validación de Excel por hojas y encabezados existentes.
+- [x] Incorporado el módulo **Soporte y tickets**: bandeja operativa, creación de tickets, prioridad y transición entre `abierto`, `en_analisis` y `resuelto`.
+- [x] Añadidos controles de cabecera para perfil, estado de conexión, notificaciones y conmutador de tema mediante componentes accesibles de Radix UI.
+- [x] Añadida la migración incremental `database/migrations/002_admin_operaciones.sql`; agrega roles de Editor Web y Soporte, tickets, comentarios y la estructura de contenidos web sin borrar datos.
+- [x] Actualizado `database/schema.sql` para que instalaciones nuevas partan con el modelo ampliado.
 - [!] La importación actual valida y conserva los datos en la sesión local. La persistencia masiva a MySQL y su aprobación editorial requieren definir la política de reemplazo/versionado del proyecto.
 - [!] El modelo de CMS está preparado en base de datos, pero todavía no publica contenido en la landing: falta elegir los bloques editables y su flujo de revisión.
-- [X] Validado con `npx tsc --noEmit` y `npm run build`.
+- [x] Validado con `npx tsc --noEmit` y `npm run build`.
 
 ## Acceso temporal del SuperAdmin en Vercel sin MySQL
 
-- [X] Agregada la cuenta de respaldo `superadmin` / `admin123` al modo sin base de datos; crea una sesión con rol `superadmin` y redirige correctamente a `/admin`.
-- [X] Conservado el acceso temporal existente `admMaqui` / `adm123` para el portal Maquinarias.
+- [x] Agregada la cuenta de respaldo `superadmin` / `admin123` al modo sin base de datos; crea una sesión con rol `superadmin` y redirige correctamente a `/admin`.
+- [x] Conservado el acceso temporal existente `admMaqui` / `adm123` para el portal Maquinarias.
 - [!] Vercel debe contar con `SESSION_SECRET` de mínimo 32 caracteres, incluso mientras MySQL no esté habilitado; las credenciales temporales deben reemplazarse antes de abrir el panel a usuarios finales.
+
+## Importación segura e incremental de Mystery Shopping
+
+- [x] Implementada la pantalla `/admin/importar` para el proyecto Maquinarias existente (`proyecto_id = 1`), independiente del wizard de alta de nuevas empresas.
+- [x] La selección del Excel es una previsualización aislada: no escribe MySQL, no altera el dashboard y no persiste datos en `localStorage`.
+- [x] La previsualización valida hojas, relaciones, códigos únicos del archivo, tipos (Ventas, Call Center, Seminuevos y Posventa), rango de puntajes/cumplimientos, fechas, asesor y referencias de indicadores/preguntas.
+- [x] Se comparan códigos contra MySQL y se informa cuáles se insertarán y cuáles se omitirán; el servidor vuelve a verificar duplicados antes de escribir.
+- [x] El guardado usa una transacción y solo crea evaluaciones nuevas, sucursales requeridas, indicadores por tipo y sus relaciones; ante cualquier fallo revierte toda la carga.
+- [x] Eliminado el fallback silencioso del dashboard a JSON: MySQL es la fuente operativa y los estados sin conexión o sin registros se muestran explícitamente.
+- [x] Extendidos los modelos compatibles con `fecha_evaluacion` y `asesor_evaluado`; el esquema de instalaciones nuevas ahora incluye `asesor_evaluado` e índice `(proyecto_id, tipo_evaluacion, fecha_evaluacion)`.
+- [!] Antes de la primera importación, el módulo verifica el esquema real, la unicidad de `evaluaciones.codigo` y el proyecto `id = 1`; no habilita el guardado si alguna precondición falla.
+
+## Corrección de Filtro Resumen Ejecutivo y Cálculo Posventa (Excel Import)
+
+- [x] **Filtro Tipo de Evaluación**:
+  - Se configuró como selección única (`singleSelect={true}`) sin opción "Todas" (`showAllOption={false}`), predeterminado a **Ventas**.
+  - **Eliminación de la opción duplicada "Venta"**: Se identificó que valores vacíos o no definidos usaban fallback `"Venta"` en lugar de `"Ventas"`, y que la lista de opciones no normalizaba contra el catálogo canónico. Se estableció la lista canónica estricta `CANONICAL_TIPOS_EVALUACION` (`Call Center`, `Seminuevos`, `Ventas`, `Posventa`) y se actualizó `normalizeTipoEvaluacion` con fallback `"Ventas"`, impidiendo cualquier aparición de "Venta".
+  - **Visualización clara en el botón trigger**: Se añadió `shortLabel="Tipo"` a `MultiFilterSelect.tsx` para evitar que el texto se trunque como `TI PO DE EVALUACI...`. Ahora el botón muestra de manera legible y destacada: **`TIPO: Ventas`** (o `Ventas` en pantallas pequeñas) y se actualiza inmediatamente al seleccionar cualquier canal, cerrando automáticamente el menú al elegir una opción.
+  - **Sincronización reactiva del Dataset**: Se agregó `subscribeDataset` y control de versión en `filter-context.tsx` para que los filtros y el dataset reaccionen inmediatamente al cargar los datos desde MySQL.
+- [x] **Causa de Posventa en 0%**: Al importar desde Excel (`safe-excel-import.ts` y `excel-import.ts`), `XLSX.utils.sheet_to_json` con `raw: false` entregaba strings formateados como `"71.35%"`. La conversión directa `Number("71.35%")` producía `NaN`, cayendo al fallback `0`.
+- [x] **Corrección del Importador**:
+  - Función `number()` mejorada para detectar strings con `%`, limpiar el símbolo y dividir entre 100 automáticamente.
+  - Soporte de fechas en formato serial numérico de Excel en `toMysqlDate()`.
+  - Actualización de pesos y nombres de indicadores en `admin.ts` con `ON DUPLICATE KEY UPDATE nombre = VALUES(nombre), peso = VALUES(peso)`.
+- [x] **Reparación de Datos en MySQL**:
+  - Se ejecutó script de reparación en la base local `factoriq`: se corrigieron los puntajes de las 41 evaluaciones importadas, pesos de 41 definiciones de indicadores y 436 registros de `evaluacion_indicadores`.
+  - Posventa verificado con sus 3 evaluaciones: 55.00%, 63.82% y 71.35% (promedio general: **63.39%**).
+  - Seminuevos: 12 evaluaciones (promedio: **35.14%**).
+  - Call Center: 24 evaluaciones (promedio: **55.86%**).
+  - Ventas: 44 evaluaciones (promedio: **51.47%**).
+- [x] Validado con `npx tsc --noEmit` y `npm run build` sin errores.
 
 ### Sugerencias para Producción en GoDaddy
 

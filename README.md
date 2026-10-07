@@ -15,6 +15,7 @@ Factor IQ reúne el portal ejecutivo de Mystery Shopping de Maquinarias y un pan
   - Indicador
   - Tipo de evaluación: Venta, Callcenter, Seminuevos y Posventa
 - Estado inicial de filtros en `Todas`, mostrando el universo completo.
+- Corrección del filtro de tipo de evaluación: no se fuerza `Ventas` ni un único valor al cargar; el selector sigue siendo multi-select y conserva todas las opciones seleccionadas por defecto hasta que el usuario las modifique.
 - Deduplicación de locales por la combinación `concesionaria + marca + ubicación`.
 - Importación de archivos `.xlsx` y `.xls` desde la interfaz.
 - Restauración del dataset original después de una importación.
@@ -60,11 +61,15 @@ El script [scripts/generate-imported-json.cjs](scripts/generate-imported-json.cj
 
 ## Importación desde la aplicación
 
-En el Resumen Ejecutivo se puede seleccionar **Importar Excel**. La aplicación valida las hojas requeridas y reemplaza los datos activos en memoria. Si el archivo no cumple la estructura mínima, conserva los datos actuales y muestra el error.
+La importación operativa se realiza desde **Administración → Importación segura** (`/admin/importar`). La selección del Excel solo genera una vista previa: no altera MySQL, el dashboard ni `localStorage`.
 
-El botón **Restaurar datos** elimina los datos importados de la sesión y vuelve al dataset original. Esta restauración no modifica los archivos del proyecto.
+El flujo verifica las hojas `Evaluaciones`, `Indicadores` y `Preguntas`, muestra errores bloqueantes, advertencias, tipos de evaluación, asesor, fecha, duplicados dentro del archivo y códigos ya existentes en MySQL. Solo se habilita **Guardar nuevas evaluaciones en MySQL** cuando no hay errores y el esquema del proyecto Maquinarias (`id = 1`) está verificado.
 
-La lógica está aislada en [src/lib/excel-import.ts](src/lib/excel-import.ts), para que en el futuro el mismo modelo pueda alimentarse desde una API o base de datos sin cambiar la UI.
+El guardado es transaccional: inserta exclusivamente códigos nuevos y sus relaciones. Los códigos existentes se omiten por completo, sin actualizar evaluaciones, indicadores ni respuestas. MySQL es la fuente única de datos del dashboard; si no está disponible, el portal muestra un estado explícito y no usa JSON como respaldo operativo.
+
+El JSON incluido en el repositorio se conserva como referencia de desarrollo y no se utiliza como respaldo silencioso de las consultas operativas.
+
+El parser aislado de la vista previa vive en [src/lib/safe-excel-import.ts](src/lib/safe-excel-import.ts) y el guardado protegido en [src/lib/admin.ts](src/lib/admin.ts).
 
 ## Desarrollo local
 
@@ -76,6 +81,34 @@ npm run dev
 ```
 
 El servidor de desarrollo queda disponible en la URL que indique Vite, normalmente `http://localhost:5173`.
+
+## Reset de datos y seed MySQL
+
+Cuando se vuelve a cargar `database/seed_maquinarias.sql`, hay que respetar el orden de dependencias de las tablas para no romper las claves foráneas.
+
+- Las tablas hijas se limpian antes que las tablas padre.
+- No se recomienda `TRUNCATE TABLE` en este esquema porque `evaluaciones` tiene dependencias en `evaluacion_indicadores` y `evaluacion_preguntas`.
+- El script del seed usa `DELETE` en orden correcto y luego reinicia los `AUTO_INCREMENT`.
+
+```sql
+SET FOREIGN_KEY_CHECKS = 0;
+DELETE FROM evaluacion_preguntas;
+DELETE FROM evaluacion_indicadores;
+DELETE FROM evaluaciones;
+DELETE FROM indicadores;
+DELETE FROM sucursales;
+DELETE FROM proyectos;
+DELETE FROM usuarios;
+DELETE FROM clientes;
+SET FOREIGN_KEY_CHECKS = 1;
+```
+
+Ejecuta el esquema y después el seed así:
+
+```bash
+mysql -u root -p factoriq < database/schema.sql
+mysql -u root -p factoriq < database/seed_maquinarias.sql
+```
 
 ## Acceso temporal sin MySQL
 

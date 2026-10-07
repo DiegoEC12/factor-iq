@@ -136,10 +136,10 @@ function AdminDashboardView() {
           </div>
           <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs">
             <Link
-              to="/admin/servicios/nuevo"
+              to="/admin/importar"
               className="text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1 transition-colors"
             >
-              <span>+ Nuevo estudio</span>
+              <span>Importar evaluaciones</span>
               <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
@@ -184,7 +184,9 @@ function AdminDashboardView() {
               Alta de Empresa + Servicio + Carga Masiva Excel
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Registra una nueva empresa cliente, genera sus credenciales de acceso, valida el archivo .xlsx de Mystery Shopper con pre-visualización y activa el portal en 4 sencillos pasos.
+              Registra una nueva empresa cliente, genera sus credenciales de acceso, valida el
+              archivo .xlsx de Mystery Shopper con pre-visualización y activa el portal en 4
+              sencillos pasos.
             </p>
           </div>
 
@@ -238,7 +240,9 @@ function AdminDashboardView() {
             </div>
             <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
               <span className="text-slate-400 block text-[11px]">Cifrado de Credenciales</span>
-              <span className="font-semibold text-indigo-400 mt-0.5 block">Bcrypt (cost factor 10)</span>
+              <span className="font-semibold text-indigo-400 mt-0.5 block">
+                Bcrypt (cost factor 10)
+              </span>
             </div>
           </div>
         </div>
@@ -265,7 +269,8 @@ function AdminDashboardView() {
                       {log.accion.replace(/_/g, " ")}
                     </p>
                     <p className="text-[11px] text-slate-400">
-                      Por: <span className="text-indigo-400 font-mono">{log.usuario || "Sistema"}</span>
+                      Por:{" "}
+                      <span className="text-indigo-400 font-mono">{log.usuario || "Sistema"}</span>
                     </p>
                   </div>
                   <span className="text-[10px] text-slate-500 font-mono">
