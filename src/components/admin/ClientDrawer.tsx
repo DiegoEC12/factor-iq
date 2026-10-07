@@ -147,19 +147,19 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-xl bg-slate-950 border-l border-slate-800 text-slate-100 p-0 flex flex-col h-full shadow-2xl overflow-hidden"
+        className="w-full sm:max-w-xl bg-white border-l border-[#e3e8f3] text-slate-700 p-0 flex flex-col h-full shadow-[0_20px_60px_rgba(27,36,71,0.12)] overflow-hidden"
       >
-        <div className="p-6 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md">
+        <div className="p-6 border-b border-[#e3e8f3] bg-white backdrop-blur-md">
           <SheetHeader className="text-left">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+              <div className="h-10 w-10 rounded-xl bg-[#eef2ff] border border-[#dfe6f7] flex items-center justify-center text-[#1b2447]">
                 <Building2 className="h-5 w-5" />
               </div>
               <div>
-                <SheetTitle className="text-lg font-semibold text-white tracking-tight">
+                <SheetTitle className="text-lg font-semibold text-[#1b2447] tracking-tight">
                   {isEditing ? `Editar Empresa: ${clientToEdit?.nombre_comercial}` : "Nueva Empresa Cliente"}
                 </SheetTitle>
-                <SheetDescription className="text-xs text-slate-400">
+                <SheetDescription className="text-xs text-slate-600">
                   {isEditing
                     ? "Actualiza la configuración corporativa, plan y datos de contacto de la cuenta."
                     : "Configura una nueva empresa para el servicio de Mystery Shopper."}
@@ -170,8 +170,8 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
         </div>
 
         {error && (
-          <div className="mx-6 mt-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
+          <div className="mx-6 mt-4 p-3 rounded-lg bg-[#fff1f2] border border-[#fecdd3] text-[#b42318] text-xs flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 text-[#b42318]" />
             <span>{error}</span>
           </div>
         )}
@@ -179,14 +179,14 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
           {/* Identificación Principal */}
           <div className="space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <Building2 className="h-3.5 w-3.5 text-indigo-400" />
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+              <Building2 className="h-3.5 w-3.5 text-[#1b2447]" />
               Identificación Corporativa
             </h4>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Nombre Comercial <span className="text-rose-400">*</span>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Nombre Comercial <span className="text-[#d6452c]">*</span>
               </label>
               <input
                 type="text"
@@ -194,14 +194,14 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
                 value={nombreComercial}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="Ej. Maquinarias S.A."
-                className="w-full px-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Slug / URL del Portal <span className="text-rose-400">*</span>
+                <label className="block text-xs font-medium text-slate-700 mb-1">
+                  Slug / URL del Portal <span className="text-[#d6452c]">*</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-2.5 text-xs text-slate-500">/</span>
@@ -211,13 +211,13 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
                     value={slug}
                     onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""))}
                     placeholder="maquinarias"
-                    className="w-full pl-6 pr-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    className="w-full pl-6 pr-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
                   RUC (11 dígitos)
                 </label>
                 <div className="relative">
@@ -228,14 +228,14 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
                     value={ruc}
                     onChange={(e) => setRuc(e.target.value.replace(/[^0-9]/g, ""))}
                     placeholder="20100123456"
-                    className="w-full pl-9 pr-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                   />
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-slate-700 mb-1">
                 Razón Social
               </label>
               <input
@@ -243,25 +243,25 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
                 value={razonSocial}
                 onChange={(e) => setRazonSocial(e.target.value)}
                 placeholder="Ej. Distribuidora y Concesionaria Maquinarias S.A."
-                className="w-full px-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               />
             </div>
           </div>
 
           {/* Configuración SaaS y Plan */}
-          <div className="space-y-3 pt-3 border-t border-slate-800/80">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+          <div className="space-y-3 pt-3 border-t border-[#e3e8f3]">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+              <Sparkles className="h-3.5 w-3.5 text-[#b45309]" />
               Suscripción & Marca
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Plan</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Plan</label>
                 <select
                   value={plan}
                   onChange={(e) => setPlan(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                 >
                   <option value="basico">Básico</option>
                   <option value="profesional">Profesional</option>
@@ -270,11 +270,11 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Estado</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Estado</label>
                 <select
                   value={estado}
                   onChange={(e) => setEstado(e.target.value as any)}
-                  className="w-full px-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full px-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                 >
                   <option value="activo">Activo</option>
                   <option value="suspendido">Suspendido</option>
@@ -283,52 +283,52 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Color Marca</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Color Marca</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={colorPrimario}
                     onChange={(e) => setColorPrimario(e.target.value)}
-                    className="h-9 w-9 rounded border border-slate-700 bg-transparent cursor-pointer"
+                    className="h-9 w-9 rounded border border-[#dfe6f7] bg-transparent cursor-pointer"
                   />
-                  <span className="text-xs font-mono text-slate-400">{colorPrimario}</span>
+                  <span className="text-xs font-mono text-slate-600">{colorPrimario}</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Rubro / Sector</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Rubro / Sector</label>
               <input
                 type="text"
                 value={rubro}
                 onChange={(e) => setRubro(e.target.value)}
                 placeholder="Automotriz, Retail, Banca, Restaurantes..."
-                className="w-full px-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               />
             </div>
           </div>
 
           {/* Contacto Principal */}
-          <div className="space-y-3 pt-3 border-t border-slate-800/80">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-              <User className="h-3.5 w-3.5 text-emerald-400" />
+          <div className="space-y-3 pt-3 border-t border-[#e3e8f3]">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+              <User className="h-3.5 w-3.5 text-[#0f766e]" />
               Contacto Principal de la Empresa
             </h4>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Nombre Completo</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Nombre Completo</label>
               <input
                 type="text"
                 value={contactoNombre}
                 onChange={(e) => setContactoNombre(e.target.value)}
                 placeholder="Ej. Roberto Morales - Gerente de Calidad"
-                className="w-full px-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Correo Electrónico</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
                   <input
@@ -336,13 +336,13 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
                     value={contactoEmail}
                     onChange={(e) => setContactoEmail(e.target.value)}
                     placeholder="contacto@empresa.com"
-                    className="w-full pl-9 pr-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Teléfono / WhatsApp</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Teléfono / WhatsApp</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
                   <input
@@ -350,7 +350,7 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
                     value={contactoTelefono}
                     onChange={(e) => setContactoTelefono(e.target.value)}
                     placeholder="+51 987 654 321"
-                    className="w-full pl-9 pr-3 py-2 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                   />
                 </div>
               </div>
@@ -358,12 +358,12 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
           </div>
         </form>
 
-        <div className="p-4 border-t border-slate-800/80 bg-slate-900/80 flex items-center justify-end gap-3">
+        <div className="p-4 border-t border-[#e3e8f3] bg-[#f8fafc] flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            className="px-4 py-2 text-sm text-slate-600 hover:text-[#1b2447] transition-colors"
           >
             Cancelar
           </button>
@@ -371,7 +371,7 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-lg shadow-lg shadow-indigo-600/20 disabled:opacity-50 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#1b2447] hover:bg-[#16213b] text-white font-medium text-sm rounded-lg shadow-lg shadow-[#1b2447]/10 disabled:opacity-50 transition-all cursor-pointer"
           >
             {loading ? (
               <>

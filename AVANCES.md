@@ -140,6 +140,8 @@ Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproduc
 
 - [x] Reorganizada la interfaz de `/admin` con la misma estructura visual del portal Maquinarias: barra lateral clara, encabezado fijo, tarjetas de resumen y tablas sobre superficies blancas.
 - [x] Aplicada la identidad de Factor IQ al panel administrativo: azul marino como color rector y coral como acento; se retiraron los acentos cian/violeta que no correspondían a la marca.
+- [x] Ajuste final del tema light para `/admin`: la capa visual del panel usa ahora la paleta institucional de Factor IQ y el contraste claro del portal público, sin perder la estructura operativa del dashboard interno.
+- [x] Revisión final de formularios y modales: drawers, wizard y ventanas de edición pasan a fondo blanco, labels oscuros y bordes claros para mantener legibilidad en light mode sin romper los bloques corporativos de marca.
 - [x] Clarificados los módulos operativos: Clientes, Usuarios y accesos, Bitácora y Salud del sistema; las acciones rápidas ahora direccionan correctamente a la gestión de clientes o de accesos.
 - [x] Actualizado `README.md` con alcance, módulos actuales y evolución sugerida del panel administrativo.
 - [ ] Próxima iteración sugerida: filtros por fecha/cliente en bitácora, métricas temporales de uso y alertas configurables de operación.

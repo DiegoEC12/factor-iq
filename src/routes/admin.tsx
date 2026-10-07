@@ -35,7 +35,7 @@ function AdminLayout() {
   const { data } = Route.useLoaderData();
 
   return (
-    <div className="flex min-h-screen w-full flex-col lg:flex-row bg-slate-950 text-slate-100 font-['Manrope'] antialiased">
+    <div className="factor-admin flex min-h-screen w-full flex-col lg:flex-row bg-[#f4f7fb] text-slate-900 font-['Manrope'] antialiased">
       <AdminSidebar
         user={user}
         stats={{

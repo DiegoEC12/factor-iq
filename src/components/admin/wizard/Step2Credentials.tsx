@@ -108,27 +108,27 @@ export function Step2Credentials({
 
   return (
     <form onSubmit={handleContinue} className="space-y-6">
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-xl space-y-6">
+      <div className="bg-white border border-[#e3e8f3] rounded-2xl p-6 sm:p-8 shadow-[0_20px_60px_rgba(27,36,71,0.08)] space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-white tracking-tight flex items-center gap-2">
-            <KeyRound className="h-5 w-5 text-indigo-400" />
+          <h3 className="text-lg font-semibold text-[#1b2447] tracking-tight flex items-center gap-2">
+            <KeyRound className="h-5 w-5 text-[#1b2447]" />
             Paso 2: Credenciales de Acceso para la Empresa
           </h3>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             Genera la cuenta de administrador con la que los representantes de la empresa accederán al portal privado de reportes.
           </p>
         </div>
 
         {error && (
-          <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+          <div className="p-3.5 rounded-xl bg-[#fff1f2] border border-[#fecdd3] text-[#b42318] text-xs">
             {error}
           </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              Nombre de Usuario (Login) <span className="text-rose-400">*</span>
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
+              Nombre de Usuario (Login) <span className="text-[#d6452c]">*</span>
             </label>
             <div className="relative">
               <User className="absolute left-3.5 top-2.5 h-4 w-4 text-slate-500" />
@@ -142,7 +142,7 @@ export function Step2Credentials({
                   })
                 }
                 placeholder="admin_empresa"
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all font-mono"
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all font-mono"
               />
             </div>
             <p className="text-[11px] text-slate-500 mt-1">
@@ -151,8 +151,8 @@ export function Step2Credentials({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              Nombre de la Persona Responsable <span className="text-rose-400">*</span>
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
+              Nombre de la Persona Responsable <span className="text-[#d6452c]">*</span>
             </label>
             <input
               type="text"
@@ -160,13 +160,13 @@ export function Step2Credentials({
               value={data.nombre}
               onChange={(e) => onChange({ nombre: e.target.value })}
               placeholder="Ej. Juan Pérez - Administrador"
-              className="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-slate-300 mb-1.5">
+          <label className="block text-xs font-medium text-slate-700 mb-1.5">
             Correo Electrónico de Notificaciones
           </label>
           <div className="relative">
@@ -176,21 +176,21 @@ export function Step2Credentials({
               value={data.email}
               onChange={(e) => onChange({ email: e.target.value })}
               placeholder="admin@empresa.com"
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
             />
           </div>
         </div>
 
         {/* Generador de Contraseña */}
-        <div className="pt-4 border-t border-slate-800/80 space-y-3">
+        <div className="pt-4 border-t border-[#e3e8f3] space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-medium text-slate-300">
-              Contraseña de Acceso <span className="text-rose-400">*</span>
+            <label className="text-xs font-medium text-slate-700">
+              Contraseña de Acceso <span className="text-[#d6452c]">*</span>
             </label>
             <button
               type="button"
               onClick={handleGeneratePassword}
-              className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5 font-medium transition-colors cursor-pointer"
+              className="text-xs text-[#1b5094] hover:text-[#143d78] flex items-center gap-1.5 font-medium transition-colors cursor-pointer"
             >
               <Dices className="h-4 w-4" />
               Generar Contraseña Aleatoria Segura
@@ -203,21 +203,21 @@ export function Step2Credentials({
               required
               value={data.password}
               onChange={(e) => onChange({ password: e.target.value })}
-              className="w-full px-4 py-3 pr-24 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 font-mono tracking-wide focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 pr-24 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] font-mono tracking-wide focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
             />
             <div className="absolute right-2.5 top-2.5 flex items-center gap-1">
               <button
                 type="button"
                 onClick={handleCopyPassword}
                 title="Copiar contraseña"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-500 hover:text-[#1b2447] hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                {copied ? <Check className="h-4 w-4 text-[#0f766e]" /> : <Copy className="h-4 w-4" />}
               </button>
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-500 hover:text-[#1b2447] hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -227,16 +227,16 @@ export function Step2Credentials({
           {/* Medidor de Fortaleza */}
           <div className="space-y-1.5 pt-1">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">Nivel de Seguridad:</span>
+              <span className="text-slate-500">Nivel de Seguridad:</span>
               <span
                 className={`font-semibold uppercase tracking-wider text-[11px] ${
-                  strengthColors[strength.score]?.text ?? "text-slate-400"
+                  strengthColors[strength.score]?.text ?? "text-slate-500"
                 }`}
               >
                 {strength.label}
               </span>
             </div>
-            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden flex gap-1">
+            <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden flex gap-1">
               {[1, 2, 3, 4].map((step) => {
                 const active = strength.score >= step;
                 return (
@@ -244,8 +244,8 @@ export function Step2Credentials({
                     key={step}
                     className={`h-full flex-1 rounded-full transition-all duration-300 ${
                       active
-                        ? (strengthColors[strength.score]?.bg ?? "bg-slate-800")
-                        : "bg-slate-800"
+                        ? (strengthColors[strength.score]?.bg ?? "bg-slate-200")
+                        : "bg-slate-200"
                     }`}
                   />
                 );
@@ -254,14 +254,14 @@ export function Step2Credentials({
           </div>
 
           {copied && (
-            <p className="text-xs text-emerald-400 flex items-center gap-1.5 font-medium">
+            <p className="text-xs text-[#0f766e] flex items-center gap-1.5 font-medium">
               <Check className="h-4 w-4" />
               ¡Contraseña copiada al portapapeles! Guárdala de forma segura para entregarla al cliente.
             </p>
           )}
 
-          <div className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-indigo-400" />
+          <div className="p-3.5 rounded-xl bg-[#eef2ff] border border-[#dfe6f7] text-[#1b2447] text-xs flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-[#1b5094]" />
             <span>
               La contraseña se almacenará hasheada con bcrypt en la base de datos MySQL (nunca en texto plano).
             </span>
@@ -273,7 +273,7 @@ export function Step2Credentials({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 px-5 py-2.5 text-sm text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 rounded-xl transition-all cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 hover:text-[#1b2447] bg-white hover:bg-slate-100 border border-[#dfe6f7] rounded-xl transition-all cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Volver al Paso 1</span>
@@ -281,7 +281,7 @@ export function Step2Credentials({
 
         <button
           type="submit"
-          className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-xl shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
+          className="flex items-center gap-2 px-6 py-3 bg-[#1b2447] hover:bg-[#16213b] text-white font-medium text-sm rounded-xl shadow-lg shadow-[#1b2447]/15 transition-all cursor-pointer"
         >
           <span>Siguiente: Importación Excel</span>
           <ArrowRight className="h-4 w-4" />

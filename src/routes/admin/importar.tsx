@@ -77,11 +77,11 @@ function IncrementalImportPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 pb-12">
       <header>
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-400">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1b5094]">
           Proyecto autorizado · {context.projectName ?? "Maquinarias"}
         </p>
-        <h1 className="mt-1 text-2xl font-bold text-white">Importación incremental segura</h1>
-        <p className="mt-2 max-w-3xl text-sm text-slate-400">
+        <h1 className="mt-1 text-2xl font-bold text-[#1b2447]">Importación incremental segura</h1>
+        <p className="mt-2 max-w-3xl text-sm text-slate-600">
           La vista previa no modifica MySQL ni los datos del dashboard. Al confirmar se insertan
           únicamente códigos nuevos en el proyecto Maquinarias (id 1), dentro de una transacción.
         </p>
@@ -97,7 +97,7 @@ function IncrementalImportPage() {
           </div>
         </div>
       )}
-      <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-6">
+      <section className="rounded-2xl border border-[#dfe6f7] bg-white p-6">
         <input
           ref={inputRef}
           type="file"
@@ -111,9 +111,9 @@ function IncrementalImportPage() {
         <button
           onClick={() => inputRef.current?.click()}
           disabled={loading}
-          className="flex w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-slate-700 bg-slate-950/50 p-10 text-center transition-colors hover:border-indigo-500 disabled:opacity-60"
+          className="flex w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-[#dfe6f7] bg-[#f8fafc] p-10 text-center transition-colors hover:border-[#1b5094] disabled:opacity-60"
         >
-          <div className="rounded-xl bg-indigo-500/10 p-3 text-indigo-400">
+          <div className="rounded-xl bg-[#eef2ff] p-3 text-[#1b5094]">
             {loading ? (
               <Loader2 className="h-7 w-7 animate-spin" />
             ) : (
@@ -121,15 +121,15 @@ function IncrementalImportPage() {
             )}
           </div>
           <div>
-            <p className="font-semibold text-white">{fileName || "Seleccionar archivo Excel"}</p>
-            <p className="mt-1 text-xs text-slate-400">
+            <p className="font-semibold text-[#1b2447]">{fileName || "Seleccionar archivo Excel"}</p>
+            <p className="mt-1 text-xs text-slate-500">
               Se requieren Evaluaciones, Indicadores y Preguntas. La selección no guarda datos.
             </p>
           </div>
         </button>
       </section>
       {notice && (
-        <div className="rounded-xl border border-slate-700 bg-slate-900 p-3 text-sm text-slate-300">
+        <div className="rounded-xl border border-[#dfe6f7] bg-white p-3 text-sm text-slate-700">
           {notice}
         </div>
       )}
@@ -152,13 +152,13 @@ function IncrementalImportPage() {
                 {[...analysis.types].map(([type, count]) => (
                   <span
                     key={type}
-                    className="rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs text-indigo-200"
+                    className="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs text-indigo-700"
                   >
                     {type}: {count}
                   </span>
                 ))}
               </div>
-              <p className="mt-4 text-xs text-slate-400">
+              <p className="mt-4 text-xs text-slate-500">
                 Asesor: {preview.columns.asesor ? "columna detectada" : "no detectado"} · Fecha:{" "}
                 {preview.columns.fecha ? "columna detectada" : "no detectada"}
               </p>
@@ -166,16 +166,16 @@ function IncrementalImportPage() {
             <Panel title="Relaciones detectadas">
               <div className="grid grid-cols-3 gap-3 text-center text-xs">
                 <div>
-                  <p className="text-xl font-bold text-white">{preview.indicators.length}</p>
-                  <p className="text-slate-400">Indicadores</p>
+                  <p className="text-xl font-bold text-[#1b2447]">{preview.indicators.length}</p>
+                  <p className="text-slate-500">Indicadores</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-white">{preview.questions.length}</p>
-                  <p className="text-slate-400">Preguntas</p>
+                  <p className="text-xl font-bold text-[#1b2447]">{preview.questions.length}</p>
+                  <p className="text-slate-500">Preguntas</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold text-white">{analysis.branches}</p>
-                  <p className="text-slate-400">Sucursales</p>
+                  <p className="text-xl font-bold text-[#1b2447]">{analysis.branches}</p>
+                  <p className="text-slate-500">Sucursales</p>
                 </div>
               </div>
             </Panel>
@@ -193,7 +193,7 @@ function IncrementalImportPage() {
           <Panel title="Evaluaciones revisables">
             <div className="max-h-80 overflow-auto">
               <table className="w-full text-left text-xs">
-                <thead className="sticky top-0 bg-slate-900 text-slate-400">
+                <thead className="sticky top-0 bg-[#f8fafc] text-slate-600">
                   <tr>
                     <th className="p-3">Código</th>
                     <th className="p-3">Tipo</th>
@@ -202,27 +202,27 @@ function IncrementalImportPage() {
                     <th className="p-3">Acción</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800">
+                <tbody className="divide-y divide-[#e3e8f3]">
                   {preview.evaluations.map((item) => {
                     const exists = context.existingCodes.includes(item.codigo);
                     return (
-                      <tr key={item.codigo}>
-                        <td className="p-3 font-mono text-slate-200">{item.codigo}</td>
-                        <td className="p-3">{item.tipoEvaluacion}</td>
-                        <td className="p-3">
+                      <tr key={item.codigo} className="bg-white">
+                        <td className="p-3 font-mono text-[#1b2447]">{item.codigo}</td>
+                        <td className="p-3 text-slate-700">{item.tipoEvaluacion}</td>
+                        <td className="p-3 text-slate-700">
                           {item.concesionaria || "Sin concesionaria"}
                           <span className="block text-slate-500">
                             {item.marca} · {item.ubicacion}
                           </span>
                         </td>
-                        <td className="p-3">
+                        <td className="p-3 text-slate-700">
                           {item.fechaEvaluacion || "Sin fecha"}
                           <span className="block text-slate-500">
                             {item.asesorEvaluado || "Sin asesor"}
                           </span>
                         </td>
                         <td
-                          className={`p-3 font-semibold ${exists ? "text-amber-400" : "text-emerald-400"}`}
+                          className={`p-3 font-semibold ${exists ? "text-[#b45309]" : "text-[#0f766e]"}`}
                         >
                           {exists ? "Omitir" : "Insertar"}
                         </td>
@@ -233,8 +233,8 @@ function IncrementalImportPage() {
               </table>
             </div>
           </Panel>
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-900 p-5">
-            <p className="text-xs text-slate-400">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#dfe6f7] bg-white p-5">
+            <p className="text-xs text-slate-500">
               La confirmación vuelve a verificar duplicados en el servidor. Las evaluaciones
               existentes nunca se actualizan.
             </p>
@@ -246,7 +246,7 @@ function IncrementalImportPage() {
                 analysis.newRows.length === 0 ||
                 saving
               }
-              className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#1b2447] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#16213b] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Guardar nuevas evaluaciones en MySQL
@@ -260,14 +260,14 @@ function IncrementalImportPage() {
 function Stat({
   label,
   value,
-  tone = "text-white",
+  tone = "text-[#1b2447]",
 }: {
   label: string;
   value: number;
   tone?: string;
 }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+    <div className="rounded-xl border border-[#dfe6f7] bg-[#f8fafc] p-4">
       <p className="text-[11px] uppercase tracking-wider text-slate-500">{label}</p>
       <p className={`mt-1 text-2xl font-bold ${tone}`}>{value}</p>
     </div>
@@ -275,9 +275,9 @@ function Stat({
 }
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
-      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
-        <FileSpreadsheet className="h-4 w-4 text-indigo-400" />
+    <section className="rounded-2xl border border-[#dfe6f7] bg-white p-5">
+      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[#1b2447]">
+        <FileSpreadsheet className="h-4 w-4 text-[#1b5094]" />
         {title}
       </h2>
       {children}

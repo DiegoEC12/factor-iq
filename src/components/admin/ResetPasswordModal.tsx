@@ -98,33 +98,33 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 relative overflow-hidden">
+      <div className="w-full max-w-md rounded-2xl bg-white border border-[#e3e8f3] shadow-[0_20px_60px_rgba(27,36,71,0.12)] p-6 relative overflow-hidden">
         {/* Glow de fondo */}
-        <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-40 h-40 bg-[#1b2447]/5 rounded-full blur-3xl pointer-events-none" />
 
         {/* Encabezado */}
-        <div className="flex items-start justify-between pb-4 border-b border-slate-800/80">
+        <div className="flex items-start justify-between pb-4 border-b border-[#e3e8f3]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div className="w-10 h-10 rounded-xl bg-[#ecfdf5] border border-[#d1fae5] flex items-center justify-center text-[#0f766e]">
               <KeyRound className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">Restablecer Credenciales</h3>
-              <p className="text-xs text-slate-400">
-                Usuario: <span className="font-mono text-emerald-400 font-semibold">{user.usuario}</span>
+              <h3 className="text-base font-bold text-[#1b2447]">Restablecer Credenciales</h3>
+              <p className="text-xs text-slate-600">
+                Usuario: <span className="font-mono text-[#1b5094] font-semibold">{user.usuario}</span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-slate-500 hover:text-[#1b2447] hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="mt-4 p-3 rounded-lg bg-rose-950/40 border border-rose-900/50 text-rose-300 text-xs flex items-center gap-2">
+          <div className="mt-4 p-3 rounded-lg bg-[#fff1f2] border border-[#fecdd3] text-[#b42318] text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -133,11 +133,11 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-xs">
-              <label className="font-medium text-slate-300">Nueva Contraseña</label>
+              <label className="font-medium text-slate-700">Nueva Contraseña</label>
               <button
                 type="button"
                 onClick={handleGenerate}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 hover:underline transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1b5094] hover:text-[#143d78] hover:underline transition-colors"
               >
                 <Dices className="w-3.5 h-3.5" />
                 <span>Generar Aleatoria</span>
@@ -150,14 +150,14 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Ingresa o genera una clave..."
-                className="w-full font-mono text-sm bg-slate-950 border border-slate-700/80 rounded-xl px-3.5 py-2.5 pr-20 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                className="w-full font-mono text-sm bg-white border border-[#dfe6f7] rounded-xl px-3.5 py-2.5 pr-20 text-[#1b2447] placeholder-slate-400 focus:outline-none focus:border-[#d6452c] focus:ring-1 focus:ring-[#d6452c]/20 transition-all"
                 required
               />
               <div className="absolute right-2 flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="p-1.5 text-slate-400 hover:text-slate-200 transition-colors"
+                  className="p-1.5 text-slate-500 hover:text-[#1b2447] transition-colors"
                   title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -165,10 +165,10 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="p-1.5 text-slate-400 hover:text-emerald-400 transition-colors"
+                  className="p-1.5 text-slate-500 hover:text-[#1b5094] transition-colors"
                   title="Copiar al portapapeles"
                 >
-                  {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                  {copied ? <Check className="w-4 h-4 text-[#0f766e]" /> : <Copy className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -177,7 +177,7 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
             <div className="pt-2 space-y-1.5">
               <div className="flex items-center justify-between text-[11px] text-slate-400">
                 <span>Nivel de seguridad:</span>
-                <span className="font-medium text-slate-300">{strength.label}</span>
+                <span className="font-medium text-slate-700">{strength.label}</span>
               </div>
               <div className="grid grid-cols-4 gap-1.5 h-1.5">
                 {[1, 2, 3, 4].map((step) => (
@@ -192,9 +192,9 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
             </div>
           </div>
 
-          <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 text-[11px] text-slate-400 space-y-1">
-            <div className="flex items-center gap-1.5 text-slate-300 font-medium">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="p-3 rounded-xl bg-[#f5f7fc] border border-[#e3e8f3] text-[11px] text-slate-600 space-y-1">
+            <div className="flex items-center gap-1.5 text-[#1b2447] font-medium">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#0f766e]" />
               <span>Recomendación de seguridad:</span>
             </div>
             <p>
@@ -204,19 +204,19 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
           </div>
 
           {/* Botones */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#e3e8f3]">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-[#1b2447] hover:bg-slate-100 rounded-lg transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading || !password}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors shadow-lg shadow-emerald-950/50 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#1b2447] hover:bg-[#16213b] rounded-lg transition-colors shadow-lg shadow-[#1b2447]/10 disabled:opacity-50"
             >
               {loading ? (
                 <>

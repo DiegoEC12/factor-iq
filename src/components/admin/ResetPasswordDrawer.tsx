@@ -119,19 +119,19 @@ export function ResetPasswordDrawer({
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-md bg-slate-950 border-l border-slate-800 text-slate-100 p-0 flex flex-col h-full shadow-2xl overflow-hidden"
+        className="w-full sm:max-w-md bg-white border-l border-[#e3e8f3] text-slate-700 p-0 flex flex-col h-full shadow-[0_20px_60px_rgba(27,36,71,0.12)] overflow-hidden"
       >
-        <div className="p-6 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md">
+        <div className="p-6 border-b border-[#e3e8f3] bg-white backdrop-blur-md">
           <SheetHeader className="text-left">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+              <div className="h-10 w-10 rounded-xl bg-[#fff7ed] border border-[#fed7aa] flex items-center justify-center text-[#b45309]">
                 <KeyRound className="h-5 w-5" />
               </div>
               <div>
-                <SheetTitle className="text-lg font-semibold text-white tracking-tight">
+                <SheetTitle className="text-lg font-semibold text-[#1b2447] tracking-tight">
                   Restablecer Contraseña
                 </SheetTitle>
-                <SheetDescription className="text-xs text-slate-400">
+                <SheetDescription className="text-xs text-slate-600">
                   {user.nombre} (@{user.usuario})
                 </SheetDescription>
               </div>
@@ -140,35 +140,35 @@ export function ResetPasswordDrawer({
         </div>
 
         {error && (
-          <div className="mx-6 mt-4 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
+          <div className="mx-6 mt-4 p-3 rounded-lg bg-[#fff1f2] border border-[#fecdd3] text-[#b42318] text-xs flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 text-[#b42318]" />
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
-          <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs space-y-1">
-            <div className="flex items-center justify-between text-slate-400">
+          <div className="p-3.5 rounded-xl bg-[#f4f7fb] border border-[#e3e8f3] text-xs space-y-1">
+            <div className="flex items-center justify-between text-slate-600">
               <span>Usuario afectado:</span>
-              <span className="font-mono text-slate-200">@{user.usuario}</span>
+              <span className="font-mono text-[#1b2447]">@{user.usuario}</span>
             </div>
             {user.cliente_nombre && (
-              <div className="flex items-center justify-between text-slate-400">
+              <div className="flex items-center justify-between text-slate-600">
                 <span>Empresa vinculada:</span>
-                <span className="text-slate-200 font-medium">{user.cliente_nombre}</span>
+                <span className="text-[#1b2447] font-medium">{user.cliente_nombre}</span>
               </div>
             )}
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-slate-300">
+              <label className="text-xs font-medium text-slate-700">
                 Nueva Contraseña Generada
               </label>
               <button
                 type="button"
                 onClick={handleGenerate}
-                className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium transition-colors"
+                className="text-xs text-[#1b5094] hover:text-[#143d78] flex items-center gap-1 font-medium transition-colors"
               >
                 <Dices className="h-3.5 w-3.5" />
                 Generar Otra
@@ -181,17 +181,17 @@ export function ResetPasswordDrawer({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 pr-20 bg-slate-900/90 border border-slate-700/80 rounded-lg text-sm text-slate-100 font-mono focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                className="w-full px-3.5 py-2.5 pr-20 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] font-mono focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               />
               <div className="absolute right-2 top-2 flex items-center gap-1">
                 <button
                   type="button"
                   onClick={handleCopy}
                   title="Copiar contraseña"
-                  className="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                  className="p-1 rounded text-slate-500 hover:text-[#1b2447] hover:bg-slate-100 transition-colors"
                 >
                   {copied ? (
-                    <Check className="h-4 w-4 text-emerald-400" />
+                    <Check className="h-4 w-4 text-[#0f766e]" />
                   ) : (
                     <Copy className="h-4 w-4" />
                   )}
@@ -199,7 +199,7 @@ export function ResetPasswordDrawer({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="p-1 rounded text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                  className="p-1 rounded text-slate-500 hover:text-[#1b2447] hover:bg-slate-100 transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -209,12 +209,12 @@ export function ResetPasswordDrawer({
             {/* Barra de Fuerza */}
             <div className="space-y-1.5 pt-1">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">Fortaleza estimada:</span>
-                <span className={`font-semibold uppercase tracking-wider ${strengthColors[strength.score]?.text ?? "text-slate-400"}`}>
+                <span className="text-slate-500">Fortaleza estimada:</span>
+                <span className={`font-semibold uppercase tracking-wider ${strengthColors[strength.score]?.text ?? "text-slate-500"}`}>
                   {strength.label}
                 </span>
               </div>
-              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden flex gap-1">
+              <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden flex gap-1">
                 {[1, 2, 3, 4].map((step) => {
                   const active = strength.score >= step;
                   return (
@@ -222,8 +222,8 @@ export function ResetPasswordDrawer({
                       key={step}
                       className={`h-full flex-1 rounded-full transition-all duration-300 ${
                         active
-                          ? (strengthColors[strength.score]?.bg ?? "bg-slate-800")
-                          : "bg-slate-800"
+                          ? (strengthColors[strength.score]?.bg ?? "bg-slate-200")
+                          : "bg-slate-200"
                       }`}
                     />
                   );
@@ -232,27 +232,27 @@ export function ResetPasswordDrawer({
             </div>
 
             {copied && (
-              <p className="text-[11px] text-emerald-400 flex items-center gap-1">
+              <p className="text-[11px] text-[#0f766e] flex items-center gap-1">
                 <Check className="h-3 w-3" />
                 ¡Contraseña copiada al portapapeles! Envíala al cliente antes de cerrar.
               </p>
             )}
           </div>
 
-          <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-2">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />
+          <div className="p-3 rounded-lg bg-[#fff7ed] border border-[#fed7aa] text-[#9a5b00] text-xs flex items-start gap-2">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-[#b45309] mt-0.5" />
             <span>
               Al aplicar el cambio, los intentos fallidos del usuario se restablecerán a 0 y la sesión previa quedará invalidada.
             </span>
           </div>
         </form>
 
-        <div className="p-4 border-t border-slate-800/80 bg-slate-900/80 flex items-center justify-end gap-3">
+        <div className="p-4 border-t border-[#e3e8f3] bg-[#f8fafc] flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            className="px-4 py-2 text-sm text-slate-600 hover:text-[#1b2447] transition-colors"
           >
             Cancelar
           </button>
@@ -260,7 +260,7 @@ export function ResetPasswordDrawer({
             type="button"
             onClick={handleSubmit}
             disabled={loading}
-            className="flex items-center gap-2 px-5 py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-medium text-sm rounded-lg shadow-lg shadow-amber-600/20 disabled:opacity-50 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2.5 bg-[#1b2447] hover:bg-[#16213b] text-white font-medium text-sm rounded-lg shadow-lg shadow-[#1b2447]/10 disabled:opacity-50 transition-all cursor-pointer"
           >
             {loading ? (
               <>

@@ -20,6 +20,8 @@ Factor IQ reúne el portal ejecutivo de Mystery Shopping de Maquinarias y un pan
 - Importación de archivos `.xlsx` y `.xls` desde la interfaz.
 - Restauración del dataset original después de una importación.
 - Panel SuperAdmin protegido en `/admin`, con una interfaz alineada al sistema visual claro del portal Maquinarias y los acentos institucionales azul marino y coral de Factor IQ.
+- Ajuste reciente del tema light administrativo para que el panel use la paleta corporativa de Factor IQ, manteniendo la estructura de navegación y los módulos operativos con un estilo más claro y coherente con la web pública.
+- Revisión final de formularios, drawers y wizard del panel: fondo blanco, textos oscuros y bordes claros para garantizar legibilidad sin perder la identidad de marca del módulo administrativo.
 - Gestión de clientes, usuarios y accesos, bitácora de auditoría y estado de la base de datos.
 
 ## Panel de administración

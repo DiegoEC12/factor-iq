@@ -53,19 +53,19 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
 
   return (
     <form onSubmit={handleContinue} className="space-y-6">
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-xl space-y-6">
+      <div className="bg-white border border-[#e3e8f3] rounded-2xl p-6 sm:p-8 shadow-[0_20px_60px_rgba(27,36,71,0.08)] space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-white tracking-tight flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-indigo-400" />
+          <h3 className="text-lg font-semibold text-[#1b2447] tracking-tight flex items-center gap-2">
+            <Building2 className="h-5 w-5 text-[#1b2447]" />
             Paso 1: Información Corporativa de la Empresa Cliente
           </h3>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             Ingresa los datos generales de la empresa contratante. El slug definirá la URL de acceso a sus tableros.
           </p>
         </div>
 
         {error && (
-          <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
+          <div className="p-3.5 rounded-xl bg-[#fff1f2] border border-[#fecdd3] text-[#b42318] text-xs">
             {error}
           </div>
         )}
@@ -74,8 +74,8 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Nombre Comercial <span className="text-rose-400">*</span>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Nombre Comercial <span className="text-[#d6452c]">*</span>
               </label>
               <input
                 type="text"
@@ -83,13 +83,13 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
                 value={data.nombre_comercial}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="Ej. Grupo Automotriz del Perú"
-                className="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Slug / Identificador URL <span className="text-rose-400">*</span>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Slug / Identificador URL <span className="text-[#d6452c]">*</span>
               </label>
               <div className="relative">
                 <span className="absolute left-3.5 top-2.5 text-xs text-slate-500">/</span>
@@ -103,7 +103,7 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
                     })
                   }
                   placeholder="grupo-automotriz"
-                  className="w-full pl-7 pr-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all font-mono"
+                  className="w-full pl-7 pr-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all font-mono"
                 />
               </div>
             </div>
@@ -111,7 +111,7 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
                 Razón Social
               </label>
               <input
@@ -119,12 +119,12 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
                 value={data.razon_social}
                 onChange={(e) => onChange({ razon_social: e.target.value })}
                 placeholder="Ej. Grupo Automotriz del Perú S.A.C."
-                className="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
                 RUC (11 dígitos)
               </label>
               <div className="relative">
@@ -137,7 +137,7 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
                     onChange({ ruc: e.target.value.replace(/[^0-9]/g, "") })
                   }
                   placeholder="20601234567"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all font-mono"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all font-mono"
                 />
               </div>
             </div>
@@ -145,21 +145,21 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
         </div>
 
         {/* Sección 2: Plan y Branding */}
-        <div className="pt-4 border-t border-slate-800/80 space-y-4">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-amber-400" />
+        <div className="pt-4 border-t border-[#e3e8f3] space-y-4">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-[#b45309]" />
             Configuración SaaS & Personalización
           </h4>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
                 Plan del Servicio
               </label>
               <select
                 value={data.plan}
                 onChange={(e) => onChange({ plan: e.target.value as any })}
-                className="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               >
                 <option value="basico">Básico (1 estudio / año)</option>
                 <option value="profesional">Profesional (Mensual / Trimestral)</option>
@@ -168,7 +168,7 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
                 Rubro o Sector
               </label>
               <input
@@ -176,12 +176,12 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
                 value={data.rubro}
                 onChange={(e) => onChange({ rubro: e.target.value })}
                 placeholder="Automotriz, Retail, Banca, Farmacias..."
-                className="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
                 Color de Marca
               </label>
               <div className="flex items-center gap-3">
@@ -189,24 +189,24 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
                   type="color"
                   value={data.color_primario}
                   onChange={(e) => onChange({ color_primario: e.target.value })}
-                  className="h-10 w-12 rounded-lg border border-slate-700 bg-transparent cursor-pointer"
+                  className="h-10 w-12 rounded-lg border border-[#dfe6f7] bg-transparent cursor-pointer"
                 />
-                <span className="text-xs font-mono text-slate-300">{data.color_primario}</span>
+                <span className="text-xs font-mono text-slate-600">{data.color_primario}</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Sección 3: Contacto */}
-        <div className="pt-4 border-t border-slate-800/80 space-y-4">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-2">
-            <User className="h-4 w-4 text-emerald-400" />
+        <div className="pt-4 border-t border-[#e3e8f3] space-y-4">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+            <User className="h-4 w-4 text-[#0f766e]" />
             Persona de Contacto en la Empresa
           </h4>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
                 Nombre y Cargo
               </label>
               <input
@@ -214,12 +214,12 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
                 value={data.contacto_nombre}
                 onChange={(e) => onChange({ contacto_nombre: e.target.value })}
                 placeholder="Ej. Laura Gómez - Gerente Comercial"
-                className="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
                 Correo Electrónico
               </label>
               <div className="relative">
@@ -229,13 +229,13 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
                   value={data.contacto_email}
                   onChange={(e) => onChange({ contacto_email: e.target.value })}
                   placeholder="laura.gomez@empresa.pe"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
                 Teléfono / WhatsApp
               </label>
               <div className="relative">
@@ -245,7 +245,7 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
                   value={data.contacto_telefono}
                   onChange={(e) => onChange({ contacto_telefono: e.target.value })}
                   placeholder="+51 912 345 678"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                 />
               </div>
             </div>

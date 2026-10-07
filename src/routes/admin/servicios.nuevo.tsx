@@ -159,7 +159,7 @@ function NuevoServicioWizardPage() {
         <div>
           <Link
             to="/admin/empresas"
-            className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors mb-2"
+            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-[#1b2447] transition-colors mb-2"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Volver al listado de empresas</span>
@@ -170,10 +170,10 @@ function NuevoServicioWizardPage() {
               Onboarding Guiado
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-['Archivo'] mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1b2447] tracking-tight font-['Archivo'] mt-1">
             Nuevo Servicio & Carga Masiva
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
+          <p className="text-xs sm:text-sm text-slate-600">
             Flujo paso a paso para dar de alta una empresa cliente, generar sus accesos y cargar los resultados de Mystery Shopper.
           </p>
         </div>
@@ -188,24 +188,24 @@ function NuevoServicioWizardPage() {
 
       {/* Vista de Éxito / Activado */}
       {isSuccess ? (
-        <div className="bg-slate-900/80 border border-emerald-500/30 rounded-2xl p-8 sm:p-10 text-center space-y-6 backdrop-blur-xl shadow-2xl">
-          <div className="h-16 w-16 bg-emerald-500/20 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-emerald-400 shadow-lg shadow-emerald-500/20 animate-bounce">
+        <div className="bg-white border border-[#dfe6f7] rounded-2xl p-8 sm:p-10 text-center space-y-6 shadow-[0_20px_60px_rgba(27,36,71,0.08)]">
+          <div className="h-16 w-16 bg-emerald-100 border border-emerald-200 rounded-full flex items-center justify-center mx-auto text-[#0f766e] shadow-lg shadow-emerald-500/10 animate-bounce">
             <CheckCircle2 className="h-8 w-8" />
           </div>
 
           <div className="space-y-2 max-w-md mx-auto">
-            <h2 className="text-2xl font-bold text-white font-['Archivo']">
+            <h2 className="text-2xl font-bold text-[#1b2447] font-['Archivo']">
               ¡Empresa y Servicio Activados!
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300">
-              La empresa <span className="font-semibold text-white">{company.nombre_comercial}</span>, el usuario <span className="font-mono text-indigo-300">@{credentials.usuario}</span> y {excelResult?.stats.totalEvaluaciones} evaluaciones de Mystery Shopper han sido registrados exitosamente.
+            <p className="text-xs sm:text-sm text-slate-600">
+              La empresa <span className="font-semibold text-[#1b2447]">{company.nombre_comercial}</span>, el usuario <span className="font-mono text-[#1b5094]">@{credentials.usuario}</span> y {excelResult?.stats.totalEvaluaciones} evaluaciones de Mystery Shopper han sido registrados exitosamente.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Link
               to="/admin/empresas"
-              className="w-full sm:w-auto px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium rounded-xl transition-all cursor-pointer"
+              className="w-full sm:w-auto px-6 py-2.5 bg-white border border-[#dfe6f7] hover:bg-[#f8fafc] text-[#1b2447] text-sm font-medium rounded-xl transition-all cursor-pointer"
             >
               Ir a Listado de Empresas
             </Link>

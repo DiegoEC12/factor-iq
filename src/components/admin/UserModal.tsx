@@ -149,32 +149,32 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 relative overflow-hidden max-h-[90vh] overflow-y-auto">
-        <div className="flex items-start justify-between pb-4 border-b border-slate-800/80">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="w-full max-w-lg rounded-2xl bg-white border border-[#e3e8f3] shadow-[0_20px_60px_rgba(27,36,71,0.12)] p-6 relative overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div className="flex items-start justify-between pb-4 border-b border-[#e3e8f3]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400">
+            <div className="w-10 h-10 rounded-xl bg-[#eef2ff] border border-[#dfe6f7] flex items-center justify-center text-[#1b2447]">
               {isEditing ? <UserCheck className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">
+              <h3 className="text-base font-bold text-[#1b2447]">
                 {isEditing ? `Editar Usuario: ${userToEdit?.usuario}` : "Crear Nuevo Usuario"}
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-600">
                 Configura accesos, rol y pertenencia de empresa
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-lg text-slate-500 hover:text-[#1b2447] hover:bg-[#f4f7fb] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="mt-4 p-3 rounded-lg bg-rose-950/40 border border-rose-900/50 text-rose-300 text-xs flex items-center gap-2">
+          <div className="mt-4 p-3 rounded-lg bg-[#fff1f2] border border-[#fecdd3] text-[#b42318] text-xs flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -183,8 +183,8 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <UserIcon className="w-3.5 h-3.5 text-slate-400" />
+              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <UserIcon className="w-3.5 h-3.5 text-[#1b2447]" />
                 <span>Usuario (Login)*</span>
               </label>
               <input
@@ -192,14 +192,14 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
                 value={usuario}
                 onChange={(e) => setUsuario(e.target.value)}
                 placeholder="ej: admMaqui"
-                className="w-full text-xs bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+                className="w-full text-xs bg-white border border-[#dfe6f7] rounded-xl px-3 py-2 text-[#1b2447] placeholder-slate-400 focus:outline-none focus:border-[#d6452c] focus:ring-2 focus:ring-[#d6452c]/20 font-mono"
                 required
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <UserCheck className="w-3.5 h-3.5 text-slate-400" />
+              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <UserCheck className="w-3.5 h-3.5 text-[#1b2447]" />
                 <span>Nombre Completo*</span>
               </label>
               <input
@@ -207,15 +207,15 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 placeholder="ej: Juan Pérez"
-                className="w-full text-xs bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                className="w-full text-xs bg-white border border-[#dfe6f7] rounded-xl px-3 py-2 text-[#1b2447] placeholder-slate-400 focus:outline-none focus:border-[#d6452c] focus:ring-2 focus:ring-[#d6452c]/20"
                 required
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-slate-400" />
+            <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+              <Mail className="w-3.5 h-3.5 text-[#1b2447]" />
               <span>Correo Electrónico</span>
             </label>
             <input
@@ -223,20 +223,20 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ej: contacto@empresa.com"
-              className="w-full text-xs bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              className="w-full text-xs bg-white border border-[#dfe6f7] rounded-xl px-3 py-2 text-[#1b2447] placeholder-slate-400 focus:outline-none focus:border-[#d6452c] focus:ring-2 focus:ring-[#d6452c]/20"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-slate-400" />
+              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-[#1b2447]" />
                 <span>Rol de Usuario*</span>
               </label>
               <select
                 value={rol}
                 onChange={(e) => setRol(e.target.value as any)}
-                className="w-full text-xs bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                className="w-full text-xs bg-white border border-[#dfe6f7] rounded-xl px-3 py-2 text-[#1b2447] focus:outline-none focus:border-[#d6452c] focus:ring-2 focus:ring-[#d6452c]/20"
               >
                 <option value="admin_cliente">Administrador de Cliente</option>
                 <option value="editor_web">Editor Web (CMS)</option>
@@ -247,15 +247,15 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5 text-slate-400" />
+              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5 text-[#1b2447]" />
                 <span>Empresa / Cliente Asignado</span>
               </label>
               <select
                 value={rol === "superadmin" ? "" : (clienteId ?? "")}
                 disabled={rol === "superadmin"}
                 onChange={(e) => setClienteId(e.target.value ? Number(e.target.value) : null)}
-                className="w-full text-xs bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 disabled:opacity-50"
+                className="w-full text-xs bg-white border border-[#dfe6f7] rounded-xl px-3 py-2 text-[#1b2447] focus:outline-none focus:border-[#d6452c] focus:ring-2 focus:ring-[#d6452c]/20 disabled:opacity-50"
               >
                 {rol === "superadmin" ? (
                   <option value="">Factor IQ (Global)</option>
@@ -270,16 +270,15 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
             </div>
           </div>
 
-          {/* Campo Contraseña con Generador */}
           <div className="space-y-1.5 pt-1">
             <div className="flex items-center justify-between text-xs">
-              <label className="font-semibold text-slate-300">
+              <label className="font-semibold text-slate-700">
                 {isEditing ? "Cambiar Contraseña (opcional)" : "Contraseña Inicial*"}
               </label>
               <button
                 type="button"
                 onClick={handleGeneratePassword}
-                className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+                className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#1b5094] hover:text-[#143d78] transition-colors"
               >
                 <Dices className="w-3.5 h-3.5" />
                 <span>Generar Aleatoria</span>
@@ -292,13 +291,13 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={isEditing ? "Dejar en blanco para conservar actual" : "Contraseña..."}
-                className="w-full font-mono text-xs bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 pr-16 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                className="w-full font-mono text-xs bg-white border border-[#dfe6f7] rounded-xl px-3 py-2 pr-16 text-[#1b2447] placeholder-slate-400 focus:outline-none focus:border-[#d6452c] focus:ring-2 focus:ring-[#d6452c]/20"
               />
               <div className="absolute right-1.5 flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="p-1 text-slate-400 hover:text-slate-200"
+                  className="p-1 text-slate-500 hover:text-[#1b2447]"
                   title={showPassword ? "Ocultar" : "Mostrar"}
                 >
                   {showPassword ? (
@@ -311,11 +310,11 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
                   <button
                     type="button"
                     onClick={handleCopyPassword}
-                    className="p-1 text-slate-400 hover:text-emerald-400"
+                    className="p-1 text-slate-500 hover:text-[#1b5094]"
                     title="Copiar"
                   >
                     {copied ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <Check className="w-3.5 h-3.5 text-[#1b5094]" />
                     ) : (
                       <Copy className="w-3.5 h-3.5" />
                     )}
@@ -325,9 +324,8 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
             </div>
           </div>
 
-          {/* Estado del Usuario */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300">Estado de la Cuenta</label>
+            <label className="text-xs font-semibold text-slate-700">Estado de la Cuenta</label>
             <div className="grid grid-cols-3 gap-2">
               {(["activo", "bloqueado", "inactivo"] as const).map((st) => (
                 <button
@@ -337,11 +335,11 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
                   className={`py-1.5 text-xs font-medium rounded-lg border capitalize transition-colors ${
                     estado === st
                       ? st === "activo"
-                        ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                        ? "bg-[#e8f7ee] border-[#b7e4c7] text-[#15803d]"
                         : st === "bloqueado"
-                          ? "bg-amber-500/20 border-amber-500/40 text-amber-300"
-                          : "bg-rose-500/20 border-rose-500/40 text-rose-300"
-                      : "bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700"
+                          ? "bg-[#fff7ed] border-[#fed7aa] text-[#b45309]"
+                          : "bg-[#fff1f2] border-[#fecdd3] text-[#b42318]"
+                      : "bg-[#f4f7fb] border-[#dfe6f7] text-slate-600 hover:border-[#cfdaf0]"
                   }`}
                 >
                   {st}
@@ -350,19 +348,19 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#e3e8f3]">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-[#1b2447] hover:bg-[#f4f7fb] rounded-lg transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors shadow-lg shadow-emerald-950/50 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-[#1b2447] hover:bg-[#121d39] rounded-lg transition-colors shadow-lg shadow-[#1b2447]/20 disabled:opacity-50"
             >
               {loading ? (
                 <>

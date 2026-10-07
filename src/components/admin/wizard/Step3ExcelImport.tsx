@@ -113,20 +113,20 @@ export function Step3ExcelImport({
 
   return (
     <form onSubmit={handleContinue} className="space-y-6">
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-xl space-y-6">
+      <div className="bg-white border border-[#e3e8f3] rounded-2xl p-6 sm:p-8 shadow-[0_20px_60px_rgba(27,36,71,0.08)] space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-white tracking-tight flex items-center gap-2">
-            <FileSpreadsheet className="h-5 w-5 text-indigo-400" />
+          <h3 className="text-lg font-semibold text-[#1b2447] tracking-tight flex items-center gap-2">
+            <FileSpreadsheet className="h-5 w-5 text-[#1b2447]" />
             Paso 3: Carga y Validación del Archivo Excel de Mystery Shopper
           </h3>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 mt-1">
             El sistema inspeccionará el archivo .xlsx, verificará las hojas relacionales (Evaluaciones, Indicadores, Preguntas) y generará una previsualización interactiva antes de persistir en base de datos.
           </p>
         </div>
 
         {error && (
-          <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
+          <div className="p-3.5 rounded-xl bg-[#fff1f2] border border-[#fecdd3] text-[#b42318] text-xs flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 text-[#b42318]" />
             <span>{error}</span>
           </div>
         )}
@@ -134,8 +134,8 @@ export function Step3ExcelImport({
         {/* Datos del Proyecto/Servicio */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              Nombre del Servicio / Proyecto <span className="text-rose-400">*</span>
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
+              Nombre del Servicio / Proyecto <span className="text-[#d6452c]">*</span>
             </label>
             <input
               type="text"
@@ -143,12 +143,12 @@ export function Step3ExcelImport({
               value={serviceData.nombre}
               onChange={(e) => onServiceDataChange({ nombre: e.target.value })}
               placeholder="Ej. Mystery Shopping Red Nacional 2025"
-              className="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
               Periodo del Levantamiento
             </label>
             <input
@@ -156,7 +156,7 @@ export function Step3ExcelImport({
               value={serviceData.periodo}
               onChange={(e) => onServiceDataChange({ periodo: e.target.value })}
               placeholder="Ej. 2025 - Q1 / Base Consolidada"
-              className="w-full px-4 py-2.5 bg-slate-950/80 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
             />
           </div>
         </div>
@@ -169,10 +169,10 @@ export function Step3ExcelImport({
           onClick={() => fileInputRef.current?.click()}
           className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-3 ${
             isDragging
-              ? "border-indigo-500 bg-indigo-500/10 scale-[1.01]"
+              ? "border-[#1b2447] bg-[#eef2ff] scale-[1.01]"
               : excelResult
-                ? "border-emerald-500/50 bg-emerald-500/5 hover:border-emerald-400"
-                : "border-slate-700 hover:border-slate-600 bg-slate-950/60"
+                ? "border-[#0f766e]/50 bg-[#ecfdf5] hover:border-[#0f766e]"
+                : "border-[#dfe6f7] hover:border-[#c7d3ef] bg-[#f8fafc]"
           }`}
         >
           <input
@@ -200,22 +200,22 @@ export function Step3ExcelImport({
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-white">
+            <p className="text-sm font-semibold text-[#1b2447]">
               {excelResult ? (
-                <span className="text-emerald-400">
+                <span className="text-[#0f766e]">
                   Archivo cargado: {excelResult.fileName} ({Math.round(excelResult.fileSize / 1024)} KB)
                 </span>
               ) : (
                 "Arrastra tu archivo Excel aquí o haz clic para examinar"
               )}
             </p>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-slate-500 mt-1">
               Formato soportado: .xlsx (requiere hojas: Evaluaciones, Indicadores, Preguntas)
             </p>
           </div>
 
           {excelResult && (
-            <span className="text-xs text-slate-400 underline hover:text-slate-200">
+            <span className="text-xs text-slate-500 underline hover:text-[#1b2447]">
               Haz clic para seleccionar otro archivo
             </span>
           )}
@@ -223,65 +223,65 @@ export function Step3ExcelImport({
 
         {/* Etapa de Pre-importación / Preview */}
         {excelResult && (
-          <div className="space-y-5 pt-3 border-t border-slate-800/80">
+          <div className="space-y-5 pt-3 border-t border-[#e3e8f3]">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+              <h4 className="text-sm font-semibold text-[#1b2447] flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[#0f766e]" />
                 Resumen de Pre-importación y Métricas Detectadas
               </h4>
-              <span className="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">
+              <span className="text-xs text-[#0f766e] bg-[#ecfdf5] border border-[#a7f3d0] px-2.5 py-1 rounded-full font-medium">
                 Estructura Validada
               </span>
             </div>
 
             {/* Tarjetas de Métricas Pre-importación */}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-              <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-                <div className="flex items-center gap-2 text-slate-400 text-xs mb-1">
-                  <FileCheck className="h-3.5 w-3.5 text-indigo-400" />
+              <div className="p-3.5 rounded-xl bg-[#f8fafc] border border-[#dfe6f7]">
+                <div className="flex items-center gap-2 text-slate-500 text-xs mb-1">
+                  <FileCheck className="h-3.5 w-3.5 text-[#1b2447]" />
                   <span>Evaluaciones</span>
                 </div>
-                <div className="text-lg font-bold text-white">
+                <div className="text-lg font-bold text-[#1b2447]">
                   {excelResult.stats.totalEvaluaciones}
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-                <div className="flex items-center gap-2 text-slate-400 text-xs mb-1">
-                  <Building className="h-3.5 w-3.5 text-emerald-400" />
+              <div className="p-3.5 rounded-xl bg-[#f8fafc] border border-[#dfe6f7]">
+                <div className="flex items-center gap-2 text-slate-500 text-xs mb-1">
+                  <Building className="h-3.5 w-3.5 text-[#0f766e]" />
                   <span>Sucursales</span>
                 </div>
-                <div className="text-lg font-bold text-white">
+                <div className="text-lg font-bold text-[#1b2447]">
                   {excelResult.stats.totalSucursales}
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-                <div className="flex items-center gap-2 text-slate-400 text-xs mb-1">
-                  <Target className="h-3.5 w-3.5 text-cyan-400" />
+              <div className="p-3.5 rounded-xl bg-[#f8fafc] border border-[#dfe6f7]">
+                <div className="flex items-center gap-2 text-slate-500 text-xs mb-1">
+                  <Target className="h-3.5 w-3.5 text-[#1b5094]" />
                   <span>Criterios / Ind.</span>
                 </div>
-                <div className="text-lg font-bold text-white">
+                <div className="text-lg font-bold text-[#1b2447]">
                   {excelResult.stats.totalIndicadores}
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-                <div className="flex items-center gap-2 text-slate-400 text-xs mb-1">
-                  <HelpCircle className="h-3.5 w-3.5 text-amber-400" />
+              <div className="p-3.5 rounded-xl bg-[#f8fafc] border border-[#dfe6f7]">
+                <div className="flex items-center gap-2 text-slate-500 text-xs mb-1">
+                  <HelpCircle className="h-3.5 w-3.5 text-[#b45309]" />
                   <span>Preguntas</span>
                 </div>
-                <div className="text-lg font-bold text-white">
+                <div className="text-lg font-bold text-[#1b2447]">
                   {excelResult.stats.totalPreguntas}
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 col-span-2 sm:col-span-1">
-                <div className="flex items-center gap-2 text-slate-400 text-xs mb-1">
-                  <TrendingUp className="h-3.5 w-3.5 text-violet-400" />
+              <div className="p-3.5 rounded-xl bg-[#f8fafc] border border-[#dfe6f7] col-span-2 sm:col-span-1">
+                <div className="flex items-center gap-2 text-slate-500 text-xs mb-1">
+                  <TrendingUp className="h-3.5 w-3.5 text-[#7c3aed]" />
                   <span>Promedio Calc.</span>
                 </div>
-                <div className="text-lg font-bold text-indigo-300">
+                <div className="text-lg font-bold text-[#1b5094]">
                   {excelResult.stats.promedioPuntaje}%
                 </div>
               </div>
@@ -289,12 +289,12 @@ export function Step3ExcelImport({
 
             {/* Inconsistencias o Advertencias */}
             {excelResult.stats.inconsistencias.length > 0 && (
-              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs space-y-1">
+              <div className="p-4 rounded-xl bg-[#fff7ed] border border-[#fed7aa] text-[#9a5b00] text-xs space-y-1">
                 <div className="flex items-center gap-2 font-semibold">
-                  <AlertTriangle className="h-4 w-4 text-amber-400" />
+                  <AlertTriangle className="h-4 w-4 text-[#b45309]" />
                   <span>Advertencias de datos detectadas ({excelResult.stats.inconsistencias.length}):</span>
                 </div>
-                <ul className="list-disc pl-5 space-y-0.5 text-slate-300 text-[11px]">
+                <ul className="list-disc pl-5 space-y-0.5 text-slate-600 text-[11px]">
                   {excelResult.stats.inconsistencias.map((msg, i) => (
                     <li key={i}>{msg}</li>
                   ))}
@@ -304,14 +304,14 @@ export function Step3ExcelImport({
 
             {/* Pestañas de Vista Previa Tabular */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2 border-b border-slate-800">
+              <div className="flex items-center gap-2 border-b border-[#e3e8f3]">
                 <button
                   type="button"
                   onClick={() => setActivePreviewTab("evaluaciones")}
                   className={`px-3 py-2 text-xs font-medium border-b-2 transition-all cursor-pointer ${
                     activePreviewTab === "evaluaciones"
-                      ? "border-indigo-500 text-indigo-400"
-                      : "border-transparent text-slate-400 hover:text-slate-200"
+                      ? "border-[#1b2447] text-[#1b2447]"
+                      : "border-transparent text-slate-500 hover:text-[#1b2447]"
                   }`}
                 >
                   Vista Previa: Evaluaciones ({excelResult.evaluations.length})
@@ -321,8 +321,8 @@ export function Step3ExcelImport({
                   onClick={() => setActivePreviewTab("indicadores")}
                   className={`px-3 py-2 text-xs font-medium border-b-2 transition-all cursor-pointer ${
                     activePreviewTab === "indicadores"
-                      ? "border-indigo-500 text-indigo-400"
-                      : "border-transparent text-slate-400 hover:text-slate-200"
+                      ? "border-[#1b2447] text-[#1b2447]"
+                      : "border-transparent text-slate-500 hover:text-[#1b2447]"
                   }`}
                 >
                   Vista Previa: Indicadores ({excelResult.indicators.length})
@@ -332,8 +332,8 @@ export function Step3ExcelImport({
                   onClick={() => setActivePreviewTab("preguntas")}
                   className={`px-3 py-2 text-xs font-medium border-b-2 transition-all cursor-pointer ${
                     activePreviewTab === "preguntas"
-                      ? "border-indigo-500 text-indigo-400"
-                      : "border-transparent text-slate-400 hover:text-slate-200"
+                      ? "border-[#1b2447] text-[#1b2447]"
+                      : "border-transparent text-slate-500 hover:text-[#1b2447]"
                   }`}
                 >
                   Vista Previa: Checklist / Preguntas ({excelResult.questions.length})
@@ -341,10 +341,10 @@ export function Step3ExcelImport({
               </div>
 
               {/* Contenedor con scroll para la tabla */}
-              <div className="max-h-60 overflow-y-auto rounded-xl border border-slate-800 bg-slate-950/80">
+              <div className="max-h-60 overflow-y-auto rounded-xl border border-[#dfe6f7] bg-white">
                 {activePreviewTab === "evaluaciones" && (
-                  <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="sticky top-0 bg-slate-900 border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-400">
+                  <table className="w-full text-left text-xs text-slate-600">
+                    <thead className="sticky top-0 bg-[#f8fafc] border-b border-[#e3e8f3] text-[11px] uppercase tracking-wider text-slate-600">
                       <tr>
                         <th className="p-2.5">Código / ID</th>
                         <th className="p-2.5">Sucursal / Concesionaria</th>
@@ -354,15 +354,15 @@ export function Step3ExcelImport({
                         <th className="p-2.5 text-right">Puntaje</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+                    <tbody className="divide-y divide-[#e3e8f3] font-mono text-[11px]">
                       {excelResult.evaluations.slice(0, 10).map((ev: any, i: number) => (
-                        <tr key={i} className="hover:bg-slate-900/40">
-                          <td className="p-2.5 text-indigo-400 font-semibold">{ev.id}</td>
-                          <td className="p-2.5 font-sans text-slate-200">{ev.concesionaria}</td>
+                        <tr key={i} className="hover:bg-[#f8fafc]">
+                          <td className="p-2.5 text-[#1b5094] font-semibold">{ev.id}</td>
+                          <td className="p-2.5 font-sans text-[#1b2447]">{ev.concesionaria}</td>
                           <td className="p-2.5 font-sans">{ev.marca}</td>
                           <td className="p-2.5 font-sans">{ev.ubicacion}</td>
                           <td className="p-2.5 font-sans">{ev.tipoEvaluacion}</td>
-                          <td className="p-2.5 text-right font-bold text-emerald-400">
+                          <td className="p-2.5 text-right font-bold text-[#0f766e]">
                             {Math.round(ev.puntaje * 100)}%
                           </td>
                         </tr>
@@ -372,8 +372,8 @@ export function Step3ExcelImport({
                 )}
 
                 {activePreviewTab === "indicadores" && (
-                  <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="sticky top-0 bg-slate-900 border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-400">
+                  <table className="w-full text-left text-xs text-slate-600">
+                    <thead className="sticky top-0 bg-[#f8fafc] border-b border-[#e3e8f3] text-[11px] uppercase tracking-wider text-slate-600">
                       <tr>
                         <th className="p-2.5">Ev. ID</th>
                         <th className="p-2.5">N°</th>
@@ -382,14 +382,14 @@ export function Step3ExcelImport({
                         <th className="p-2.5 text-right">Cumplimiento</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+                    <tbody className="divide-y divide-[#e3e8f3] font-mono text-[11px]">
                       {excelResult.indicators.slice(0, 10).map((ind, i) => (
-                        <tr key={i} className="hover:bg-slate-900/40">
-                          <td className="p-2.5 text-indigo-400">{ind.ev}</td>
+                        <tr key={i} className="hover:bg-[#f8fafc]">
+                          <td className="p-2.5 text-[#1b5094]">{ind.ev}</td>
                           <td className="p-2.5">{ind.n}</td>
-                          <td className="p-2.5 font-sans text-slate-200">{ind.nombre}</td>
+                          <td className="p-2.5 font-sans text-[#1b2447]">{ind.nombre}</td>
                           <td className="p-2.5">{Math.round(ind.peso * 100)}%</td>
-                          <td className="p-2.5 text-right font-bold text-emerald-400">
+                          <td className="p-2.5 text-right font-bold text-[#0f766e]">
                             {Math.round(ind.cumpl * 100)}%
                           </td>
                         </tr>
@@ -399,8 +399,8 @@ export function Step3ExcelImport({
                 )}
 
                 {activePreviewTab === "preguntas" && (
-                  <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="sticky top-0 bg-slate-900 border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-400">
+                  <table className="w-full text-left text-xs text-slate-600">
+                    <thead className="sticky top-0 bg-[#f8fafc] border-b border-[#e3e8f3] text-[11px] uppercase tracking-wider text-slate-600">
                       <tr>
                         <th className="p-2.5">Ev. ID</th>
                         <th className="p-2.5">Criterio</th>
@@ -409,14 +409,14 @@ export function Step3ExcelImport({
                         <th className="p-2.5 text-right">Nota</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/60 font-mono text-[11px]">
+                    <tbody className="divide-y divide-[#e3e8f3] font-mono text-[11px]">
                       {excelResult.questions.slice(0, 10).map((q, i) => (
-                        <tr key={i} className="hover:bg-slate-900/40">
-                          <td className="p-2.5 text-indigo-400">{q.ev}</td>
+                        <tr key={i} className="hover:bg-[#f8fafc]">
+                          <td className="p-2.5 text-[#1b5094]">{q.ev}</td>
                           <td className="p-2.5 font-sans">{q.indicador}</td>
-                          <td className="p-2.5 font-sans text-slate-200 truncate max-w-xs">{q.q}</td>
+                          <td className="p-2.5 font-sans text-[#1b2447] truncate max-w-xs">{q.q}</td>
                           <td className="p-2.5 font-sans">{q.resp || "-"}</td>
-                          <td className="p-2.5 text-right font-bold text-slate-200">
+                          <td className="p-2.5 text-right font-bold text-[#1b2447]">
                             {q.nota !== null ? `${Math.round(q.nota * 100)}%` : "-"}
                           </td>
                         </tr>
@@ -437,7 +437,7 @@ export function Step3ExcelImport({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 px-5 py-2.5 text-sm text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 rounded-xl transition-all cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2.5 text-sm text-slate-600 hover:text-[#1b2447] bg-white hover:bg-slate-100 border border-[#dfe6f7] rounded-xl transition-all cursor-pointer"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Volver a Credenciales</span>
@@ -446,7 +446,7 @@ export function Step3ExcelImport({
         <button
           type="submit"
           disabled={!excelResult}
-          className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-medium text-sm rounded-xl shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
+          className="flex items-center gap-2 px-6 py-3 bg-[#1b2447] hover:bg-[#16213b] disabled:opacity-50 text-white font-medium text-sm rounded-xl shadow-lg shadow-[#1b2447]/15 transition-all cursor-pointer"
         >
           <span>Siguiente: Confirmación y Activación</span>
           <ArrowRight className="h-4 w-4" />

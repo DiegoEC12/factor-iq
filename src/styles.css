@@ -278,91 +278,119 @@
   background: #ffffff;
 }
 
-/* Factor IQ Admin: mismo lenguaje de superficies claras y paneles del portal
-   Maquinarias, con azul institucional y coral del isotipo como acentos. */
+/* Factor IQ Admin: misma paleta institucional que la web pública, con versión light por defecto */
 .factor-admin {
   --admin-navy: #1b2447;
+  --admin-navy-strong: #0f1836;
+  --admin-blue: #1b5094;
   --admin-coral: #d6452c;
-  --admin-coral-soft: #fff0ec;
-  --admin-navy-soft: #eef0f8;
+  --admin-coral-soft: #fff2ee;
+  --admin-surface: #ffffff;
+  --admin-surface-alt: #f4f7fb;
+  --admin-surface-soft: #eef2f9;
+  --admin-border: #e3e8f3;
+  --admin-text: #1d2433;
+  --admin-muted: #64748b;
+  --admin-success: #1b2447;
+  --admin-warning: #d6452c;
   min-height: 100vh;
-  background: #f7f8fc;
-  color: #334155;
+  background: linear-gradient(180deg, #f9fbff 0%, #f2f6fb 100%);
+  color: var(--admin-text);
+  --tw-ring-color: rgba(214, 69, 44, 0.25);
 }
 
-.factor-admin [class*="bg-slate-900"],
-.factor-admin [class*="bg-slate-950"] {
+.factor-admin [class*="text-indigo-"],
+.factor-admin [class*="text-violet-"],
+.factor-admin [class*="text-purple-"],
+.factor-admin [class*="text-sky-"] {
+  color: var(--admin-navy) !important;
+}
+
+.factor-admin input:not([type="color"]),
+.factor-admin select,
+.factor-admin textarea {
   background-color: #ffffff !important;
+  border-color: #dfe6f7 !important;
+  color: var(--admin-text) !important;
+  caret-color: var(--admin-coral);
 }
 
-.factor-admin [class*="bg-slate-800"] {
-  background-color: #eef0f8 !important;
+.factor-admin input::placeholder,
+.factor-admin textarea::placeholder {
+  color: #94a3b8 !important;
 }
 
-.factor-admin [class*="border-slate-800"],
-.factor-admin [class*="border-slate-700"] {
-  border-color: #d8dcec !important;
+.factor-admin select option {
+  color: var(--admin-text);
+  background-color: #ffffff;
 }
 
-.factor-admin [class*="divide-slate-800"] {
-  --tw-divide-opacity: 1;
-  border-color: #e6e9f1 !important;
+.factor-admin [class*="border-indigo-"],
+.factor-admin [class*="border-violet-"],
+.factor-admin [class*="border-purple-"],
+.factor-admin [class*="border-sky-"] {
+  border-color: rgba(27, 36, 71, 0.2) !important;
 }
 
-.factor-admin [class*="text-white"] {
-  color: var(--admin-navy) !important;
+.factor-admin [class*="from-indigo-"],
+.factor-admin [class*="from-violet-"],
+.factor-admin [class*="from-purple-"],
+.factor-admin [class*="from-sky-"] {
+  --tw-gradient-from: rgba(27, 36, 71, 0.96) !important;
 }
 
-.factor-admin [class*="text-slate-200"],
-.factor-admin [class*="text-slate-300"] {
-  color: #334155 !important;
+.factor-admin [class*="to-indigo-"],
+.factor-admin [class*="to-violet-"],
+.factor-admin [class*="to-purple-"],
+.factor-admin [class*="to-sky-"] {
+  --tw-gradient-to: rgba(27, 80, 148, 0.9) !important;
 }
 
-.factor-admin [class*="text-slate-400"] {
-  color: #64748b !important;
+.factor-admin [class*="bg-emerald-"] {
+  background-color: rgba(21, 128, 61, 0.12) !important;
 }
 
-.factor-admin [class*="text-slate-500"],
-.factor-admin [class*="text-slate-600"] {
-  color: #64748b !important;
+.factor-admin [class*="bg-amber-"] {
+  background-color: rgba(180, 83, 9, 0.12) !important;
 }
 
-.factor-admin [class*="hover:bg-slate-800"]:hover {
-  background-color: #eef0f8 !important;
+.factor-admin [class*="bg-rose-"],
+.factor-admin [class*="bg-red-"] {
+  background-color: rgba(185, 28, 28, 0.1) !important;
 }
 
-.factor-admin [class*="text-sky"],
-.factor-admin [class*="text-violet"],
-.factor-admin [class*="text-purple"] {
-  color: var(--admin-navy) !important;
+.factor-admin [class*="text-emerald-"] {
+  color: #15803d !important;
 }
 
-.factor-admin [class*="bg-sky"],
-.factor-admin [class*="bg-violet"],
-.factor-admin [class*="bg-purple"] {
-  background-color: var(--admin-navy-soft) !important;
+.factor-admin [class*="text-amber-"] {
+  color: #b45309 !important;
 }
 
-.factor-admin [class*="border-sky"],
-.factor-admin [class*="border-violet"],
-.factor-admin [class*="border-purple"] {
-  border-color: #d8dcec !important;
+.factor-admin [class*="text-rose-"],
+.factor-admin [class*="text-red-"] {
+  color: #b42318 !important;
 }
 
-.factor-admin [class*="bg-emerald-600"] {
-  background-color: var(--admin-navy) !important;
-}
-
-.factor-admin [class*="hover:bg-emerald-500"]:hover {
-  background-color: #2b396d !important;
-}
-
-.factor-admin [class*="focus:border-emerald"] {
+.factor-admin [class*="focus:border-emerald"],
+.factor-admin [class*="focus:border-indigo"],
+.factor-admin [class*="focus:ring-indigo"],
+.factor-admin [class*="focus:ring-emerald"] {
   border-color: var(--admin-coral) !important;
+  box-shadow: 0 0 0 1px rgba(214, 69, 44, 0.2) !important;
+}
+
+.factor-admin [class*="bg-gradient-to-r"] {
+  background-image: linear-gradient(135deg, rgba(27, 36, 71, 0.96), rgba(27, 80, 148, 0.9)) !important;
 }
 
 .factor-admin table tbody tr:hover {
-  background: #f6f7fb !important;
+  background: #f7f9fd !important;
+}
+
+.factor-admin .shadow-indigo-600\/25,
+.factor-admin .shadow-blue-500\/25 {
+  box-shadow: 0 18px 45px rgba(27, 36, 71, 0.12) !important;
 }
 
 #contacto {

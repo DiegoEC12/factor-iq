@@ -42,12 +42,12 @@ interface WizardStepperProps {
 
 export function WizardStepper({ currentStep, onStepClick, maxReachedStep }: WizardStepperProps) {
   return (
-    <div className="w-full bg-slate-900/70 border border-slate-800/80 rounded-2xl p-4 sm:p-6 backdrop-blur-xl shadow-xl">
+    <div className="w-full bg-white border border-[#e3e8f3] rounded-2xl p-4 sm:p-6 shadow-[0_20px_60px_rgba(27,36,71,0.08)]">
       <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-2">
         {/* Línea de conexión detrás de los pasos en desktop */}
-        <div className="hidden md:block absolute left-12 right-12 top-7 h-0.5 bg-slate-800 -z-0" />
+        <div className="hidden md:block absolute left-12 right-12 top-7 h-0.5 bg-[#dfe6f7] -z-0" />
         <div
-          className="hidden md:block absolute left-12 top-7 h-0.5 bg-gradient-to-r from-indigo-500 via-indigo-400 to-emerald-400 transition-all duration-500 -z-0"
+          className="hidden md:block absolute left-12 top-7 h-0.5 bg-gradient-to-r from-[#1b2447] via-[#1b5094] to-[#0f766e] transition-all duration-500 -z-0"
           style={{
             width: `${Math.min(100, Math.max(0, ((currentStep - 1) / (WIZARD_STEPS.length - 1)) * 100))}%`,
           }}
@@ -70,10 +70,10 @@ export function WizardStepper({ currentStep, onStepClick, maxReachedStep }: Wiza
               <div
                 className={`relative flex items-center justify-center h-12 w-12 rounded-2xl font-semibold text-sm transition-all duration-300 shadow-md ${
                   isCompleted
-                    ? "bg-emerald-500/20 border-2 border-emerald-500 text-emerald-400"
+                    ? "bg-[#ecfdf5] border-2 border-[#86efac] text-[#0f766e]"
                     : isCurrent
-                      ? "bg-indigo-600 border-2 border-indigo-400 text-white shadow-indigo-500/30 shadow-lg ring-4 ring-indigo-500/20 scale-105"
-                      : "bg-slate-800/90 border border-slate-700/80 text-slate-400 group-hover:border-slate-600"
+                      ? "bg-[#1b2447] border-2 border-[#1b5094] text-white shadow-[#1b2447]/20 shadow-lg ring-4 ring-[#1b2447]/10 scale-105"
+                      : "bg-[#f8fafc] border border-[#dfe6f7] text-slate-500 group-hover:border-[#c7d3ef]"
                 }`}
               >
                 {isCompleted ? (
@@ -81,7 +81,7 @@ export function WizardStepper({ currentStep, onStepClick, maxReachedStep }: Wiza
                 ) : (
                   <Icon className="h-5 w-5" />
                 )}
-                <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-slate-950 border border-slate-700 text-[10px] font-mono flex items-center justify-center text-slate-300">
+                <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-white border border-[#dfe6f7] text-[10px] font-mono flex items-center justify-center text-[#1b2447]">
                   {step.id}
                 </span>
               </div>
@@ -90,15 +90,15 @@ export function WizardStepper({ currentStep, onStepClick, maxReachedStep }: Wiza
                 <span
                   className={`text-sm font-semibold tracking-tight transition-colors ${
                     isCurrent
-                      ? "text-white"
+                      ? "text-[#1b2447]"
                       : isCompleted
-                        ? "text-emerald-400"
-                        : "text-slate-400 group-hover:text-slate-200"
+                        ? "text-[#0f766e]"
+                        : "text-slate-500 group-hover:text-[#1b2447]"
                   }`}
                 >
                   {step.title}
                 </span>
-                <span className="text-xs text-slate-400 font-normal">{step.subtitle}</span>
+                <span className="text-xs text-slate-500 font-normal">{step.subtitle}</span>
               </div>
             </div>
           );

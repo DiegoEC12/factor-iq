@@ -93,10 +93,10 @@ function AdminEmpresasView() {
       {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-['Archivo']">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1b2447] tracking-tight font-['Archivo']">
             Empresas Clientes
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
             Administra las cuentas corporativas que reciben evaluaciones de Mystery Shopper.
           </p>
         </div>
@@ -104,9 +104,9 @@ function AdminEmpresasView() {
         <div className="flex items-center gap-3">
           <Link
             to="/admin/servicios/nuevo"
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 border border-slate-700/80 hover:bg-slate-800 text-slate-200 font-medium text-xs sm:text-sm rounded-xl transition-all cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-[#dfe6f7] hover:bg-[#f4f7fb] text-[#1b2447] font-medium text-xs sm:text-sm rounded-xl transition-all cursor-pointer"
           >
-            <FolderPlus className="h-4 w-4 text-indigo-400" />
+            <FolderPlus className="h-4 w-4 text-[#1b2447]" />
             <span>Wizard Alta Completa</span>
           </Link>
 
@@ -116,7 +116,7 @@ function AdminEmpresasView() {
               setClientToEdit(null);
               setDrawerOpen(true);
             }}
-            className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs sm:text-sm rounded-xl shadow-lg shadow-indigo-600/25 transition-all cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#1b2447] hover:bg-[#243362] text-white font-medium text-xs sm:text-sm rounded-xl shadow-lg shadow-[#1b2447]/15 transition-all cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             <span>Nueva Empresa (Drawer)</span>
@@ -125,7 +125,7 @@ function AdminEmpresasView() {
       </div>
 
       {/* Barra de Filtros y Búsqueda */}
-      <div className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800/80 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-3">
+      <div className="p-4 rounded-2xl bg-white border border-[#e3e8f3] backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-3">
         <div className="relative w-full md:w-80">
           <Search className="absolute left-3.5 top-2.5 h-4 w-4 text-slate-400" />
           <input
@@ -133,7 +133,7 @@ function AdminEmpresasView() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Buscar por nombre, slug o RUC..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-950/80 border border-slate-700/80 rounded-xl text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-white border border-[#dfe6f7] rounded-xl text-xs sm:text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
           />
         </div>
 
@@ -141,7 +141,7 @@ function AdminEmpresasView() {
           <select
             value={filterPlan}
             onChange={(e) => setFilterPlan(e.target.value)}
-            className="px-3 py-2 bg-slate-950/80 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-3 py-2 bg-white border border-[#dfe6f7] rounded-xl text-xs text-[#1b2447] focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20"
           >
             <option value="todos">Todos los Planes</option>
             <option value="basico">Básico</option>
@@ -152,7 +152,7 @@ function AdminEmpresasView() {
           <select
             value={filterEstado}
             onChange={(e) => setFilterEstado(e.target.value)}
-            className="px-3 py-2 bg-slate-950/80 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-3 py-2 bg-white border border-[#dfe6f7] rounded-xl text-xs text-[#1b2447] focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20"
           >
             <option value="todos">Todos los Estados</option>
             <option value="activo">Activo</option>
@@ -163,10 +163,10 @@ function AdminEmpresasView() {
       </div>
 
       {/* Tabla de Empresas */}
-      <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 backdrop-blur-xl overflow-hidden shadow-xl">
+      <div className="rounded-2xl border border-[#e3e8f3] bg-white backdrop-blur-xl overflow-hidden shadow-[0_20px_60px_rgba(27,36,71,0.06)]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-900 border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-400">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-[#f4f7fb] border-b border-[#e3e8f3] text-[11px] uppercase tracking-wider text-slate-600">
               <tr>
                 <th className="p-4">Empresa / Razón Social</th>
                 <th className="p-4">Identificador URL</th>
@@ -177,12 +177,12 @@ function AdminEmpresasView() {
                 <th className="p-4 text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-[#edf2f7] bg-white">
               {filteredClientes.length > 0 ? (
                 filteredClientes.map((c: any) => {
                   const isActivo = c.estado === "activo";
                   return (
-                    <tr key={c.id} className="hover:bg-slate-900/40 transition-colors">
+                    <tr key={c.id} className="hover:bg-[#f5f8ff] transition-colors">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div
@@ -197,10 +197,10 @@ function AdminEmpresasView() {
                             {c.nombre_comercial.slice(0, 2).toUpperCase()}
                           </div>
                           <div>
-                            <span className="font-semibold text-white text-sm block">
+                            <span className="font-semibold text-[#1b2447] text-sm block">
                               {c.nombre_comercial}
                             </span>
-                            <span className="text-[11px] text-slate-400 block truncate max-w-xs">
+                            <span className="text-[11px] text-slate-600 block truncate max-w-xs">
                               {c.razon_social || c.rubro || "Empresa Evaluada"}
                             </span>
                           </div>
@@ -208,23 +208,23 @@ function AdminEmpresasView() {
                       </td>
 
                       <td className="p-4">
-                        <span className="font-mono text-xs text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-lg border border-indigo-500/20">
+                        <span className="font-mono text-xs text-[#1b2447] bg-[#eef2ff] px-2 py-0.5 rounded-lg border border-[#dfe6f7]">
                           /{c.slug}
                         </span>
                       </td>
 
-                      <td className="p-4 font-mono text-slate-300">
-                        {c.ruc ? c.ruc : <span className="text-slate-600">-</span>}
+                      <td className="p-4 font-mono text-slate-700">
+                        {c.ruc ? c.ruc : <span className="text-slate-500">-</span>}
                       </td>
 
                       <td className="p-4">
                         <span
                           className={`capitalize px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
                             c.plan === "enterprise"
-                              ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                              ? "bg-amber-500/10 text-amber-700 border-amber-200"
                               : c.plan === "profesional"
-                                ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/30"
-                                : "bg-slate-800 text-slate-300 border-slate-700"
+                                ? "bg-indigo-500/10 text-indigo-700 border-indigo-200"
+                                : "bg-slate-100 text-slate-700 border-slate-200"
                           }`}
                         >
                           {c.plan}
@@ -237,8 +237,8 @@ function AdminEmpresasView() {
                           onClick={() => handleToggleEstado(c)}
                           className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border transition-all cursor-pointer ${
                             isActivo
-                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
-                              : "bg-rose-500/10 text-rose-400 border-rose-500/30 hover:bg-rose-500/20"
+                              ? "bg-emerald-500/10 text-emerald-700 border-emerald-200 hover:bg-emerald-500/20"
+                              : "bg-rose-500/10 text-rose-700 border-rose-200 hover:bg-rose-500/20"
                           }`}
                           title={isActivo ? "Clic para suspender" : "Clic para activar"}
                         >
@@ -250,13 +250,13 @@ function AdminEmpresasView() {
                       <td className="p-4">
                         {c.contacto_nombre ? (
                           <div className="text-[11px]">
-                            <p className="font-medium text-slate-200">{c.contacto_nombre}</p>
+                            <p className="font-medium text-[#1b2447]">{c.contacto_nombre}</p>
                             {c.contacto_email && (
-                              <p className="text-slate-400 truncate max-w-xs">{c.contacto_email}</p>
+                              <p className="text-slate-600 truncate max-w-xs">{c.contacto_email}</p>
                             )}
                           </div>
                         ) : (
-                          <span className="text-slate-600">-</span>
+                          <span className="text-slate-500">-</span>
                         )}
                       </td>
 
@@ -268,7 +268,7 @@ function AdminEmpresasView() {
                               setClientToEdit(c);
                               setDrawerOpen(true);
                             }}
-                            className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-500 hover:text-[#1b2447] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                             title="Editar en Slide-over Drawer"
                           >
                             <Pencil className="h-4 w-4" />
@@ -277,7 +277,7 @@ function AdminEmpresasView() {
                           <Link
                             to={`/${c.slug}` as any}
                             target="_blank"
-                            className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+                            className="p-1.5 text-slate-500 hover:text-[#1b5094] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                             title="Ver portal cliente"
                           >
                             <ExternalLink className="h-4 w-4" />
