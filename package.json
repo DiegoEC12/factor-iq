@@ -16,7 +16,8 @@
   },
   "overrides": {
     "rolldown": "1.2.1",
-    "@tanstack/start-server-core": "1.169.39"
+    "@tanstack/start-server-core": "1.169.39",
+    "@tanstack/start-client-core": "1.170.32"
   },
   "engines": {
     "node": ">=20.19.0"
