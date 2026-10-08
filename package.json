@@ -15,7 +15,8 @@
     "data:excel": "node scripts/generate-imported-json.cjs"
   },
   "overrides": {
-    "rolldown": "1.2.1"
+    "rolldown": "1.2.1",
+    "@tanstack/start-server-core": "1.169.39"
   },
   "engines": {
     "node": ">=20.19.0"
