@@ -48,10 +48,11 @@ export const getMysteryShoppingDataFn = createServerFn({ method: "GET" })
         resumen: string | null;
         recomendaciones: string | null;
         fecha_evaluacion: string | null;
+        mes: string | null;
         asesor_evaluado: string | null;
       }>(
         `SELECT e.codigo, s.nombre AS concesionaria, s.marca, s.ubicacion,
-                e.tipo_evaluacion, e.puntaje, e.resumen, e.recomendaciones, e.fecha_evaluacion, e.asesor_evaluado
+                e.tipo_evaluacion, e.puntaje, e.resumen, e.recomendaciones, e.fecha_evaluacion, e.mes, e.asesor_evaluado
            FROM evaluaciones e
            JOIN sucursales s ON s.id = e.sucursal_id
            JOIN proyectos p ON p.id = e.proyecto_id
@@ -137,6 +138,7 @@ export const getMysteryShoppingDataFn = createServerFn({ method: "GET" })
           recomendaciones: e.recomendaciones ?? null,
           tipoEvaluacion: e.tipo_evaluacion ?? "Ventas",
           fechaEvaluacion: e.fecha_evaluacion ?? null,
+          mes: e.mes ?? null,
           asesorEvaluado: e.asesor_evaluado ?? null,
         })),
         indicadores: indRows.map((i) => ({

@@ -191,8 +191,8 @@ export const saveIncrementalImportFn = createServerFn({ method: "POST" })
         if (!branchId) throw new Error(`No se pudo resolver la sucursal de ${evaluation.codigo}.`);
 
         await connection.query(
-          `INSERT INTO evaluaciones (codigo, proyecto_id, sucursal_id, tipo_evaluacion, puntaje, resumen, recomendaciones, fecha_evaluacion, asesor_evaluado)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO evaluaciones (codigo, proyecto_id, sucursal_id, tipo_evaluacion, puntaje, resumen, recomendaciones, fecha_evaluacion, mes, asesor_evaluado)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             evaluation.codigo,
             project.id,
@@ -202,6 +202,7 @@ export const saveIncrementalImportFn = createServerFn({ method: "POST" })
             evaluation.resumen,
             evaluation.recomendaciones,
             evaluation.fechaEvaluacion,
+            evaluation.mes,
             evaluation.asesorEvaluado,
           ],
         );

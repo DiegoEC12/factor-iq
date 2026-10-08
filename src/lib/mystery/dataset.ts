@@ -16,6 +16,7 @@ type LegacyRawDataset = {
 type LegacyEvaluationRow = {
   id?: unknown;
   periodo?: unknown;
+  mes?: unknown;
   concesionaria?: unknown;
   marca?: unknown;
   ubicacion?: unknown;
@@ -58,6 +59,7 @@ function normalize(rawData: LegacyRawDataset | Dataset): Dataset {
         : typeof meta["periodo"] === "string"
           ? meta["periodo"]
           : "",
+    mes: typeof e.mes === "string" ? e.mes : null,
     concesionaria: String(e.concesionaria ?? ""),
     marca: String(e.marca ?? ""),
     ubicacion: String(e.ubicacion ?? ""),

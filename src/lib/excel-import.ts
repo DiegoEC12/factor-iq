@@ -199,7 +199,10 @@ function buildDatasetFromRows(
 
     return {
       id: evaluation.id,
-      periodo: "",
+      periodo: evaluation.mes ?? "",
+      mes: evaluation.mes ?? null,
+      fechaEvaluacion: evaluation.fechaEvaluacion ?? null,
+      asesorEvaluado: evaluation.asesorEvaluado ?? null,
       concesionaria: evaluation.concesionaria,
       marca: evaluation.marca,
       ubicacion: evaluation.ubicacion,
@@ -310,6 +313,7 @@ export async function importExcelFile(file: File): Promise<{
         findValue(row, ["tipoevaluacion", "origencanal", "canalorigen", "tipo", "evaluationtype"]),
         "Ventas",
       ),
+      mes: text(findValue(row, ["mes", "periodo", "month"]), "") || null,
       __tipoEmpresaRaw: empresaRaw,
     };
 

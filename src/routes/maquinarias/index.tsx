@@ -5,6 +5,7 @@ import { KpiRow } from "@/components/dash/KpiRow";
 import { BenchmarkPanel, RankingPanel } from "@/components/dash/BenchmarkRanking";
 import { Heatmap } from "@/components/dash/Heatmap";
 import { EvaluatorPanel, StrengthsOpportunities } from "@/components/dash/EvaluatorPanel";
+import { HistoricalTrendsChart } from "@/components/dash/HistoricalTrendsChart";
 import {
   EMPTY_FILTERS,
   MARCA_PROPIA,
@@ -214,7 +215,8 @@ function Dashboard() {
               }}
               delay={180}
             />
-            <StrengthsOpportunities rows={indicadorRows} delay={240} />
+            <HistoricalTrendsChart filters={filters} />
+            {/* <StrengthsOpportunities rows={indicadorRows} delay={240} /> */}
           </div>
 
           <div className="lg:col-span-1">

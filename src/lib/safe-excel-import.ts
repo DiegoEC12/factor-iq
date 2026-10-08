@@ -11,6 +11,7 @@ export type SafeImportEvaluation = {
   resumen: string | null;
   recomendaciones: string | null;
   fechaEvaluacion: string | null;
+  mes: string | null;
   asesorEvaluado: string | null;
 };
 
@@ -204,6 +205,7 @@ export async function parseSafeImportExcel(file: File): Promise<SafeImportPayloa
       resumen: text(findValue(row, ["resumen", "resumenvisita", "summary"])) || null,
       recomendaciones: text(findValue(row, ["recomendaciones", "recommendations"])) || null,
       fechaEvaluacion,
+      mes: text(findValue(row, ["mes", "periodo", "month"])) || null,
       asesorEvaluado: text(findValue(row, asesorNames)) || null,
     };
   });

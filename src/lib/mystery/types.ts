@@ -15,6 +15,7 @@ export interface Question {
 export interface Evaluation {
   id: string;
   periodo: string;
+  mes?: string | null;
   concesionaria: string;
   marca: string;
   ubicacion: string;

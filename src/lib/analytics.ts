@@ -10,6 +10,7 @@ export type Evaluacion = {
   resumen: string | null;
   recomendaciones: string | null;
   tipoEvaluacion: string;
+  mes?: string | null;
   fechaEvaluacion?: string | null;
   asesorEvaluado?: string | null;
 };
