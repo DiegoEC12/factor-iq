@@ -10,7 +10,7 @@ export const CANONICAL_TIPOS_EVALUACION = [
   "Call Center",
   "Seminuevos",
   "Ventas",
-  "Posventa",
+  "Postventa",
 ] as const;
 
 export type CanonicalTipoEvaluacion = (typeof CANONICAL_TIPOS_EVALUACION)[number];
@@ -23,7 +23,7 @@ export function normalizeTipoEvaluacion(value: unknown, fallback = "Ventas"): st
   if (key.includes("callcenter") || key === "call") return "Call Center";
   if (key.includes("seminuevo") || key.includes("seminuevos")) return "Seminuevos";
   if (key.includes("posventa") || key.includes("postventa") || key.includes("aftersales"))
-    return "Posventa";
+    return "Postventa";
   if (key.includes("venta") || key.includes("ventas")) return "Ventas";
 
   return fallback;

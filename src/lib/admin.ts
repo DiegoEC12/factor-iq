@@ -221,7 +221,7 @@ export const saveIncrementalImportFn = createServerFn({ method: "POST" })
             const codePrefix =
               evaluation.tipoEvaluacion === "Call Center"
                 ? "IND_CAL"
-                : evaluation.tipoEvaluacion === "Posventa"
+                : evaluation.tipoEvaluacion === "Postventa"
                   ? "IND_POS"
                   : "IND";
             await connection.query(

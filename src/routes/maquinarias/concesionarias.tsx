@@ -19,6 +19,7 @@ import { dataset } from "@/lib/mystery/dataset";
 import { fmtPct } from "@/lib/mystery/format";
 import { useFilters } from "@/lib/mystery/filter-context";
 import { cn } from "@/lib/utils";
+import { textAsPoints } from "@/lib/text-format";
 import CompactFilterControls from "@/components/dash/CompactFilterControls";
 
 export const Route = createFileRoute("/maquinarias/concesionarias")({
@@ -467,7 +468,7 @@ function EvaluatorComments({ evaluations }: { evaluations: typeof dataset.evalua
         {content.map((item) => (
           <div key={item.id} className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
             <p className="mb-1 text-xs font-semibold text-foreground">{item.label}</p>
-            <p className="flex gap-2 whitespace-pre-line"><Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />{item.text ?? `Sin ${tab} registrado.`}</p>
+            <div className="flex gap-2"><Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><ul className="list-disc space-y-1.5 pl-4">{textAsPoints(item.text).map((point) => <li key={point}>{point}</li>)}</ul></div>
           </div>
         ))}
       </div>

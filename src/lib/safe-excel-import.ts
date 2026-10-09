@@ -6,7 +6,7 @@ export type SafeImportEvaluation = {
   concesionaria: string;
   marca: string;
   ubicacion: string;
-  tipoEvaluacion: "Ventas" | "Call Center" | "Seminuevos" | "Posventa";
+  tipoEvaluacion: "Ventas" | "Call Center" | "Seminuevos" | "Postventa";
   puntaje: number;
   resumen: string | null;
   recomendaciones: string | null;
@@ -110,7 +110,7 @@ function toMysqlDate(value: unknown): string | null {
 
 function strictType(value: string): SafeImportEvaluation["tipoEvaluacion"] | null {
   const normalized = normalizeTipoEvaluacion(value);
-  return (["Ventas", "Call Center", "Seminuevos", "Posventa"] as const).includes(
+  return (["Ventas", "Call Center", "Seminuevos", "Postventa"] as const).includes(
     normalized as SafeImportEvaluation["tipoEvaluacion"],
   )
     ? (normalized as SafeImportEvaluation["tipoEvaluacion"])

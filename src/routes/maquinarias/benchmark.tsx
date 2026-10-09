@@ -464,6 +464,8 @@ function BenchmarkPage() {
                   <MultiFilterSelect
                     label="Tipo"
                     values={benchmarkFilters.tipoEvaluacion}
+                    singleSelect={true}
+                    showAllOption={false}
                     options={benchmarkOptions.tiposEvaluacion.map((item) => ({
                       value: item,
                       label: item,

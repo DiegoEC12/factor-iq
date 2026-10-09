@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, MessageSquareQuote, Lightbulb, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { textAsPoints } from "@/lib/text-format";
 import { ScoreBar } from "@/components/dash/primitives";
 import {
   indicadores as allIndicadores,
@@ -116,10 +117,10 @@ export function EvaluatorPanel({
         {tab === "resumen" && (
           <div key="resumen" className="rise-in">
             {ev ? (
-              <p className="flex gap-2 text-muted-foreground">
+              <div className="flex gap-2 text-muted-foreground">
                 <MessageSquareQuote className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span>{ev.resumen ?? "Sin resumen registrado."}</span>
-              </p>
+                <ul className="list-disc space-y-2 pl-4">{textAsPoints(ev.resumen).map((point) => <li key={point}>{point}</li>)}</ul>
+              </div>
             ) : (
               <p className="text-muted-foreground">
                 Selecciona un local en el ranking o el mapa de calor para leer el resumen de la visita,
@@ -131,10 +132,10 @@ export function EvaluatorPanel({
         {tab === "recomendaciones" && (
           <div key="reco" className="rise-in">
             {ev ? (
-              <p className="flex gap-2 whitespace-pre-line text-muted-foreground">
+              <div className="flex gap-2 text-muted-foreground">
                 <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <span>{ev.recomendaciones ?? "Sin recomendaciones registradas."}</span>
-              </p>
+                <ul className="list-disc space-y-2 pl-4">{textAsPoints(ev.recomendaciones).map((point) => <li key={point}>{point}</li>)}</ul>
+              </div>
             ) : (
               <p className="text-muted-foreground">Selecciona un local para ver sus recomendaciones.</p>
             )}
