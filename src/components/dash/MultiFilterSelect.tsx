@@ -35,20 +35,22 @@ export function MultiFilterSelect({
   const allSelected = singleSelect
     ? false
     : singleOrAll
-    ? values === null
-    : values === null ||
-      (options.length > 0 && values.length > 0 && options.every((option) => values.includes(option.value)));
+      ? values === null
+      : values === null ||
+        (options.length > 0 &&
+          values.length > 0 &&
+          options.every((option) => values.includes(option.value)));
   const selectedLabel = allSelected
     ? allLabel
     : singleSelect
-      ? (values?.[0]
+      ? values?.[0]
+        ? (options.find((option) => option.value === values[0])?.label ?? values[0])
+        : (options[0]?.label ?? "Ventas")
+      : !values || values.length === 0
+        ? "Ninguna"
+        : values.length === 1
           ? (options.find((option) => option.value === values[0])?.label ?? values[0])
-          : (options[0]?.label ?? "Ventas"))
-    : !values || values.length === 0
-      ? "Ninguna"
-    : values.length === 1
-      ? (options.find((option) => option.value === values[0])?.label ?? values[0])
-      : `${values.length} seleccionadas`;
+          : `${values.length} seleccionadas`;
 
   const toggleAll = (checked: boolean) => {
     if (singleOrAll) {
@@ -93,9 +95,14 @@ export function MultiFilterSelect({
         >
           <span className="mr-2 flex min-w-0 items-center gap-1.5 truncate">
             <span className="hidden text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:inline">
-              {(shortLabel || label)}:
+              {shortLabel || label}:
             </span>
-            <span className={cn("truncate", singleSelect ? "font-semibold text-foreground" : "font-medium")}>
+            <span
+              className={cn(
+                "truncate",
+                singleSelect ? "font-semibold text-foreground" : "font-medium",
+              )}
+            >
               {selectedLabel}
             </span>
           </span>

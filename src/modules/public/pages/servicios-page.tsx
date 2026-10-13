@@ -1,5 +1,13 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Brain, Compass, HeartHandshake, LineChart, Rocket, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Brain,
+  Compass,
+  HeartHandshake,
+  LineChart,
+  Rocket,
+  ShieldCheck,
+} from "lucide-react";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 
@@ -52,8 +60,8 @@ export function ServiciosPage() {
                 Soluciones integrales para tu organización
               </h1>
               <p className="py-4 text-gray-500 xl:text-lg xl:leading-relaxed xl:font-semibold">
-                Cada engagement combina consultoría experta, herramientas en la nube y acompañamiento humano. Diseñamos
-                rutas únicas para cada cliente.
+                Cada engagement combina consultoría experta, herramientas en la nube y
+                acompañamiento humano. Diseñamos rutas únicas para cada cliente.
               </p>
             </div>
           </div>
@@ -82,8 +90,8 @@ export function ServiciosPage() {
               ¿No estás seguro por dónde empezar?
             </h2>
             <p className="max-w-2xl text-[#6b7184]">
-              Diseñamos un diagnóstico inicial gratuito que nos permite proponerte una ruta clara y medible para tu
-              organización.
+              Diseñamos un diagnóstico inicial gratuito que nos permite proponerte una ruta clara y
+              medible para tu organización.
             </p>
             <Link
               to="/contacto"

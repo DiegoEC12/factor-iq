@@ -32,7 +32,7 @@ function NavLinks({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: 
         return (
           <Link
             key={item.to}
-            to={item.to as any}
+            to={item.to}
             onClick={onNavigate}
             title={collapsed ? item.label : undefined}
             className={cn(
@@ -46,7 +46,9 @@ function NavLinks({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: 
             <item.icon
               className={cn(
                 "h-[18px] w-[18px] shrink-0",
-                active ? "text-sidebar-primary" : "text-sidebar-foreground/50 group-hover:text-sidebar-foreground",
+                active
+                  ? "text-sidebar-primary"
+                  : "text-sidebar-foreground/50 group-hover:text-sidebar-foreground",
               )}
             />
             {!collapsed && <span className="truncate">{item.label}</span>}
@@ -59,7 +61,12 @@ function NavLinks({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: 
 
 function Brand({ collapsed }: { collapsed: boolean }) {
   return (
-    <div className={cn("flex flex-row gap-3 px-4 pt-5 pb-4", collapsed && "items-center justify-center px-2")}>
+    <div
+      className={cn(
+        "flex flex-row gap-3 px-4 pt-5 pb-4",
+        collapsed && "items-center justify-center px-2",
+      )}
+    >
       <div className={cn(" p-2", collapsed ? "w-10 overflow-hidden p-0" : "")}>
         <img
           src={logoAsset.url}
@@ -201,9 +208,7 @@ export function AppSidebar() {
                 ) : (
                   <LogOut className="h-4 w-4 shrink-0" />
                 )}
-                <span>
-                  {isLoggingOut ? "Cerrando sesión..." : "Cerrar sesión"}
-                </span>
+                <span>{isLoggingOut ? "Cerrando sesión..." : "Cerrar sesión"}</span>
               </button>
             </div>
           </aside>

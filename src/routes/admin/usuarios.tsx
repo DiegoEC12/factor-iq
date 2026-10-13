@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { getAdminStatsFn } from "@/lib/mystery/server-data";
+import type { AdminStatsPayload } from "@/lib/mystery/server-data";
 import { toggleUserStatusFn } from "@/lib/admin";
 import { UserDrawer } from "@/components/admin/UserDrawer";
 import { ResetPasswordDrawer } from "@/components/admin/ResetPasswordDrawer";
@@ -45,15 +46,17 @@ function AdminUsuariosView() {
 
   // Slide-over Drawers state
   const [userDrawerOpen, setUserDrawerOpen] = useState(false);
-  const [userToEdit, setUserToEdit] = useState<any | null>(null);
+  const [userToEdit, setUserToEdit] = useState<AdminStatsPayload["usuarios"][number] | null>(null);
 
   const [resetDrawerOpen, setResetDrawerOpen] = useState(false);
-  const [userToReset, setUserToReset] = useState<any | null>(null);
+  const [userToReset, setUserToReset] = useState<AdminStatsPayload["usuarios"][number] | null>(
+    null,
+  );
 
   const usuarios = data.usuarios || [];
   const clientes = data.clientes || [];
 
-  const filteredUsuarios = usuarios.filter((u: any) => {
+  const filteredUsuarios = usuarios.filter((u) => {
     const term = searchTerm.toLowerCase();
     const matchSearch =
       u.usuario.toLowerCase().includes(term) ||
@@ -65,7 +68,7 @@ function AdminUsuariosView() {
     return matchSearch && matchRol && matchEstado;
   });
 
-  const handleToggleEstado = async (user: any) => {
+  const handleToggleEstado = async (user: AdminStatsPayload["usuarios"][number]) => {
     const nuevoEstado = user.estado === "activo" ? "bloqueado" : "activo";
     try {
       const res = await toggleUserStatusFn({
@@ -81,8 +84,8 @@ function AdminUsuariosView() {
       } else {
         toast.error(res.message);
       }
-    } catch (err: any) {
-      toast.error(err?.message || "No se pudo cambiar el estado del usuario.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo cambiar el estado del usuario.");
     }
   };
 
@@ -173,7 +176,7 @@ function AdminUsuariosView() {
             </thead>
             <tbody className="divide-y divide-[#edf2f7] bg-white">
               {filteredUsuarios.length > 0 ? (
-                filteredUsuarios.map((u: any) => {
+                filteredUsuarios.map((u) => {
                   const isActivo = u.estado === "activo";
                   const isSuperAdmin = u.rol === "superadmin";
 
@@ -205,13 +208,19 @@ function AdminUsuariosView() {
                                 : "bg-slate-100 text-slate-700 border-slate-200"
                           }`}
                         >
-                          {isSuperAdmin ? "SuperAdmin" : u.rol === "admin_cliente" ? "Admin Cliente" : "Visualizador"}
+                          {isSuperAdmin
+                            ? "SuperAdmin"
+                            : u.rol === "admin_cliente"
+                              ? "Admin Cliente"
+                              : "Visualizador"}
                         </span>
                       </td>
 
                       <td className="p-4">
                         {isSuperAdmin ? (
-                          <span className="text-[11px] text-slate-600 italic">Factor IQ (Global)</span>
+                          <span className="text-[11px] text-slate-600 italic">
+                            Factor IQ (Global)
+                          </span>
                         ) : u.cliente_nombre ? (
                           <div className="flex items-center gap-1.5 text-xs text-[#1b2447]">
                             <Building2 className="h-3.5 w-3.5 text-[#1b2447]" />

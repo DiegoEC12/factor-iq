@@ -115,7 +115,11 @@ export function DumbbellChart({
               <span className="mr-2 font-semibold">{hovered.label}</span>
               <span className="mr-2">Maquinarias {fmtPct(hovered.maq)}</span>
               <span className="mr-2">Competencia {fmtPct(hovered.comp)}</span>
-              <span className={hovered.brecha !== null && hovered.brecha < 0 ? "text-danger" : "text-success"}>
+              <span
+                className={
+                  hovered.brecha !== null && hovered.brecha < 0 ? "text-danger" : "text-success"
+                }
+              >
                 Brecha {fmtPp(hovered.brecha)}
               </span>
             </>
@@ -164,7 +168,7 @@ export function DumbbellChart({
                 <span
                   className={cn(
                     "absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card shadow-sm",
-                    "bg-black"
+                    "bg-black",
                   )}
                   style={{ left: `${maqP}%` }}
                 />
@@ -173,7 +177,7 @@ export function DumbbellChart({
                 <span
                   className={cn(
                     "absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-card shadow-sm",
-                    "bg-gray-500"
+                    "bg-gray-500",
                   )}
                   style={{ left: `${compP}%` }}
                 />

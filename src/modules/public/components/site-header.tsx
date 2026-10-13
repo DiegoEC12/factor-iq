@@ -20,7 +20,11 @@ export function SiteHeader() {
             />
           </Link>
           <Link to="/" onClick={() => setOpen(false)} className="hidden sm:block">
-            <img className="h-12 w-auto max-h-14" src="/assets/img/logo-transparent.png" alt="Factor IQ" />
+            <img
+              className="h-12 w-auto max-h-14"
+              src="/assets/img/logo-transparent.png"
+              alt="Factor IQ"
+            />
           </Link>
         </div>
 
@@ -70,7 +74,11 @@ export function SiteHeader() {
             aria-label={open ? "Cerrar menú" : "Abrir menú"}
             onClick={() => setOpen((value) => !value)}
           >
-            {open ? <X className="h-9 w-9 text-blue-900" /> : <Menu className="h-9 w-9 text-blue-900" />}
+            {open ? (
+              <X className="h-9 w-9 text-blue-900" />
+            ) : (
+              <Menu className="h-9 w-9 text-blue-900" />
+            )}
           </button>
         </div>
       </div>

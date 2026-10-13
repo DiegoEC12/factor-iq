@@ -11,7 +11,7 @@ export const Route = createFileRoute("/portal/dashboard")({
       throw redirect({ to: "/admin/dashboard" });
     }
     if (user.clienteId) {
-      throw redirect({ to: `/${user.clienteId}` as any });
+      throw redirect({ to: `/${user.clienteId}` as never });
     }
     throw redirect({ to: "/maquinarias" });
   },

@@ -141,8 +141,8 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
       } else {
         setError(res.message);
       }
-    } catch (err: any) {
-      setError(err?.message || "Ocurrió un error al guardar el usuario.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ocurrió un error al guardar el usuario.");
     } finally {
       setLoading(false);
     }
@@ -235,7 +235,7 @@ export function UserModal({ isOpen, onClose, userToEdit, clientes, onSuccess }: 
               </label>
               <select
                 value={rol}
-                onChange={(e) => setRol(e.target.value as any)}
+                onChange={(e) => setRol(e.target.value as UserInput["rol"])}
                 className="w-full text-xs bg-white border border-[#dfe6f7] rounded-xl px-3 py-2 text-[#1b2447] focus:outline-none focus:border-[#d6452c] focus:ring-2 focus:ring-[#d6452c]/20"
               >
                 <option value="admin_cliente">Administrador de Cliente</option>

@@ -59,7 +59,7 @@ const DEMO_USERS = [
   },
 ] as const;
 
-async function getSessionManager() {
+function useSessionManager() {
   return useSession<AuthSession>({
     name: "fiq_session",
     password: getSessionPassword(),
@@ -125,7 +125,7 @@ async function registrarAcceso(usuarioId: number, ok: boolean): Promise<void> {
 }
 
 export const getAuthUserFn = createServerFn({ method: "GET" }).handler(async () => {
-  const session = await getSessionManager();
+  const session = await useSessionManager();
   return toAuthUser(session.data);
 });
 
@@ -156,7 +156,7 @@ export const loginFn = createServerFn({ method: "POST" })
           message: "Datos incorrectos. Intenta nuevamente o comunicate con soporte.",
         };
       }
-      const session = await getSessionManager();
+      const session = await useSessionManager();
       await session.update({
         userId: demo.usuario,
         clienteId: demo.clienteId,
@@ -179,7 +179,7 @@ export const loginFn = createServerFn({ method: "POST" })
 
     await registrarAcceso(user.id, true);
 
-    const session = await getSessionManager();
+    const session = await useSessionManager();
     await session.update({
       userId: user.usuario,
       clienteId: user.cliente_slug ?? "",
@@ -191,7 +191,7 @@ export const loginFn = createServerFn({ method: "POST" })
   });
 
 export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
-  const session = await getSessionManager();
+  const session = await useSessionManager();
   await session.clear();
   return { ok: true as const };
 });

@@ -128,8 +128,8 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSuccess }: Client
       } else {
         setError(res.message);
       }
-    } catch (err: any) {
-      setError(err?.message || "Error al registrar o actualizar el cliente.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al registrar o actualizar el cliente.");
     } finally {
       setLoading(false);
     }
@@ -145,9 +145,13 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSuccess }: Client
             </div>
             <div>
               <h3 className="text-base font-bold text-[#1b2447]">
-                {isEditing ? `Editar Cliente: ${clientToEdit?.nombre_comercial}` : "Registrar Nuevo Cliente / Empresa"}
+                {isEditing
+                  ? `Editar Cliente: ${clientToEdit?.nombre_comercial}`
+                  : "Registrar Nuevo Cliente / Empresa"}
               </h3>
-              <p className="text-xs text-slate-600">Configura portal multi-tenant y aislamiento de datos</p>
+              <p className="text-xs text-slate-600">
+                Configura portal multi-tenant y aislamiento de datos
+              </p>
             </div>
           </div>
           <button
@@ -191,7 +195,9 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSuccess }: Client
                 <input
                   type="text"
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""))}
+                  onChange={(e) =>
+                    setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""))
+                  }
                   placeholder="ej: maquinarias"
                   className="w-full text-xs bg-white border border-[#dfe6f7] rounded-r-xl px-3 py-2 text-[#1b2447] placeholder-slate-400 focus:outline-none focus:border-[#d6452c] font-mono"
                   required
@@ -244,7 +250,7 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSuccess }: Client
               <label className="text-xs font-semibold text-slate-700">Plan de Servicio</label>
               <select
                 value={plan}
-                onChange={(e) => setPlan(e.target.value as any)}
+                onChange={(e) => setPlan(e.target.value as ClientInput["plan"])}
                 className="w-full text-xs bg-white border border-[#dfe6f7] rounded-xl px-3 py-2 text-[#1b2447] focus:outline-none focus:border-[#d6452c]"
               >
                 <option value="basico">Básico</option>
@@ -257,7 +263,7 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSuccess }: Client
               <label className="text-xs font-semibold text-slate-700">Estado</label>
               <select
                 value={estado}
-                onChange={(e) => setEstado(e.target.value as any)}
+                onChange={(e) => setEstado(e.target.value as ClientInput["estado"])}
                 className="w-full text-xs bg-white border border-[#dfe6f7] rounded-xl px-3 py-2 text-[#1b2447] focus:outline-none focus:border-[#d6452c]"
               >
                 <option value="activo">Activo</option>
@@ -269,7 +275,9 @@ export function ClientModal({ isOpen, onClose, clientToEdit, onSuccess }: Client
 
           {/* Sección de Contacto */}
           <div className="pt-2 border-t border-[#e3e8f3] space-y-3">
-            <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wider">Contacto Principal</h4>
+            <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+              Contacto Principal
+            </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-1">
                 <label className="text-[11px] text-slate-600 flex items-center gap-1">

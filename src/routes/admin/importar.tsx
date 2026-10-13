@@ -121,7 +121,9 @@ function IncrementalImportPage() {
             )}
           </div>
           <div>
-            <p className="font-semibold text-[#1b2447]">{fileName || "Seleccionar archivo Excel"}</p>
+            <p className="font-semibold text-[#1b2447]">
+              {fileName || "Seleccionar archivo Excel"}
+            </p>
             <p className="mt-1 text-xs text-slate-500">
               Se requieren Evaluaciones, Indicadores y Preguntas. La selección no guarda datos.
             </p>

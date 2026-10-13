@@ -60,7 +60,8 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
             Paso 1: Información Corporativa de la Empresa Cliente
           </h3>
           <p className="text-xs text-slate-600 mt-1">
-            Ingresa los datos generales de la empresa contratante. El slug definirá la URL de acceso a sus tableros.
+            Ingresa los datos generales de la empresa contratante. El slug definirá la URL de acceso
+            a sus tableros.
           </p>
         </div>
 
@@ -133,9 +134,7 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
                   type="text"
                   maxLength={11}
                   value={data.ruc}
-                  onChange={(e) =>
-                    onChange({ ruc: e.target.value.replace(/[^0-9]/g, "") })
-                  }
+                  onChange={(e) => onChange({ ruc: e.target.value.replace(/[^0-9]/g, "") })}
                   placeholder="20601234567"
                   className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all font-mono"
                 />
@@ -158,7 +157,7 @@ export function Step1CompanyData({ data, onChange, onNext }: Step1CompanyDataPro
               </label>
               <select
                 value={data.plan}
-                onChange={(e) => onChange({ plan: e.target.value as any })}
+                onChange={(e) => onChange({ plan: e.target.value as CompanyData["plan"] })}
                 className="w-full px-4 py-2.5 bg-white border border-[#dfe6f7] rounded-xl text-sm text-[#1b2447] focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               >
                 <option value="basico">Básico (1 estudio / año)</option>

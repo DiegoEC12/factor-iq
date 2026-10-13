@@ -62,7 +62,9 @@ export function Step4Confirmation({
             Paso 4: Resumen de Activación y Confirmación Final
           </h3>
           <p className="text-xs text-slate-600 mt-1">
-            Revisa la configuración completa antes de persistir las entidades en el sistema. Al confirmar, la empresa, usuario y datos de Mystery Shopper quedarán activos inmediatamente.
+            Revisa la configuración completa antes de persistir las entidades en el sistema. Al
+            confirmar, la empresa, usuario y datos de Mystery Shopper quedarán activos
+            inmediatamente.
           </p>
         </div>
 
@@ -98,7 +100,8 @@ export function Step4Confirmation({
                 <span className="capitalize font-semibold text-[#b45309]">{company.plan}</span>
               </div>
               <div className="text-slate-600">
-                <span>Rubro:</span> <span className="text-[#1b2447]">{company.rubro || "General"}</span>
+                <span>Rubro:</span>{" "}
+                <span className="text-[#1b2447]">{company.rubro || "General"}</span>
               </div>
             </div>
           </div>
@@ -133,7 +136,11 @@ export function Step4Confirmation({
                     onClick={() => setShowPass(!showPass)}
                     className="p-1 text-slate-500 hover:text-[#1b2447] cursor-pointer"
                   >
-                    {showPass ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    {showPass ? (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <Eye className="h-3.5 w-3.5" />
+                    )}
                   </button>
                   <button
                     type="button"

@@ -98,8 +98,12 @@ export function ResetPasswordDrawer({
       } else {
         setError(res.message || "Error al actualizar la contraseña.");
       }
-    } catch (err: any) {
-      setError(err?.message || "Ocurrió un error inesperado al restablecer la contraseña.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Ocurrió un error inesperado al restablecer la contraseña.",
+      );
     } finally {
       setLoading(false);
     }
@@ -210,7 +214,9 @@ export function ResetPasswordDrawer({
             <div className="space-y-1.5 pt-1">
               <div className="flex items-center justify-between text-[11px]">
                 <span className="text-slate-500">Fortaleza estimada:</span>
-                <span className={`font-semibold uppercase tracking-wider ${strengthColors[strength.score]?.text ?? "text-slate-500"}`}>
+                <span
+                  className={`font-semibold uppercase tracking-wider ${strengthColors[strength.score]?.text ?? "text-slate-500"}`}
+                >
                   {strength.label}
                 </span>
               </div>
@@ -242,7 +248,8 @@ export function ResetPasswordDrawer({
           <div className="p-3 rounded-lg bg-[#fff7ed] border border-[#fed7aa] text-[#9a5b00] text-xs flex items-start gap-2">
             <ShieldCheck className="h-4 w-4 shrink-0 text-[#b45309] mt-0.5" />
             <span>
-              Al aplicar el cambio, los intentos fallidos del usuario se restablecerán a 0 y la sesión previa quedará invalidada.
+              Al aplicar el cambio, los intentos fallidos del usuario se restablecerán a 0 y la
+              sesión previa quedará invalidada.
             </span>
           </div>
         </form>

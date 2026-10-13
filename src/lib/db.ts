@@ -1,4 +1,5 @@
 import mysql from "mysql2/promise";
+import type { QueryValues, ResultSetHeader } from "mysql2";
 
 /**
  * Pool de conexiones MySQL para Factor IQ.
@@ -43,10 +44,18 @@ export function getPool(): mysql.Pool {
 
 export async function query<T = Record<string, unknown>>(
   sql: string,
-  params: ReadonlyArray<unknown> = [],
+  params: ReadonlyArray<QueryValues> = [],
 ): Promise<T[]> {
-  const [rows] = await getPool().query(sql, params as unknown as any[]);
+  const [rows] = await getPool().query(sql, [...params]);
   return rows as T[];
+}
+
+export async function execute(
+  sql: string,
+  params: ReadonlyArray<QueryValues> = [],
+): Promise<ResultSetHeader> {
+  const [result] = await getPool().query<ResultSetHeader>(sql, [...params]);
+  return result;
 }
 
 /** Ejecuta un bloque de escrituras como una única unidad atómica. */

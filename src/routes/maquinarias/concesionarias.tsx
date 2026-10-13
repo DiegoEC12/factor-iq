@@ -63,7 +63,10 @@ function ConcesionariasPage() {
   void dataVersion;
   const scopes = getScopes(filters);
   const indicatorFilter = filters.indicador;
-  const benchmark = useMemo(() => calculateBenchmark(scopes, indicatorFilter), [scopes, indicatorFilter]);
+  const benchmark = useMemo(
+    () => calculateBenchmark(scopes, indicatorFilter),
+    [scopes, indicatorFilter],
+  );
   const reference = benchmark.competencia;
 
   const level: Level = !drill.concesionaria
@@ -99,9 +102,19 @@ function ConcesionariasPage() {
             indicatorFilter,
           )
         : level === "marca"
-          ? groupScores(drilled, (e) => ({ key: e.marca, label: e.marca }), reference, indicatorFilter)
+          ? groupScores(
+              drilled,
+              (e) => ({ key: e.marca, label: e.marca }),
+              reference,
+              indicatorFilter,
+            )
           : level === "ubicacion"
-            ? groupScores(drilled, (e) => ({ key: e.ubicacion, label: e.ubicacion }), reference, indicatorFilter)
+            ? groupScores(
+                drilled,
+                (e) => ({ key: e.ubicacion, label: e.ubicacion }),
+                reference,
+                indicatorFilter,
+              )
             : groupScores(
                 drilled,
                 (e) => ({
@@ -448,19 +461,46 @@ function ConcesionariasPage() {
 
 function EvaluatorComments({ evaluations }: { evaluations: typeof dataset.evaluations }) {
   const [tab, setTab] = useState<"resumen" | "recomendaciones">("resumen");
-  const evaluatorById = new Map(evaluatorEvaluations.map((evaluation) => [evaluation.id, evaluation]));
-  const content = tab === "resumen"
-    ? evaluations.map((evaluation) => ({ id: evaluation.id, text: evaluatorById.get(evaluation.id)?.resumen, label: `${evaluation.marca} · ${evaluation.ubicacion}` }))
-    : evaluations.map((evaluation) => ({ id: evaluation.id, text: evaluatorById.get(evaluation.id)?.recomendaciones, label: `${evaluation.marca} · ${evaluation.ubicacion}` }));
+  const evaluatorById = new Map(
+    evaluatorEvaluations.map((evaluation) => [evaluation.id, evaluation]),
+  );
+  const content =
+    tab === "resumen"
+      ? evaluations.map((evaluation) => ({
+          id: evaluation.id,
+          text: evaluatorById.get(evaluation.id)?.resumen,
+          label: `${evaluation.marca} · ${evaluation.ubicacion}`,
+        }))
+      : evaluations.map((evaluation) => ({
+          id: evaluation.id,
+          text: evaluatorById.get(evaluation.id)?.recomendaciones,
+          label: `${evaluation.marca} · ${evaluation.ubicacion}`,
+        }));
   const Icon = tab === "resumen" ? MessageSquareQuote : Lightbulb;
 
   return (
     <div className="mt-4 border-t border-border pt-4">
       <div className="mb-3 flex gap-3 border-b border-border text-xs font-semibold">
-        <button type="button" onClick={() => setTab("resumen")} className={cn("pb-2", tab === "resumen" ? "border-b-2 border-primary text-primary" : "text-muted-foreground")}>
+        <button
+          type="button"
+          onClick={() => setTab("resumen")}
+          className={cn(
+            "pb-2",
+            tab === "resumen" ? "border-b-2 border-primary text-primary" : "text-muted-foreground",
+          )}
+        >
           Resumen
         </button>
-        <button type="button" onClick={() => setTab("recomendaciones")} className={cn("pb-2", tab === "recomendaciones" ? "border-b-2 border-primary text-primary" : "text-muted-foreground")}>
+        <button
+          type="button"
+          onClick={() => setTab("recomendaciones")}
+          className={cn(
+            "pb-2",
+            tab === "recomendaciones"
+              ? "border-b-2 border-primary text-primary"
+              : "text-muted-foreground",
+          )}
+        >
           Recomendaciones
         </button>
       </div>
@@ -468,7 +508,14 @@ function EvaluatorComments({ evaluations }: { evaluations: typeof dataset.evalua
         {content.map((item) => (
           <div key={item.id} className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
             <p className="mb-1 text-xs font-semibold text-foreground">{item.label}</p>
-            <div className="flex gap-2"><Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><ul className="list-disc space-y-1.5 pl-4">{textAsPoints(item.text).map((point) => <li key={point}>{point}</li>)}</ul></div>
+            <div className="flex gap-2">
+              <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <ul className="list-disc space-y-1.5 pl-4">
+                {textAsPoints(item.text).map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            </div>
           </div>
         ))}
       </div>

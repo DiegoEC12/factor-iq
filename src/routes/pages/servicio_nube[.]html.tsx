@@ -6,7 +6,7 @@ export const Route = createFileRoute("/pages/servicio_nube.html")({
   beforeLoad: async () => {
     const user = await getAuthUserFn();
     if (user?.redirectTo) {
-        throw redirect({ to: user.redirectTo as "/maquinarias" });
+      throw redirect({ to: user.redirectTo as "/maquinarias" });
     }
   },
   head: () => ({

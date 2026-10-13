@@ -37,12 +37,17 @@ export function NosotrosPage() {
                 Acompañamos el crecimiento humano de las organizaciones.
               </h2>
               <p className="py-4 text-lg text-gray-500">
-                Somos una organización que a través del acompañamiento estratégico de nuestros clientes logramos que
-                éstos sean organizaciones saludables, donde el compromiso y el desempeño van de la mano.
+                Somos una organización que a través del acompañamiento estratégico de nuestros
+                clientes logramos que éstos sean organizaciones saludables, donde el compromiso y el
+                desempeño van de la mano.
               </p>
             </div>
             <div className="flex w-full max-w-md items-center justify-center p-4 sm:max-w-4xl md:p-8 lg:w-1/2 lg:p-4">
-              <img className="w-full rounded-xl object-contain shadow-md" src="/assets/img/about.jpg" alt="Nosotros" />
+              <img
+                className="w-full rounded-xl object-contain shadow-md"
+                src="/assets/img/about.jpg"
+                alt="Nosotros"
+              />
             </div>
           </div>
         </section>
@@ -77,7 +82,9 @@ export function NosotrosPage() {
         <section className="border-t border-gray-200 bg-[#f2f4f8] py-16">
           <div className="mx-auto flex max-w-7xl flex-col gap-4">
             <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-8 p-8 text-center">
-              <h2 className="font-primary text-3xl text-[#1b2447] md:text-4xl xl:text-5xl">Nuestro enfoque</h2>
+              <h2 className="font-primary text-3xl text-[#1b2447] md:text-4xl xl:text-5xl">
+                Nuestro enfoque
+              </h2>
               <div className="flex w-full flex-col gap-4 text-left">
                 {ENFOQUE.map((step) => (
                   <div key={step.n} className="flex gap-4 border-b border-gray-300 py-4">

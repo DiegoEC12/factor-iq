@@ -55,9 +55,16 @@ function Dashboard() {
 
     if (isAnyEmpty) return [];
 
-    const baseByType = filterEvaluaciones({ ...EMPTY_FILTERS, tipoEvaluacion: filters.tipoEvaluacion });
-    const fixedMaquinarias = baseByType.filter((evaluation) => evaluation.concesionaria === MARCA_PROPIA);
-    const filteredCompetencia = evs.filter((evaluation) => evaluation.concesionaria !== MARCA_PROPIA);
+    const baseByType = filterEvaluaciones({
+      ...EMPTY_FILTERS,
+      tipoEvaluacion: filters.tipoEvaluacion,
+    });
+    const fixedMaquinarias = baseByType.filter(
+      (evaluation) => evaluation.concesionaria === MARCA_PROPIA,
+    );
+    const filteredCompetencia = evs.filter(
+      (evaluation) => evaluation.concesionaria !== MARCA_PROPIA,
+    );
     return [...fixedMaquinarias, ...filteredCompetencia];
   }, [evs, filters]);
 
@@ -78,8 +85,11 @@ function Dashboard() {
     // Extract trailing number from IDs like IND_01, IND_CAL_03
     const selectedNums = new Set(
       filters.indicador
-        .map((id) => { const m = id.match(/(\d+)$/); return m ? Number(m[1]) : NaN; })
-        .filter((n) => Number.isFinite(n))
+        .map((id) => {
+          const m = id.match(/(\d+)$/);
+          return m ? Number(m[1]) : NaN;
+        })
+        .filter((n) => Number.isFinite(n)),
     );
     return rows.filter((r) => selectedNums.has(r.n));
   }, [evs, filters.indicador]);

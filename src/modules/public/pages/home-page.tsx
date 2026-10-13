@@ -14,7 +14,9 @@ export function HomePage() {
             <div className="flex flex-col justify-center gap-6 px-6 py-10 lg:w-1/2">
               <div className="flex w-fit items-center gap-2 rounded-2xl border border-white/50 bg-white/10 px-4 py-2">
                 <span className="h-2 w-2 rounded-full bg-red-500" />
-                <span className="text-xs text-white uppercase md:text-sm">Acompañamiento estratégico</span>
+                <span className="text-xs text-white uppercase md:text-sm">
+                  Acompañamiento estratégico
+                </span>
               </div>
               <h1 className="font-primary text-4xl text-white md:text-6xl xl:text-7xl">
                 Organizaciones <span className="text-red-500">saludables,</span>
@@ -22,8 +24,8 @@ export function HomePage() {
                 resultados extraordinarios.
               </h1>
               <p className="text-lg text-white/80">
-                En Factor IQ acompañamos a líderes y equipos para que el compromiso y el desempeño caminen juntos.
-                Estrategia, cultura y crecimiento sostenible
+                En Factor IQ acompañamos a líderes y equipos para que el compromiso y el desempeño
+                caminen juntos. Estrategia, cultura y crecimiento sostenible
               </p>
               <div className="flex flex-col gap-4">
                 <Link
@@ -53,13 +55,15 @@ export function HomePage() {
         <section className="bg-[#f2f4f8] py-25">
           <div className="mx-auto flex w-full flex-col justify-around gap-8 md:max-w-7xl">
             <div className="mx-auto flex max-w-3xl flex-col gap-4">
-              <span className="text-center text-xs tracking-widest text-[#d6452c] uppercase">Nuestros pilares</span>
+              <span className="text-center text-xs tracking-widest text-[#d6452c] uppercase">
+                Nuestros pilares
+              </span>
               <h2 className="font-primary px-8 text-center text-4xl text-[#1b2447] md:text-5xl">
                 Una metodología diseñada para perdurar
               </h2>
               <p className="px-6 text-center text-[#6b7184] md:px-12">
-                Combinamos diagnóstico riguroso, intervención humana y herramientas digitales en la nube para que tu
-                organización crezca con propósito.
+                Combinamos diagnóstico riguroso, intervención humana y herramientas digitales en la
+                nube para que tu organización crezca con propósito.
               </p>
             </div>
             <div className="flex flex-col gap-6 p-6 md:flex-row">
@@ -101,13 +105,16 @@ export function HomePage() {
               <img className="rounded-xl" src="/assets/img/about.jpg" alt="Quiénes somos" />
             </div>
             <div className="flex flex-col gap-4 p-6">
-              <span className="text-xs tracking-widest text-[#d6452c] uppercase">Quiénes somos</span>
+              <span className="text-xs tracking-widest text-[#d6452c] uppercase">
+                Quiénes somos
+              </span>
               <h2 className="font-primary text-4xl text-[#1b2447] md:text-5xl">
                 Aliados estratégicos del crecimiento humano y organizacional.
               </h2>
               <p className="text-base text-[#6b7184]">
-                Somos una organización que a través del acompañamiento estratégico de nuestros clientes logramos que
-                éstos sean organizaciones saludables, donde el compromiso y el desempeño van de la mano.
+                Somos una organización que a través del acompañamiento estratégico de nuestros
+                clientes logramos que éstos sean organizaciones saludables, donde el compromiso y el
+                desempeño van de la mano.
               </p>
               <ul className="flex flex-col gap-2">
                 {[
@@ -139,10 +146,12 @@ export function HomePage() {
           <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-center gap-4 lg:flex-row">
             <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
               <Sparkles className="h-6 w-6 text-[#d6452c]" />
-              <h2 className="font-primary text-4xl text-white md:text-5xl">¿Listo para transformar tu organización?</h2>
+              <h2 className="font-primary text-4xl text-white md:text-5xl">
+                ¿Listo para transformar tu organización?
+              </h2>
               <p className="text-sm text-white/80">
-                Agenda una sesión diagnóstica sin costo y descubre cómo podemos acompañarte a construir una
-                organización saludable y de alto desempeño.
+                Agenda una sesión diagnóstica sin costo y descubre cómo podemos acompañarte a
+                construir una organización saludable y de alto desempeño.
               </p>
               <Link
                 to="/contacto"

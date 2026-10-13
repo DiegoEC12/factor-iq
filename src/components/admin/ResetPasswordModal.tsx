@@ -87,8 +87,10 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
       } else {
         setError(res.message || "Error al restablecer la contraseña.");
       }
-    } catch (err: any) {
-      setError(err?.message || "Ocurrió un error al guardar la nueva contraseña.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Ocurrió un error al guardar la nueva contraseña.",
+      );
     } finally {
       setLoading(false);
     }
@@ -111,7 +113,8 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
             <div>
               <h3 className="text-base font-bold text-[#1b2447]">Restablecer Credenciales</h3>
               <p className="text-xs text-slate-600">
-                Usuario: <span className="font-mono text-[#1b5094] font-semibold">{user.usuario}</span>
+                Usuario:{" "}
+                <span className="font-mono text-[#1b5094] font-semibold">{user.usuario}</span>
               </p>
             </div>
           </div>
@@ -168,7 +171,11 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
                   className="p-1.5 text-slate-500 hover:text-[#1b5094] transition-colors"
                   title="Copiar al portapapeles"
                 >
-                  {copied ? <Check className="w-4 h-4 text-[#0f766e]" /> : <Copy className="w-4 h-4" />}
+                  {copied ? (
+                    <Check className="w-4 h-4 text-[#0f766e]" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -198,8 +205,8 @@ export function ResetPasswordModal({ isOpen, onClose, user, onSuccess }: ResetPa
               <span>Recomendación de seguridad:</span>
             </div>
             <p>
-              Copia la contraseña generada y entrégasela de forma segura al usuario ({user.nombre}). La clave se
-              encriptará con algoritmo Hash Bcrypt inmediatamente al guardar.
+              Copia la contraseña generada y entrégasela de forma segura al usuario ({user.nombre}).
+              La clave se encriptará con algoritmo Hash Bcrypt inmediatamente al guardar.
             </p>
           </div>
 

@@ -67,11 +67,8 @@ export function UserDrawer({ isOpen, onClose, userToEdit, clientes, onSuccess }:
         setEmail(userToEdit.email || "");
         setRol(
           (userToEdit.rol as
-            | "superadmin"
-            | "admin_cliente"
-            | "editor_web"
-            | "soporte"
-            | "viewer") || "admin_cliente",
+            "superadmin" | "admin_cliente" | "editor_web" | "soporte" | "viewer") ||
+            "admin_cliente",
         );
         setClienteId(userToEdit.cliente_id || null);
         setEstado((userToEdit.estado as "activo" | "bloqueado" | "inactivo") || "activo");
@@ -143,8 +140,10 @@ export function UserDrawer({ isOpen, onClose, userToEdit, clientes, onSuccess }:
       } else {
         setError(result.message || "Error al procesar la solicitud.");
       }
-    } catch (err: any) {
-      setError(err?.message || "Ocurrió un error inesperado al guardar el usuario.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Ocurrió un error inesperado al guardar el usuario.",
+      );
     } finally {
       setLoading(false);
     }
@@ -194,7 +193,9 @@ export function UserDrawer({ isOpen, onClose, userToEdit, clientes, onSuccess }:
                 type="text"
                 required
                 value={usuario}
-                onChange={(e) => setUsuario(e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, ""))}
+                onChange={(e) =>
+                  setUsuario(e.target.value.toLowerCase().replace(/[^a-z0-9_.-]/g, ""))
+                }
                 placeholder="ej. adm_maquinarias"
                 className="w-full pl-9 pr-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               />
@@ -216,7 +217,9 @@ export function UserDrawer({ isOpen, onClose, userToEdit, clientes, onSuccess }:
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-700 mb-1">Correo Electrónico</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1">
+              Correo Electrónico
+            </label>
             <div className="relative">
               <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
               <input
@@ -238,7 +241,7 @@ export function UserDrawer({ isOpen, onClose, userToEdit, clientes, onSuccess }:
                 <Shield className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
                 <select
                   value={rol}
-                  onChange={(e) => setRol(e.target.value as any)}
+                  onChange={(e) => setRol(e.target.value as UserInput["rol"])}
                   className="w-full pl-9 pr-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                 >
                   <option value="admin_cliente">Admin Cliente</option>
@@ -252,7 +255,7 @@ export function UserDrawer({ isOpen, onClose, userToEdit, clientes, onSuccess }:
               <label className="block text-xs font-medium text-slate-700 mb-1">Estado</label>
               <select
                 value={estado}
-                onChange={(e) => setEstado(e.target.value as any)}
+                onChange={(e) => setEstado(e.target.value as UserInput["estado"])}
                 className="w-full px-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
               >
                 <option value="activo">Activo</option>

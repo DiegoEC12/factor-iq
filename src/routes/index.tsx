@@ -10,7 +10,10 @@ export const Route = createFileRoute("/")({
         content:
           "Factor IQ ofrece soluciones avanzadas de tecnología, consultoría TI, desarrollo de software y servicios en la nube para potenciar tu negocio.",
       },
-      { property: "og:title", content: "Factor IQ | Soluciones Tecnológicas y Servicios en la Nube" },
+      {
+        property: "og:title",
+        content: "Factor IQ | Soluciones Tecnológicas y Servicios en la Nube",
+      },
     ],
   }),
   component: HomePage,

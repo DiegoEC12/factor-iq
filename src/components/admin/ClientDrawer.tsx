@@ -136,8 +136,10 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
       } else {
         setError(result.message || "Error al procesar la solicitud.");
       }
-    } catch (err: any) {
-      setError(err?.message || "Ocurrió un error inesperado al guardar la empresa.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Ocurrió un error inesperado al guardar la empresa.",
+      );
     } finally {
       setLoading(false);
     }
@@ -157,7 +159,9 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
               </div>
               <div>
                 <SheetTitle className="text-lg font-semibold text-[#1b2447] tracking-tight">
-                  {isEditing ? `Editar Empresa: ${clientToEdit?.nombre_comercial}` : "Nueva Empresa Cliente"}
+                  {isEditing
+                    ? `Editar Empresa: ${clientToEdit?.nombre_comercial}`
+                    : "Nueva Empresa Cliente"}
                 </SheetTitle>
                 <SheetDescription className="text-xs text-slate-600">
                   {isEditing
@@ -209,7 +213,9 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
                     type="text"
                     required
                     value={slug}
-                    onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""))}
+                    onChange={(e) =>
+                      setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""))
+                    }
                     placeholder="maquinarias"
                     className="w-full pl-6 pr-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                   />
@@ -235,9 +241,7 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">
-                Razón Social
-              </label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">Razón Social</label>
               <input
                 type="text"
                 value={razonSocial}
@@ -260,7 +264,7 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
                 <label className="block text-xs font-medium text-slate-700 mb-1">Plan</label>
                 <select
                   value={plan}
-                  onChange={(e) => setPlan(e.target.value as any)}
+                  onChange={(e) => setPlan(e.target.value as ClientInput["plan"])}
                   className="w-full px-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                 >
                   <option value="basico">Básico</option>
@@ -273,7 +277,7 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
                 <label className="block text-xs font-medium text-slate-700 mb-1">Estado</label>
                 <select
                   value={estado}
-                  onChange={(e) => setEstado(e.target.value as any)}
+                  onChange={(e) => setEstado(e.target.value as ClientInput["estado"])}
                   className="w-full px-3 py-2 bg-white border border-[#dfe6f7] rounded-lg text-sm text-[#1b2447] focus:outline-none focus:ring-2 focus:ring-[#d6452c]/20 focus:border-[#d6452c] transition-all"
                 >
                   <option value="activo">Activo</option>
@@ -297,7 +301,9 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Rubro / Sector</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Rubro / Sector
+              </label>
               <input
                 type="text"
                 value={rubro}
@@ -316,7 +322,9 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
             </h4>
 
             <div>
-              <label className="block text-xs font-medium text-slate-700 mb-1">Nombre Completo</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1">
+                Nombre Completo
+              </label>
               <input
                 type="text"
                 value={contactoNombre}
@@ -328,7 +336,9 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Correo Electrónico</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">
+                  Correo Electrónico
+                </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
                   <input
@@ -342,7 +352,9 @@ export function ClientDrawer({ isOpen, onClose, clientToEdit, onSuccess }: Clien
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Teléfono / WhatsApp</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">
+                  Teléfono / WhatsApp
+                </label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
                   <input

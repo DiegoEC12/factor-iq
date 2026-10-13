@@ -72,7 +72,12 @@ export function MetricCard({
         </p>
         {icon}
       </div>
-      <p className={cn("mt-1.5 text-[28px] leading-none font-bold tabular-nums xl:text-[32px]", toneClass)}>
+      <p
+        className={cn(
+          "mt-1.5 text-[28px] leading-none font-bold tabular-nums xl:text-[32px]",
+          toneClass,
+        )}
+      >
         {value}
       </p>
       {subtext && <p className="mt-2 text-xs leading-snug text-muted-foreground">{subtext}</p>}
@@ -87,7 +92,12 @@ export function GapChip({ gap, className }: { gap: number | null; className?: st
   const pp = Math.abs(gap * 100).toFixed(1);
   if (Math.abs(gap) < 0.0005)
     return (
-      <span className={cn("flex flex-wrap justify-center items-center gap-1 text-sm font-semibold text-muted-foreground", className)}>
+      <span
+        className={cn(
+          "flex flex-wrap justify-center items-center gap-1 text-sm font-semibold text-muted-foreground",
+          className,
+        )}
+      >
         <Minus className="h-3.5 w-3.5" /> 0.0 pp
       </span>
     );

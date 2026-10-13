@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { getAdminStatsFn } from "@/lib/mystery/server-data";
+import type { AdminStatsPayload } from "@/lib/mystery/server-data";
 import { toggleClientStatusFn } from "@/lib/admin";
 import { ClientDrawer } from "@/components/admin/ClientDrawer";
 import {
@@ -47,11 +48,13 @@ function AdminEmpresasView() {
 
   // Slide-over Drawer state
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [clientToEdit, setClientToEdit] = useState<any | null>(null);
+  const [clientToEdit, setClientToEdit] = useState<AdminStatsPayload["clientes"][number] | null>(
+    null,
+  );
 
   const clientes = data.clientes || [];
 
-  const filteredClientes = clientes.filter((c: any) => {
+  const filteredClientes = clientes.filter((c) => {
     const term = searchTerm.toLowerCase();
     const matchSearch =
       c.nombre_comercial.toLowerCase().includes(term) ||
@@ -62,7 +65,7 @@ function AdminEmpresasView() {
     return matchSearch && matchPlan && matchEstado;
   });
 
-  const handleToggleEstado = async (cliente: any) => {
+  const handleToggleEstado = async (cliente: AdminStatsPayload["clientes"][number]) => {
     const nuevoEstado = cliente.estado === "activo" ? "suspendido" : "activo";
     try {
       const res = await toggleClientStatusFn({
@@ -78,8 +81,10 @@ function AdminEmpresasView() {
       } else {
         toast.error(res.message);
       }
-    } catch (err: any) {
-      toast.error(err?.message || "No se pudo cambiar el estado de la empresa.");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "No se pudo cambiar el estado de la empresa.",
+      );
     }
   };
 
@@ -179,7 +184,7 @@ function AdminEmpresasView() {
             </thead>
             <tbody className="divide-y divide-[#edf2f7] bg-white">
               {filteredClientes.length > 0 ? (
-                filteredClientes.map((c: any) => {
+                filteredClientes.map((c) => {
                   const isActivo = c.estado === "activo";
                   return (
                     <tr key={c.id} className="hover:bg-[#f5f8ff] transition-colors">
@@ -274,14 +279,14 @@ function AdminEmpresasView() {
                             <Pencil className="h-4 w-4" />
                           </button>
 
-                          <Link
-                            to={`/${c.slug}` as any}
+                          <a
+                            href={`/${c.slug}`}
                             target="_blank"
                             className="p-1.5 text-slate-500 hover:text-[#1b5094] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                             title="Ver portal cliente"
                           >
                             <ExternalLink className="h-4 w-4" />
-                          </Link>
+                          </a>
                         </div>
                       </td>
                     </tr>

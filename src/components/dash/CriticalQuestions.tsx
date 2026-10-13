@@ -4,13 +4,7 @@ import { cn } from "@/lib/utils";
 import { ScoreBar, SectionCard } from "@/components/dash/primitives";
 import { pct, toneColor, toneOf, type PreguntaAgg } from "@/lib/analytics";
 
-export function CriticalQuestions({
-  items,
-  delay = 0,
-}: {
-  items: PreguntaAgg[];
-  delay?: number;
-}) {
+export function CriticalQuestions({ items, delay = 0 }: { items: PreguntaAgg[]; delay?: number }) {
   const [open, setOpen] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const list = showAll ? items.slice(0, 24) : items.slice(0, 6);
@@ -65,7 +59,10 @@ export function CriticalQuestions({
                       <li key={r.ev} className="text-xs">
                         <span className="flex items-center justify-between gap-2">
                           <span className="truncate font-semibold">{r.local}</span>
-                          <span style={{ color: toneColor[toneOf(r.nota ?? 0)] }} className="font-bold">
+                          <span
+                            style={{ color: toneColor[toneOf(r.nota ?? 0)] }}
+                            className="font-bold"
+                          >
                             {r.resp ?? "—"}
                           </span>
                         </span>

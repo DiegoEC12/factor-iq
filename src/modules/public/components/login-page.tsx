@@ -51,7 +51,11 @@ export function LoginPage() {
         <div className="relative hidden animate-on-load flex-col justify-between overflow-hidden bg-[#1b2447] p-12 select-none xl:flex xl:w-5/12">
           <div className="relative z-10">
             <div className="mt-8 mb-10">
-              <img className="h-12 w-auto max-h-14" src="/assets/img/logo-transparent-white.png" alt="Factor IQ" />
+              <img
+                className="h-12 w-auto max-h-14"
+                src="/assets/img/logo-transparent-white.png"
+                alt="Factor IQ"
+              />
             </div>
             <h1 className="mb-6 border-l-4 border-red-500 pl-4 text-5xl leading-tight font-extrabold tracking-tight text-white uppercase drop-shadow-md">
               Servicio en la nube <br />

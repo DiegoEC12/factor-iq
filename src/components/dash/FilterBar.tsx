@@ -41,9 +41,9 @@ export function FilterBar({ filters, onChange, onReset, activeCount }: Props) {
       ).map((item) => normalizeTipoEvaluacion(item)),
     );
 
-    return CANONICAL_TIPOS_EVALUACION
-      .filter((tipo) => dynamicTipos.size === 0 || dynamicTipos.has(tipo))
-      .map((type) => ({ value: type, label: type }));
+    return CANONICAL_TIPOS_EVALUACION.filter(
+      (tipo) => dynamicTipos.size === 0 || dynamicTipos.has(tipo),
+    ).map((type) => ({ value: type, label: type }));
   }, [options.tiposEvaluacion]);
 
   return (

@@ -111,7 +111,9 @@ function AdminDashboardView() {
             </div>
           </div>
           <div className="mt-4 flex items-baseline gap-2">
-            <span className="text-3xl font-bold text-[#1b2447] font-mono">{stats.evaluaciones}</span>
+            <span className="text-3xl font-bold text-[#1b2447] font-mono">
+              {stats.evaluaciones}
+            </span>
             <span className="text-xs text-slate-600">visitas registradas</span>
           </div>
           <div className="mt-4 pt-3 border-t border-[#e3e8f3] flex items-center justify-between text-xs">
@@ -230,7 +232,9 @@ function AdminDashboardView() {
             </div>
             <div className="p-3 rounded-xl bg-[#f8fafc] border border-[#dfe6f7]">
               <span className="text-slate-500 block text-[11px]">Esquema de Tablas</span>
-              <span className="font-semibold text-[#1b2447] mt-0.5 block">10 tablas relacionales</span>
+              <span className="font-semibold text-[#1b2447] mt-0.5 block">
+                10 tablas relacionales
+              </span>
             </div>
             <div className="p-3 rounded-xl bg-[#f8fafc] border border-[#dfe6f7]">
               <span className="text-slate-500 block text-[11px]">Aislamiento Multi-Tenant</span>
@@ -259,7 +263,7 @@ function AdminDashboardView() {
 
           <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
             {data.auditoria && data.auditoria.length > 0 ? (
-              data.auditoria.slice(0, 5).map((log: any) => (
+              data.auditoria.slice(0, 5).map((log) => (
                 <div
                   key={log.id}
                   className="p-3 rounded-xl bg-[#f8fafc] border border-[#dfe6f7] flex items-center justify-between text-xs"

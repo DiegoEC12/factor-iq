@@ -155,7 +155,9 @@ function resolveIndicadorId(evaluacionId, orden) {
   const tipo = isCall ? "Call Center" : "Ventas";
   const found = indicadoresList.find((i) => i.tipo_evaluacion === tipo && i.orden === orden);
   if (!found) {
-    throw new Error(`No se encontró indicador para ev ${evaluacionId}, orden ${orden}, tipo ${tipo}`);
+    throw new Error(
+      `No se encontró indicador para ev ${evaluacionId}, orden ${orden}, tipo ${tipo}`,
+    );
   }
   return found.id;
 }

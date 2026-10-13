@@ -132,15 +132,7 @@ export function applyImportedPayload(payload: ImportedPayload) {
 }
 
 const SHEET_ALIASES = {
-  evaluations: [
-    "evaluaciones",
-    "evaluations",
-    "visitas",
-    "mystery",
-    "evaluacion",
-    "datos",
-    "base",
-  ],
+  evaluations: ["evaluaciones", "evaluations", "visitas", "mystery", "evaluacion", "datos", "base"],
   indicators: ["indicadores", "indicators", "indicatorresults", "resultados"],
   questions: ["preguntas", "questions", "respuestas", "items", "checklist"],
 } as const;
@@ -425,7 +417,9 @@ export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
     const score = number(findValue(row, ["puntaje", "puntajetotal", "score", "resultado"]));
 
     if (!concesionaria) {
-      inconsistencias.push(`Fila ${index + 1}: Evaluación "${evId}" no especifica concesionaria/sucursal.`);
+      inconsistencias.push(
+        `Fila ${index + 1}: Evaluación "${evId}" no especifica concesionaria/sucursal.`,
+      );
     }
 
     const record: Evaluacion & { __tipoEmpresaRaw: string } = {
@@ -508,4 +502,3 @@ export async function parseExcelFile(file: File): Promise<ParsedExcelResult> {
     },
   };
 }
-

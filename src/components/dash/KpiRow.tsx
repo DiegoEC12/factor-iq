@@ -2,14 +2,7 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScoreBar, ToneDot } from "@/components/dash/primitives";
-import {
-  labelOf,
-  pct,
-  toneColor,
-  toneLabel,
-  toneOf,
-  type Evaluacion,
-} from "@/lib/analytics";
+import { labelOf, pct, toneColor, toneLabel, toneOf, type Evaluacion } from "@/lib/analytics";
 
 type Kpi = {
   key: string;
@@ -20,7 +13,17 @@ type Kpi = {
   detail: React.ReactNode;
 };
 
-function KpiCard({ kpi, open, onToggle, index }: { kpi: Kpi; open: boolean; onToggle: () => void; index: number }) {
+function KpiCard({
+  kpi,
+  open,
+  onToggle,
+  index,
+}: {
+  kpi: Kpi;
+  open: boolean;
+  onToggle: () => void;
+  index: number;
+}) {
   return (
     <button
       type="button"
@@ -58,7 +61,9 @@ function KpiCard({ kpi, open, onToggle, index }: { kpi: Kpi; open: boolean; onTo
         )}
       >
         <div className="overflow-hidden">
-          <div className="border-t border-border pt-3 text-xs text-muted-foreground">{kpi.detail}</div>
+          <div className="border-t border-border pt-3 text-xs text-muted-foreground">
+            {kpi.detail}
+          </div>
         </div>
       </div>
     </button>
@@ -75,9 +80,7 @@ export function KpiRow({
   indicadores: { n: number; nombre: string; valor: number }[];
 }) {
   const [open, setOpen] = useState<string | null>(null);
-  const scored = evs
-    .map((e) => ({ ev: e, score: scoreOf(e) }))
-    .sort((a, b) => b.score - a.score);
+  const scored = evs.map((e) => ({ ev: e, score: scoreOf(e) })).sort((a, b) => b.score - a.score);
   const global = scored.length ? scored.reduce((a, b) => a + b.score, 0) / scored.length : 0;
   const best = scored[0];
   const worst = scored[scored.length - 1];
@@ -135,7 +138,9 @@ export function KpiRow({
       caption: best ? labelOf(best.ev) : "Sin datos",
       tone: best?.score,
       detail: best ? (
-        <p className="line-clamp-4 leading-relaxed">{best.ev.resumen ?? "Sin resumen disponible."}</p>
+        <p className="line-clamp-4 leading-relaxed">
+          {best.ev.resumen ?? "Sin resumen disponible."}
+        </p>
       ) : null,
     },
     {
@@ -145,7 +150,9 @@ export function KpiRow({
       caption: worst ? labelOf(worst.ev) : "Sin datos",
       tone: worst?.score,
       detail: worst ? (
-        <p className="line-clamp-4 leading-relaxed">{worst.ev.resumen ?? "Sin resumen disponible."}</p>
+        <p className="line-clamp-4 leading-relaxed">
+          {worst.ev.resumen ?? "Sin resumen disponible."}
+        </p>
       ) : null,
     },
     {

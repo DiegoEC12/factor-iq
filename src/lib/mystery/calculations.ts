@@ -119,16 +119,18 @@ export function getScopes(f: GlobalFilters): Scopes {
   const maqAll = universe.filter((e) => e.tipoEmpresa === "MAQUINARIAS");
   const compAll = universe.filter((e) => e.tipoEmpresa === "COMPETENCIA");
 
-  let maq = f.concesionaria === null
-    ? maqAll
-    : f.concesionaria.length === 0
-      ? []
-      : selection.filter((e) => e.tipoEmpresa === "MAQUINARIAS");
-  let comp = f.concesionaria === null
-    ? compAll
-    : f.concesionaria.length === 0
-      ? []
-      : selection.filter((e) => e.tipoEmpresa === "COMPETENCIA");
+  let maq =
+    f.concesionaria === null
+      ? maqAll
+      : f.concesionaria.length === 0
+        ? []
+        : selection.filter((e) => e.tipoEmpresa === "MAQUINARIAS");
+  let comp =
+    f.concesionaria === null
+      ? compAll
+      : f.concesionaria.length === 0
+        ? []
+        : selection.filter((e) => e.tipoEmpresa === "COMPETENCIA");
   let maqLabel = "Maquinarias (todas)";
   let compLabel = "Competencia (todas)";
   const selectedConcesionarias = f.concesionaria;
@@ -160,11 +162,12 @@ export function getScopes(f: GlobalFilters): Scopes {
     selection,
     maquinarias: maq,
     competencia: comp,
-    selectionLabel: f.concesionaria === null
-      ? "Todas las evaluaciones"
-      : f.concesionaria.length === 0
-        ? "Ninguna evaluación"
-        : f.concesionaria.join(", "),
+    selectionLabel:
+      f.concesionaria === null
+        ? "Todas las evaluaciones"
+        : f.concesionaria.length === 0
+          ? "Ninguna evaluación"
+          : f.concesionaria.join(", "),
     maquinariasLabel: maqLabel,
     competenciaLabel: compLabel,
   };
@@ -174,7 +177,10 @@ function ids(evals: Evaluation[]): string[] {
   return evals.map((e) => e.id);
 }
 
-export function calculateWeightedScore(evalIds: string[], indicatorIds?: string[] | null): number | null {
+export function calculateWeightedScore(
+  evalIds: string[],
+  indicatorIds?: string[] | null,
+): number | null {
   let rows = dataset.indicatorResults.filter((r) => evalIds.includes(r.idEvaluacion));
   if (indicatorIds?.length) {
     rows = rows.filter((r) => indicatorIds.includes(r.idIndicador));
@@ -226,7 +232,10 @@ export interface BenchmarkResult {
   nCompetencia: number;
 }
 
-export function calculateBenchmark(scopes: Scopes, indicatorIds?: string[] | null): BenchmarkResult {
+export function calculateBenchmark(
+  scopes: Scopes,
+  indicatorIds?: string[] | null,
+): BenchmarkResult {
   const m = calculateWeightedScore(ids(scopes.maquinarias), indicatorIds);
   const c = calculateWeightedScore(ids(scopes.competencia), indicatorIds);
   return {

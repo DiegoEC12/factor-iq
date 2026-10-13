@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import bcrypt from "bcryptjs";
-import { isDbEnabled, query, withTransaction } from "./db";
+import { execute, isDbEnabled, query, withTransaction } from "./db";
+import type { RowDataPacket } from "mysql2";
 import { getAuthUserFn } from "./auth";
 import type { SafeImportPayload } from "./safe-excel-import";
 
@@ -140,7 +141,7 @@ export const saveIncrementalImportFn = createServerFn({ method: "POST" })
     if (!data.evaluations.length) throw new Error("El archivo no contiene evaluaciones válidas.");
 
     const result = await withTransaction(async (connection) => {
-      const [projects] = await connection.query<any[]>(
+      const [projects] = await connection.query<RowDataPacket[]>(
         "SELECT id, cliente_id, nombre FROM proyectos WHERE id = ? FOR UPDATE",
         [MAQUINARIAS_PROJECT_ID],
       );
@@ -148,7 +149,7 @@ export const saveIncrementalImportFn = createServerFn({ method: "POST" })
       if (!project) throw new Error("No se encontró el proyecto Maquinarias autorizado (id 1).");
       const codes = data.evaluations.map((evaluation) => evaluation.codigo);
       const placeholders = codes.map(() => "?").join(", ");
-      const [duplicates] = await connection.query<any[]>(
+      const [duplicates] = await connection.query<RowDataPacket[]>(
         `SELECT codigo FROM evaluaciones WHERE codigo IN (${placeholders})`,
         codes,
       );
@@ -183,7 +184,7 @@ export const saveIncrementalImportFn = createServerFn({ method: "POST" })
            VALUES (?, ?, ?, ?, 'activa') ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)`,
           [project.cliente_id, branchName, brand, location],
         );
-        const [branchRows] = await connection.query<any[]>(
+        const [branchRows] = await connection.query<RowDataPacket[]>(
           "SELECT id FROM sucursales WHERE cliente_id = ? AND nombre = ? AND marca = ? AND ubicacion = ? LIMIT 1",
           [project.cliente_id, branchName, brand, location],
         );
@@ -206,7 +207,7 @@ export const saveIncrementalImportFn = createServerFn({ method: "POST" })
             evaluation.asesorEvaluado,
           ],
         );
-        const [evaluationRows] = await connection.query<any[]>(
+        const [evaluationRows] = await connection.query<RowDataPacket[]>(
           "SELECT id FROM evaluaciones WHERE codigo = ? LIMIT 1",
           [evaluation.codigo],
         );
@@ -236,7 +237,7 @@ export const saveIncrementalImportFn = createServerFn({ method: "POST" })
                 indicator.peso,
               ],
             );
-            const [indicatorRows] = await connection.query<any[]>(
+            const [indicatorRows] = await connection.query<RowDataPacket[]>(
               "SELECT id FROM indicadores WHERE proyecto_id = ? AND tipo_evaluacion = ? AND orden = ? LIMIT 1",
               [project.id, evaluation.tipoEvaluacion, indicator.orden],
             );
@@ -303,7 +304,7 @@ async function assertSuperAdmin() {
   return user;
 }
 
-async function recordAudit(accion: string, detalle: Record<string, any>) {
+async function recordAudit(accion: string, detalle: Record<string, unknown>) {
   try {
     if (!isDbEnabled()) return;
     const user = await getAuthUserFn();
@@ -385,7 +386,7 @@ export const saveClientFn = createServerFn({ method: "POST" })
         throw new Error("Ya existe un cliente con el mismo Slug o RUC.");
       }
 
-      const result = await query<{ insertId: number }>(
+      await query(
         `INSERT INTO clientes (slug, nombre_comercial, razon_social, ruc, rubro, plan, estado, color_primario, contacto_nombre, contacto_email, contacto_telefono)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
@@ -809,7 +810,7 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
     }
 
     // 2. Insertar cliente
-    const clientRes = await query<{ insertId: number }>(
+    const clientRes = await execute(
       `INSERT INTO clientes (slug, nombre_comercial, razon_social, ruc, rubro, plan, estado, color_primario, contacto_nombre, contacto_email, contacto_telefono)
        VALUES (?, ?, ?, ?, ?, ?, 'activo', ?, ?, ?, ?)`,
       [
@@ -826,8 +827,8 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
       ],
     );
     const clienteId =
-      (clientRes as any).insertId ||
-      (await query<any>("SELECT id FROM clientes WHERE slug = ?", [cleanSlug]))[0]?.id;
+      clientRes.insertId ||
+      (await query<{ id: number }>("SELECT id FROM clientes WHERE slug = ?", [cleanSlug]))[0]?.id;
 
     // 3. Insertar usuario admin_cliente con hash
     const passHash = await bcrypt.hash(data.credenciales.password, 10);
@@ -844,7 +845,7 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
     );
 
     // 4. Insertar proyecto
-    const projRes = await query<{ insertId: number }>(
+    const projRes = await execute(
       `INSERT INTO proyectos (cliente_id, nombre, tipo, periodo, fuente, estado, fecha_inicio)
        VALUES (?, ?, ?, ?, 'excel_onboarding_import', 'activo', CURDATE())`,
       [
@@ -855,11 +856,12 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
       ],
     );
     const proyectoId =
-      (projRes as any).insertId ||
+      projRes.insertId ||
       (
-        await query<any>("SELECT id FROM proyectos WHERE cliente_id = ? ORDER BY id DESC LIMIT 1", [
-          clienteId,
-        ])
+        await query<{ id: number }>(
+          "SELECT id FROM proyectos WHERE cliente_id = ? ORDER BY id DESC LIMIT 1",
+          [clienteId],
+        )
       )[0]?.id;
 
     // 5. Insertar sucursales únicas
@@ -877,7 +879,7 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
            ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)`,
           [clienteId, nom, marca, ub],
         );
-        const sucRows = await query<any>(
+        const sucRows = await query<{ id: number }>(
           "SELECT id FROM sucursales WHERE cliente_id = ? AND nombre = ? AND marca = ? AND ubicacion = ? LIMIT 1",
           [clienteId, nom, marca, ub],
         );
@@ -920,7 +922,7 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
         [proyectoId, codigo, item.tipo, item.orden, item.nombre, item.peso],
       );
 
-      const indRows = await query<any>(
+      const indRows = await query<{ id: number }>(
         "SELECT id FROM indicadores WHERE proyecto_id = ? AND tipo_evaluacion = ? AND orden = ? LIMIT 1",
         [proyectoId, item.tipo, item.orden],
       );
@@ -940,7 +942,7 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
       // Código único garantizado
       const uniqueCode = `${cleanSlug.toUpperCase().slice(0, 6)}_${ev.id}`.slice(0, 30);
 
-      const evRes = await query<{ insertId: number }>(
+      const evRes = await execute(
         `INSERT INTO evaluaciones (codigo, proyecto_id, sucursal_id, tipo_evaluacion, puntaje, resumen, recomendaciones, fecha_evaluacion)
          VALUES (?, ?, ?, ?, ?, ?, ?, CURDATE())
          ON DUPLICATE KEY UPDATE puntaje = VALUES(puntaje), resumen = VALUES(resumen), id = LAST_INSERT_ID(id)`,
@@ -955,9 +957,12 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
         ],
       );
       const evId =
-        (evRes as any).insertId ||
-        (await query<any>("SELECT id FROM evaluaciones WHERE codigo = ? LIMIT 1", [uniqueCode]))[0]
-          ?.id;
+        evRes.insertId ||
+        (
+          await query<{ id: number }>("SELECT id FROM evaluaciones WHERE codigo = ? LIMIT 1", [
+            uniqueCode,
+          ])
+        )[0]?.id;
       if (evId) {
         evaluacionesMap.set(ev.id, evId);
       }

@@ -115,7 +115,8 @@ export function Step2Credentials({
             Paso 2: Credenciales de Acceso para la Empresa
           </h3>
           <p className="text-xs text-slate-600 mt-1">
-            Genera la cuenta de administrador con la que los representantes de la empresa accederán al portal privado de reportes.
+            Genera la cuenta de administrador con la que los representantes de la empresa accederán
+            al portal privado de reportes.
           </p>
         </div>
 
@@ -212,7 +213,11 @@ export function Step2Credentials({
                 title="Copiar contraseña"
                 className="p-1.5 rounded-lg text-slate-500 hover:text-[#1b2447] hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                {copied ? <Check className="h-4 w-4 text-[#0f766e]" /> : <Copy className="h-4 w-4" />}
+                {copied ? (
+                  <Check className="h-4 w-4 text-[#0f766e]" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
               </button>
               <button
                 type="button"
@@ -256,14 +261,16 @@ export function Step2Credentials({
           {copied && (
             <p className="text-xs text-[#0f766e] flex items-center gap-1.5 font-medium">
               <Check className="h-4 w-4" />
-              ¡Contraseña copiada al portapapeles! Guárdala de forma segura para entregarla al cliente.
+              ¡Contraseña copiada al portapapeles! Guárdala de forma segura para entregarla al
+              cliente.
             </p>
           )}
 
           <div className="p-3.5 rounded-xl bg-[#eef2ff] border border-[#dfe6f7] text-[#1b2447] text-xs flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 shrink-0 text-[#1b5094]" />
             <span>
-              La contraseña se almacenará hasheada con bcrypt en la base de datos MySQL (nunca en texto plano).
+              La contraseña se almacenará hasheada con bcrypt en la base de datos MySQL (nunca en
+              texto plano).
             </span>
           </div>
         </div>

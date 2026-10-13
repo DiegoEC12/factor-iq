@@ -8,24 +8,37 @@ export function SiteFooter() {
         <div className="mb-8 w-full text-left md:mb-0 md:text-left sm:w-sm lg:w-1/2 lg:items-start">
           <div className="mb-2">
             <Link to="/">
-              <img src="/assets/img/logo-transparent-white.png" className="h-12 w-auto max-h-14" alt="Factor IQ" />
+              <img
+                src="/assets/img/logo-transparent-white.png"
+                className="h-12 w-auto max-h-14"
+                alt="Factor IQ"
+              />
             </Link>
           </div>
           <p className="max-w-xs text-left text-xs lg:max-w-md">
-            Acompañamiento estratégico para construir organizaciones saludables, donde el compromiso y el
-            desempeño van de la mano.
+            Acompañamiento estratégico para construir organizaciones saludables, donde el compromiso
+            y el desempeño van de la mano.
           </p>
         </div>
         <div className="flex w-full flex-col flex-wrap gap-8 sm:flex-row sm:justify-center md:justify-end md:gap-10 lg:w-2/3 lg:justify-evenly lg:gap-25">
           <div className="flex flex-col gap-3">
             <span className="text-lg font-bold">Organización</span>
-            <Link className="opacity-80 transition-all hover:underline hover:opacity-100" to="/nosotros">
+            <Link
+              className="opacity-80 transition-all hover:underline hover:opacity-100"
+              to="/nosotros"
+            >
               Nosotros
             </Link>
-            <Link className="opacity-80 transition-all hover:underline hover:opacity-100" to="/servicios">
+            <Link
+              className="opacity-80 transition-all hover:underline hover:opacity-100"
+              to="/servicios"
+            >
               Servicios
             </Link>
-            <Link className="opacity-80 transition-all hover:underline hover:opacity-100" to="/contacto">
+            <Link
+              className="opacity-80 transition-all hover:underline hover:opacity-100"
+              to="/contacto"
+            >
               Contacto
             </Link>
             <Link
@@ -37,10 +50,16 @@ export function SiteFooter() {
           </div>
           <div className="flex flex-col gap-3">
             <span className="text-lg font-bold">Soporte</span>
-            <Link className="opacity-80 transition-all hover:underline hover:opacity-100" to="/contacto">
+            <Link
+              className="opacity-80 transition-all hover:underline hover:opacity-100"
+              to="/contacto"
+            >
               Contáctanos
             </Link>
-            <Link className="opacity-80 transition-all hover:underline hover:opacity-100" to="/contacto">
+            <Link
+              className="opacity-80 transition-all hover:underline hover:opacity-100"
+              to="/contacto"
+            >
               FAQ
             </Link>
             <span className="text-lg font-bold">Legal</span>
@@ -50,7 +69,9 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="mt-20 flex w-full flex-col gap-2 border-t border-white/5 pt-10 text-center md:flex-row md:items-center md:justify-between">
-        <p className="px-4 text-sm text-white/50">© 2026 Factor IQ. Todos los derechos reservados</p>
+        <p className="px-4 text-sm text-white/50">
+          © 2026 Factor IQ. Todos los derechos reservados
+        </p>
         <p className="px-4 text-sm text-white/50">Acompañamiento Estratégico</p>
       </div>
     </footer>

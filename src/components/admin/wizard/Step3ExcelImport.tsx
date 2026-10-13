@@ -42,9 +42,9 @@ export function Step3ExcelImport({
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activePreviewTab, setActivePreviewTab] = useState<"evaluaciones" | "indicadores" | "preguntas">(
-    "evaluaciones",
-  );
+  const [activePreviewTab, setActivePreviewTab] = useState<
+    "evaluaciones" | "indicadores" | "preguntas"
+  >("evaluaciones");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const processFile = async (file: File) => {
@@ -64,8 +64,10 @@ export function Step3ExcelImport({
           nombre: `Estudio Mystery Shopper - ${file.name.replace(/\.[^/.]+$/, "")}`,
         });
       }
-    } catch (err: any) {
-      setError(err?.message || "Ocurrió un error al procesar el archivo Excel.");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Ocurrió un error al procesar el archivo Excel.",
+      );
     } finally {
       setLoading(false);
     }
@@ -120,7 +122,9 @@ export function Step3ExcelImport({
             Paso 3: Carga y Validación del Archivo Excel de Mystery Shopper
           </h3>
           <p className="text-xs text-slate-600 mt-1">
-            El sistema inspeccionará el archivo .xlsx, verificará las hojas relacionales (Evaluaciones, Indicadores, Preguntas) y generará una previsualización interactiva antes de persistir en base de datos.
+            El sistema inspeccionará el archivo .xlsx, verificará las hojas relacionales
+            (Evaluaciones, Indicadores, Preguntas) y generará una previsualización interactiva antes
+            de persistir en base de datos.
           </p>
         </div>
 
@@ -203,7 +207,8 @@ export function Step3ExcelImport({
             <p className="text-sm font-semibold text-[#1b2447]">
               {excelResult ? (
                 <span className="text-[#0f766e]">
-                  Archivo cargado: {excelResult.fileName} ({Math.round(excelResult.fileSize / 1024)} KB)
+                  Archivo cargado: {excelResult.fileName} ({Math.round(excelResult.fileSize / 1024)}{" "}
+                  KB)
                 </span>
               ) : (
                 "Arrastra tu archivo Excel aquí o haz clic para examinar"
@@ -292,7 +297,9 @@ export function Step3ExcelImport({
               <div className="p-4 rounded-xl bg-[#fff7ed] border border-[#fed7aa] text-[#9a5b00] text-xs space-y-1">
                 <div className="flex items-center gap-2 font-semibold">
                   <AlertTriangle className="h-4 w-4 text-[#b45309]" />
-                  <span>Advertencias de datos detectadas ({excelResult.stats.inconsistencias.length}):</span>
+                  <span>
+                    Advertencias de datos detectadas ({excelResult.stats.inconsistencias.length}):
+                  </span>
                 </div>
                 <ul className="list-disc pl-5 space-y-0.5 text-slate-600 text-[11px]">
                   {excelResult.stats.inconsistencias.map((msg, i) => (
@@ -355,7 +362,7 @@ export function Step3ExcelImport({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#e3e8f3] font-mono text-[11px]">
-                      {excelResult.evaluations.slice(0, 10).map((ev: any, i: number) => (
+                      {excelResult.evaluations.slice(0, 10).map((ev, i) => (
                         <tr key={i} className="hover:bg-[#f8fafc]">
                           <td className="p-2.5 text-[#1b5094] font-semibold">{ev.id}</td>
                           <td className="p-2.5 font-sans text-[#1b2447]">{ev.concesionaria}</td>
@@ -414,7 +421,9 @@ export function Step3ExcelImport({
                         <tr key={i} className="hover:bg-[#f8fafc]">
                           <td className="p-2.5 text-[#1b5094]">{q.ev}</td>
                           <td className="p-2.5 font-sans">{q.indicador}</td>
-                          <td className="p-2.5 font-sans text-[#1b2447] truncate max-w-xs">{q.q}</td>
+                          <td className="p-2.5 font-sans text-[#1b2447] truncate max-w-xs">
+                            {q.q}
+                          </td>
                           <td className="p-2.5 font-sans">{q.resp || "-"}</td>
                           <td className="p-2.5 text-right font-bold text-[#1b2447]">
                             {q.nota !== null ? `${Math.round(q.nota * 100)}%` : "-"}

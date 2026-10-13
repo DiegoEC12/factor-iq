@@ -55,7 +55,11 @@ function IndicadoresPage() {
       valor: indicatorScore(evaluationIds, indicator.id) ?? 0,
     }));
     return scored.sort((a, b) =>
-      sortMode === "mayor" ? b.valor - a.valor : sortMode === "menor" ? a.valor - b.valor : a.orden - b.orden,
+      sortMode === "mayor"
+        ? b.valor - a.valor
+        : sortMode === "menor"
+          ? a.valor - b.valor
+          : a.orden - b.orden,
     );
   }, [evs, filters.indicador, sortMode]);
 
@@ -64,9 +68,7 @@ function IndicadoresPage() {
     for (const local of locales) {
       scores.set(
         local.id,
-        selectedIndicator === null
-          ? null
-          : indicatorScore(local.evIds, selectedIndicator),
+        selectedIndicator === null ? null : indicatorScore(local.evIds, selectedIndicator),
       );
     }
     return scores;
@@ -129,7 +131,7 @@ function IndicadoresPage() {
               <div className="flex items-center gap-2">
                 <select
                   value={sortMode}
-                  onChange={(e) => setSortMode(e.target.value as any)}
+                  onChange={(e) => setSortMode(e.target.value as typeof sortMode)}
                   className="transition-ui h-8 rounded-md border border-input bg-card px-2 text-[13px] font-medium shadow-xs outline-none focus:border-ring"
                 >
                   <option value="id">ID del indicador</option>
@@ -146,11 +148,7 @@ function IndicadoresPage() {
             ) : (
               <Accordion type="single" collapsible className="mt-5">
                 {indicatorList.map((indicator) => (
-                  <AccordionItem
-                    key={indicator.id}
-                    value={indicator.id}
-                    className="border-border"
-                  >
+                  <AccordionItem key={indicator.id} value={indicator.id} className="border-border">
                     <AccordionTrigger
                       className="gap-4 py-4 hover:no-underline"
                       onClick={() => {
@@ -198,10 +196,11 @@ function IndicadoresPage() {
                             id: local.id,
                             nombre: local.nombre,
                             percentage: (localScores.get(local.id) ?? 0) * 100,
-                            brecha: ((localScores.get(local.id) ?? 0) * 100) - networkAvg,
+                            brecha: (localScores.get(local.id) ?? 0) * 100 - networkAvg,
                           }));
 
-                          const visible = showAllLocalsFor === indicator.id ? items : items.slice(0, 5);
+                          const visible =
+                            showAllLocalsFor === indicator.id ? items : items.slice(0, 5);
 
                           return visible.map((local) => (
                             <li key={local.id}>
@@ -251,7 +250,9 @@ function IndicadoresPage() {
                           }
                           className="mt-3 text-sm font-semibold text-primary hover:underline"
                         >
-                          {showAllLocalsFor === indicator.id ? "Ver menos locales" : "Ver más locales"}
+                          {showAllLocalsFor === indicator.id
+                            ? "Ver menos locales"
+                            : "Ver más locales"}
                         </button>
                       )}
                       <div className="mt-4 text-xs text-muted-foreground">
@@ -335,7 +336,9 @@ function QuestionSummary({ title, questions }: { title: string; questions: Summa
                   className="flex w-full items-start justify-between gap-3 rounded-md px-2 py-1.5 text-left hover:bg-muted/60 transition-colors"
                 >
                   <div className="min-w-0 flex-1">
-                    <div className={cn("text-sm", isExpanded ? "whitespace-normal" : "line-clamp-1")}>
+                    <div
+                      className={cn("text-sm", isExpanded ? "whitespace-normal" : "line-clamp-1")}
+                    >
                       {question.q}
                     </div>
                     <div className="text-xs text-muted-foreground">Resultado de la pregunta</div>

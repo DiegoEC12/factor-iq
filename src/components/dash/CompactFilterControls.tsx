@@ -31,15 +31,17 @@ export function CompactFilterControls({ showIndicator = true }: { showIndicator?
       ).map((item) => normalizeTipoEvaluacion(item)),
     );
 
-    return CANONICAL_TIPOS_EVALUACION
-      .filter((tipo) => dynamicTipos.size === 0 || dynamicTipos.has(tipo))
-      .map((type) => ({ value: type, label: type }));
+    return CANONICAL_TIPOS_EVALUACION.filter(
+      (tipo) => dynamicTipos.size === 0 || dynamicTipos.has(tipo),
+    ).map((type) => ({ value: type, label: type }));
   }, [options.tiposEvaluacion]);
 
   return (
     <div className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-300 items-center gap-3 px-4 py-3 lg:px-8">
-        <div className={`grid w-full grid-cols-2 gap-2 ${showIndicator ? "md:grid-cols-5" : "md:grid-cols-4"}`}>
+        <div
+          className={`grid w-full grid-cols-2 gap-2 ${showIndicator ? "md:grid-cols-5" : "md:grid-cols-4"}`}
+        >
           <MultiFilterSelect
             label="Concesionaria"
             values={filters.concesionaria}
@@ -58,12 +60,14 @@ export function CompactFilterControls({ showIndicator = true }: { showIndicator?
             options={options.ubicaciones.map((u) => ({ value: u, label: u }))}
             onChange={(values) => setFilter("ubicacion", values)}
           />
-          {showIndicator && <MultiFilterSelect
-            label="Indicador"
-            values={filters.indicador}
-            options={options.indicadores}
-            onChange={(values) => setFilter("indicador", values)}
-          />}
+          {showIndicator && (
+            <MultiFilterSelect
+              label="Indicador"
+              values={filters.indicador}
+              options={options.indicadores}
+              onChange={(values) => setFilter("indicador", values)}
+            />
+          )}
           <MultiFilterSelect
             label="Tipo de evaluación"
             shortLabel="Tipo"

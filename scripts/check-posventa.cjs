@@ -1,11 +1,11 @@
-const mysql = require('mysql2/promise');
+const mysql = require("mysql2/promise");
 
 async function test() {
   const conn = await mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'factoriq'
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "factoriq",
   });
 
   const [evs] = await conn.query(`
@@ -16,7 +16,7 @@ async function test() {
     JOIN clientes c ON c.id = p.cliente_id
     WHERE e.tipo_evaluacion LIKE '%pos%'
   `);
-  console.log('Posventa evaluations JOINed:', JSON.stringify(evs, null, 2));
+  console.log("Posventa evaluations JOINed:", JSON.stringify(evs, null, 2));
 
   // Check how many evaluations total per client
   const [byClient] = await conn.query(`
@@ -26,13 +26,13 @@ async function test() {
     JOIN clientes c ON c.id = p.cliente_id
     GROUP BY c.slug, e.tipo_evaluacion
   `);
-  console.log('Evaluations by client and tipo:', byClient);
+  console.log("Evaluations by client and tipo:", byClient);
 
   // Check if there are indicators for posventa
   const [indPos] = await conn.query(`
     SELECT * FROM indicadores WHERE tipo_evaluacion LIKE '%pos%'
   `);
-  console.log('Indicadores for posventa in DB:', indPos);
+  console.log("Indicadores for posventa in DB:", indPos);
 
   await conn.end();
 }

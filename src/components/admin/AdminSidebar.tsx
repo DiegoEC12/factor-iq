@@ -71,7 +71,7 @@ export function AdminSidebar({ user, stats }: AdminSidebarProps) {
       badge: stats?.usuarios,
       match: (p: string) => p.startsWith("/admin/usuarios"),
     },
-  ];
+  ] as const;
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -97,7 +97,7 @@ export function AdminSidebar({ user, stats }: AdminSidebarProps) {
         return (
           <Link
             key={item.to}
-            to={item.to as any}
+            to={item.to}
             onClick={closeMobile}
             title={compact ? item.label : undefined}
             className={cn(

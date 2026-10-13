@@ -40,7 +40,8 @@ export function ContactoPage() {
               Hablemos sobre tu organización
             </h1>
             <p className="py-4 text-lg font-semibold text-gray-500 xl:text-lg">
-              Cuéntanos en qué momento se encuentra tu empresa. Te respondemos en menos de 24 horas hábiles.
+              Cuéntanos en qué momento se encuentra tu empresa. Te respondemos en menos de 24 horas
+              hábiles.
             </p>
           </div>
         </section>
@@ -57,7 +58,11 @@ export function ContactoPage() {
               <div className="flex max-w-7xl flex-col flex-wrap items-center justify-center gap-6 md:flex-row">
                 <InfoCard icon={Mail} label="CORREO" value="contacto@factoriq.com" />
                 <InfoCard icon={Phone} label="TELÉFONO" value="+51 965 956 522" />
-                <InfoCard icon={MapPin} label="UBICACIÓN" value="Calle Murcia 186, Santiago de Surco, Peru, Lima 33" />
+                <InfoCard
+                  icon={MapPin}
+                  label="UBICACIÓN"
+                  value="Calle Murcia 186, Santiago de Surco, Peru, Lima 33"
+                />
                 <InfoCard icon={Mail} label="CORREO" value="contacto@factoriq.com" />
               </div>
             </div>
@@ -96,13 +101,23 @@ export function ContactoPage() {
                       <label htmlFor="phone" className="text-sm font-bold text-gray-500">
                         Teléfono
                       </label>
-                      <input name="data[telefono]" type="text" id="phone" className="rounded-xl border-2 border-gray-200 p-2" />
+                      <input
+                        name="data[telefono]"
+                        type="text"
+                        id="phone"
+                        className="rounded-xl border-2 border-gray-200 p-2"
+                      />
                     </div>
                     <div className="flex flex-1 flex-col gap-2">
                       <label htmlFor="company" className="text-sm font-bold text-gray-500">
                         Empresa
                       </label>
-                      <input name="data[empresa]" type="text" id="company" className="rounded-xl border-2 border-gray-200 p-2" />
+                      <input
+                        name="data[empresa]"
+                        type="text"
+                        id="company"
+                        className="rounded-xl border-2 border-gray-200 p-2"
+                      />
                     </div>
                   </div>
                   <div className="flex w-full flex-col gap-2">

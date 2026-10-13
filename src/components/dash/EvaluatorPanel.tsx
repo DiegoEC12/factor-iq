@@ -40,8 +40,11 @@ export function EvaluatorPanel({
   if (filtrosIndicador?.length) {
     const selectedNums = new Set(
       filtrosIndicador
-        .map((id) => { const m = id.match(/(\d+)$/); return m ? Number(m[1]) : NaN; })
-        .filter((n) => Number.isFinite(n))
+        .map((id) => {
+          const m = id.match(/(\d+)$/);
+          return m ? Number(m[1]) : NaN;
+        })
+        .filter((n) => Number.isFinite(n)),
     );
     rows = rows.filter((r) => selectedNums.has(r.n));
   }
@@ -50,9 +53,12 @@ export function EvaluatorPanel({
     rows = rows.filter((row) => row.n === selectedIndicator.n);
   }
 
-  const selectedIndicatorScore = selectedIndicator && ev
-    ? allIndicadores.find((indicator) => indicator.ev === ev.id && indicator.n === selectedIndicator.n)?.cumpl
-    : null;
+  const selectedIndicatorScore =
+    selectedIndicator && ev
+      ? allIndicadores.find(
+          (indicator) => indicator.ev === ev.id && indicator.n === selectedIndicator.n,
+        )?.cumpl
+      : null;
 
   return (
     <aside
@@ -119,12 +125,16 @@ export function EvaluatorPanel({
             {ev ? (
               <div className="flex gap-2 text-muted-foreground">
                 <MessageSquareQuote className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <ul className="list-disc space-y-2 pl-4">{textAsPoints(ev.resumen).map((point) => <li key={point}>{point}</li>)}</ul>
+                <ul className="list-disc space-y-2 pl-4">
+                  {textAsPoints(ev.resumen).map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
               </div>
             ) : (
               <p className="text-muted-foreground">
-                Selecciona un local en el ranking o el mapa de calor para leer el resumen de la visita,
-                sus recomendaciones y el detalle por indicador.
+                Selecciona un local en el ranking o el mapa de calor para leer el resumen de la
+                visita, sus recomendaciones y el detalle por indicador.
               </p>
             )}
           </div>
@@ -134,10 +144,16 @@ export function EvaluatorPanel({
             {ev ? (
               <div className="flex gap-2 text-muted-foreground">
                 <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <ul className="list-disc space-y-2 pl-4">{textAsPoints(ev.recomendaciones).map((point) => <li key={point}>{point}</li>)}</ul>
+                <ul className="list-disc space-y-2 pl-4">
+                  {textAsPoints(ev.recomendaciones).map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
               </div>
             ) : (
-              <p className="text-muted-foreground">Selecciona un local para ver sus recomendaciones.</p>
+              <p className="text-muted-foreground">
+                Selecciona un local para ver sus recomendaciones.
+              </p>
             )}
           </div>
         )}
@@ -176,10 +192,7 @@ export function StrengthsOpportunities({
   const oportunidades = rows.filter((r) => r.valor < 0.6).sort((a, b) => a.valor - b.valor);
 
   return (
-    <section
-      className="panel rise-in overflow-hidden"
-      style={{ animationDelay: `${delay}ms` }}
-    >
+    <section className="panel rise-in overflow-hidden" style={{ animationDelay: `${delay}ms` }}>
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -195,7 +208,10 @@ export function StrengthsOpportunities({
           </p>
         </div>
         <ChevronDown
-          className={cn("h-4 w-4 text-muted-foreground transition-transform duration-300", open && "rotate-180")}
+          className={cn(
+            "h-4 w-4 text-muted-foreground transition-transform duration-300",
+            open && "rotate-180",
+          )}
         />
       </button>
       <div
@@ -215,7 +231,10 @@ export function StrengthsOpportunities({
                   className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide"
                   style={{ color: col.color }}
                 >
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: col.color }} />
+                  <span
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: col.color }}
+                  />
                   {col.label}
                 </p>
                 <ul className="space-y-2">
@@ -234,7 +253,9 @@ export function StrengthsOpportunities({
                     </li>
                   ))}
                   {col.items.length === 0 && (
-                    <li className="text-xs text-muted-foreground">Sin indicadores en este grupo.</li>
+                    <li className="text-xs text-muted-foreground">
+                      Sin indicadores en este grupo.
+                    </li>
                   )}
                 </ul>
               </div>

@@ -1,18 +1,9 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { WizardStepper } from "@/components/admin/wizard/WizardStepper";
-import {
-  Step1CompanyData,
-  type CompanyData,
-} from "@/components/admin/wizard/Step1CompanyData";
-import {
-  Step2Credentials,
-  type CredentialsData,
-} from "@/components/admin/wizard/Step2Credentials";
-import {
-  Step3ExcelImport,
-  type ServiceData,
-} from "@/components/admin/wizard/Step3ExcelImport";
+import { Step1CompanyData, type CompanyData } from "@/components/admin/wizard/Step1CompanyData";
+import { Step2Credentials, type CredentialsData } from "@/components/admin/wizard/Step2Credentials";
+import { Step3ExcelImport, type ServiceData } from "@/components/admin/wizard/Step3ExcelImport";
 import { Step4Confirmation } from "@/components/admin/wizard/Step4Confirmation";
 import { saveNewServiceWithExcelFn } from "@/lib/admin";
 import type { ParsedExcelResult } from "@/lib/excel-import";
@@ -33,7 +24,8 @@ export const Route = createFileRoute("/admin/servicios/nuevo")({
       { title: "Nuevo Servicio (Wizard) | Factor IQ SuperAdmin" },
       {
         name: "description",
-        content: "Flujo de alta guiada de empresa, credenciales e importación Excel de Mystery Shopper.",
+        content:
+          "Flujo de alta guiada de empresa, credenciales e importación Excel de Mystery Shopper.",
       },
     ],
   }),
@@ -145,8 +137,12 @@ function NuevoServicioWizardPage() {
       } else {
         setError(result.message || "Error al procesar la activación.");
       }
-    } catch (err: any) {
-      setError(err?.message || "Ocurrió un error inesperado al procesar la activación.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Ocurrió un error inesperado al procesar la activación.",
+      );
     } finally {
       setLoading(false);
     }
@@ -174,7 +170,8 @@ function NuevoServicioWizardPage() {
             Nuevo Servicio & Carga Masiva
           </h1>
           <p className="text-xs sm:text-sm text-slate-600">
-            Flujo paso a paso para dar de alta una empresa cliente, generar sus accesos y cargar los resultados de Mystery Shopper.
+            Flujo paso a paso para dar de alta una empresa cliente, generar sus accesos y cargar los
+            resultados de Mystery Shopper.
           </p>
         </div>
       </div>
@@ -198,7 +195,11 @@ function NuevoServicioWizardPage() {
               ¡Empresa y Servicio Activados!
             </h2>
             <p className="text-xs sm:text-sm text-slate-600">
-              La empresa <span className="font-semibold text-[#1b2447]">{company.nombre_comercial}</span>, el usuario <span className="font-mono text-[#1b5094]">@{credentials.usuario}</span> y {excelResult?.stats.totalEvaluaciones} evaluaciones de Mystery Shopper han sido registrados exitosamente.
+              La empresa{" "}
+              <span className="font-semibold text-[#1b2447]">{company.nombre_comercial}</span>, el
+              usuario <span className="font-mono text-[#1b5094]">@{credentials.usuario}</span> y{" "}
+              {excelResult?.stats.totalEvaluaciones} evaluaciones de Mystery Shopper han sido
+              registrados exitosamente.
             </p>
           </div>
 
@@ -210,14 +211,14 @@ function NuevoServicioWizardPage() {
               Ir a Listado de Empresas
             </Link>
 
-            <Link
-              to={`/${createdSlug}` as any}
+            <a
+              href={`/${createdSlug}`}
               target="_blank"
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
             >
               <span>Abrir Portal de la Empresa</span>
               <ExternalLink className="h-4 w-4" />
-            </Link>
+            </a>
           </div>
         </div>
       ) : (
