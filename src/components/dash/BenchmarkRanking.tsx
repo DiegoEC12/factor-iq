@@ -200,7 +200,7 @@ export function RankingPanel({
   return (
     <SectionCard
       title="Ranking de locales"
-      subtitle="Clic para ver el detalle del local"
+      subtitle="Click para ver detalles del local (% promedio de evaluaciones)"
       delay={delay}
     >
       <ul className="max-h-95 space-y-1 overflow-y-auto pr-1">

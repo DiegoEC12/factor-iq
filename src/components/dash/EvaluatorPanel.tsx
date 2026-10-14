@@ -1,5 +1,12 @@
-import { useState } from "react";
-import { ChevronDown, MessageSquareQuote, Lightbulb, MapPin } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  ChevronDown,
+  MessageSquareQuote,
+  Lightbulb,
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { textAsPoints } from "@/lib/text-format";
 import { ScoreBar } from "@/components/dash/primitives";
@@ -7,12 +14,22 @@ import {
   indicadores as allIndicadores,
   indicadorAverages,
   labelOf,
+  localKey,
   pct,
   title,
   toneColor,
   toneOf,
   type Evaluacion,
 } from "@/lib/analytics";
+
+function displayEvaluationDate(value: unknown): string | null {
+  if (!value) return null;
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) return null;
+    return new Intl.DateTimeFormat("es-PE", { dateStyle: "medium" }).format(value);
+  }
+  return String(value);
+}
 
 export function EvaluatorPanel({
   evs,
@@ -28,7 +45,27 @@ export function EvaluatorPanel({
   delay?: number;
 }) {
   const [tab, setTab] = useState<"resumen" | "recomendaciones" | "indicadores">("resumen");
-  const ev = selected;
+  const selectedGroupKey = selected
+    ? localKey(selected.concesionaria, selected.marca, selected.ubicacion)
+    : null;
+  const selectedEvaluations = useMemo(
+    () =>
+      selectedGroupKey
+        ? evs.filter(
+            (item) => localKey(item.concesionaria, item.marca, item.ubicacion) === selectedGroupKey,
+          )
+        : [],
+    [evs, selectedGroupKey],
+  );
+  const [evaluationIndex, setEvaluationIndex] = useState(0);
+
+  useEffect(() => {
+    setEvaluationIndex(0);
+  }, [selectedGroupKey]);
+
+  const ev = selectedEvaluations[evaluationIndex] ?? null;
+  const hasPrevious = evaluationIndex > 0;
+  const hasNext = evaluationIndex < selectedEvaluations.length - 1;
 
   let rows = ev
     ? allIndicadores
@@ -76,6 +113,38 @@ export function EvaluatorPanel({
           <MapPin className="h-3.5 w-3.5" />
           {ev ? title(ev.ubicacion) : `${evs.length} evaluaciones en el filtro`}
         </p>
+        {ev && displayEvaluationDate(ev.fechaEvaluacion ?? ev.mes) && (
+          <p className="mt-1 text-[11px] opacity-70">
+            {displayEvaluationDate(ev.fechaEvaluacion ?? ev.mes)}
+          </p>
+        )}
+        {ev && selectedEvaluations.length > 0 && (
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-lg bg-background/10 px-2.5 py-2">
+            <button
+              type="button"
+              onClick={() => setEvaluationIndex((index) => Math.max(0, index - 1))}
+              disabled={!hasPrevious}
+              aria-label="Ver evaluación anterior"
+              className="rounded-md p-1 transition-colors hover:bg-background/15 disabled:cursor-not-allowed disabled:opacity-35"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="text-center text-[11px] font-semibold tracking-wide">
+              Evaluación {evaluationIndex + 1} de {selectedEvaluations.length}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                setEvaluationIndex((index) => Math.min(selectedEvaluations.length - 1, index + 1))
+              }
+              disabled={!hasNext}
+              aria-label="Ver evaluación siguiente"
+              className="rounded-md p-1 transition-colors hover:bg-background/15 disabled:cursor-not-allowed disabled:opacity-35"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
         {selectedIndicator && (
           <p className="mt-2 rounded-md bg-background/10 px-2 py-1 text-xs font-medium">
             Indicador seleccionado: {selectedIndicator.n}. {selectedIndicator.nombre}
@@ -126,8 +195,8 @@ export function EvaluatorPanel({
               <div className="flex gap-2 text-muted-foreground">
                 <MessageSquareQuote className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <ul className="list-disc space-y-2 pl-4">
-                  {textAsPoints(ev.resumen).map((point) => (
-                    <li key={point}>{point}</li>
+                  {textAsPoints(ev.resumen).map((point, index) => (
+                    <li key={`${index}-${point}`}>{point}</li>
                   ))}
                 </ul>
               </div>
@@ -145,8 +214,8 @@ export function EvaluatorPanel({
               <div className="flex gap-2 text-muted-foreground">
                 <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <ul className="list-disc space-y-2 pl-4">
-                  {textAsPoints(ev.recomendaciones).map((point) => (
-                    <li key={point}>{point}</li>
+                  {textAsPoints(ev.recomendaciones).map((point, index) => (
+                    <li key={`${index}-${point}`}>{point}</li>
                   ))}
                 </ul>
               </div>

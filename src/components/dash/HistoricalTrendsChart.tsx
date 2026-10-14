@@ -95,9 +95,10 @@ export function HistoricalTrendsChart({ filters }: { filters: GlobalFilters }) {
                       payload?: { period?: string };
                     };
                     if (cx === undefined || cy === undefined || typeof value !== "number")
-                      return <circle cx={0} cy={0} r={0} />;
+                      return <circle key={`${series.id}-empty`} cx={0} cy={0} r={0} />;
                     return (
                       <circle
+                        key={`${series.id}-${payload?.period ?? "point"}`}
                         cx={cx}
                         cy={cy}
                         r={4}

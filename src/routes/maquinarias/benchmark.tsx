@@ -38,7 +38,8 @@ type CompetenciaFilters = {
 const EMPTY_BENCHMARK_FILTERS: BenchmarkFilters = {
   marca: null,
   ubicacion: null,
-  tipoEvaluacion: null,
+  // El benchmark debe iniciar mostrando únicamente Ventas, igual que el panel ejecutivo.
+  tipoEvaluacion: ["Ventas"],
 };
 
 const EMPTY_COMPETENCIA_FILTERS: CompetenciaFilters = {
