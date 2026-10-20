@@ -153,7 +153,8 @@ export const loginFn = createServerFn({ method: "POST" })
       if (!demo) {
         return {
           ok: false as const,
-          message: "Datos incorrectos. Intenta nuevamente o comunicate con soporte.",
+          message:
+            "La base de datos no está configurada en este servidor. Revisa las variables DB_HOST, DB_NAME y DB_USER.",
         };
       }
       const session = await useSessionManager();
@@ -166,7 +167,20 @@ export const loginFn = createServerFn({ method: "POST" })
       return { ok: true as const, redirectTo: demo.redirectTo };
     }
 
-    const user = await findUsuario(data.usuario);
+    let user: UsuarioRow | null;
+    try {
+      user = await findUsuario(data.usuario);
+    } catch (error) {
+      const errorCode =
+        error && typeof error === "object" && "code" in error ? String(error.code) : "UNKNOWN";
+      console.error("Error consultando usuarios durante el inicio de sesión:", errorCode);
+      return {
+        ok: false as const,
+        message:
+          "No se pudo consultar la base de datos. Revisa la conexión del servidor e intenta nuevamente.",
+      };
+    }
+
     const passwordOk = user ? await bcrypt.compare(data.password, user.password_hash) : false;
 
     if (!user || !passwordOk) {
