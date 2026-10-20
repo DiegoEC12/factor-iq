@@ -7,7 +7,7 @@ export interface StepItem {
   icon: typeof Building2;
 }
 
-export const WIZARD_STEPS: StepItem[] = [
+const WIZARD_STEPS: StepItem[] = [
   {
     id: 1,
     title: "Empresa Cliente",

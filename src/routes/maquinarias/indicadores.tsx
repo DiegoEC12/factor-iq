@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { availableIndicators, getScopes, indicatorScore } from "@/lib/mystery/calculations";
 import { localKey, preguntas } from "@/lib/analytics";
-import { useFilters } from "@/lib/mystery/filter-context";
+import { useFilters } from "@/lib/mystery/filter-context-store";
 import CompactFilterControls from "@/components/dash/CompactFilterControls";
 
 export const Route = createFileRoute("/maquinarias/indicadores")({

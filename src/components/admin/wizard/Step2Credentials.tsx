@@ -46,20 +46,30 @@ export function Step2Credentials({
 
   // Auto-llenar valores sugeridos si están vacíos
   useEffect(() => {
+    const updates: Partial<CredentialsData> = {};
     if (!data.usuario && clientSlug) {
-      onChange({ usuario: `admin_${clientSlug.replace(/[^a-z0-9]/g, "")}` });
+      updates.usuario = `admin_${clientSlug.replace(/[^a-z0-9]/g, "")}`;
     }
     if (!data.nombre && contactName) {
-      onChange({ nombre: contactName });
+      updates.nombre = contactName;
     }
     if (!data.email && contactEmail) {
-      onChange({ email: contactEmail });
+      updates.email = contactEmail;
     }
     if (!data.password) {
-      const initialPass = generateSecurePassword(16);
-      onChange({ password: initialPass });
+      updates.password = generateSecurePassword(16);
     }
-  }, [clientSlug, contactName, contactEmail]);
+    if (Object.keys(updates).length > 0) onChange(updates);
+  }, [
+    clientSlug,
+    contactEmail,
+    contactName,
+    data.email,
+    data.nombre,
+    data.password,
+    data.usuario,
+    onChange,
+  ]);
 
   const handleGeneratePassword = () => {
     const newPass = generateSecurePassword(16);

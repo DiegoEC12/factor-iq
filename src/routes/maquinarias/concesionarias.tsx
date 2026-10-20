@@ -17,7 +17,7 @@ import {
 import { evaluaciones as evaluatorEvaluations, localKey } from "@/lib/analytics";
 import { dataset } from "@/lib/mystery/dataset";
 import { fmtPct } from "@/lib/mystery/format";
-import { useFilters } from "@/lib/mystery/filter-context";
+import { useFilters } from "@/lib/mystery/filter-context-store";
 import { cn } from "@/lib/utils";
 import { textAsPoints } from "@/lib/text-format";
 import CompactFilterControls from "@/components/dash/CompactFilterControls";
@@ -162,14 +162,12 @@ function ConcesionariasPage() {
     });
   }, [drilled, indicatorFilter]);
 
-  const heatColumns = useMemo(() => {
-    return availableIndicators(scopes.selection.map((evaluation) => evaluation.id)).map(
-      (indicator) => ({
-        id: indicator.id,
-        label: indicator.nombre,
-      }),
-    );
-  }, [dataVersion, scopes.selection]);
+  const heatColumns = availableIndicators(scopes.selection.map((evaluation) => evaluation.id)).map(
+    (indicator) => ({
+      id: indicator.id,
+      label: indicator.nombre,
+    }),
+  );
 
   const compIds = scopes.competencia.map((e) => e.id);
 

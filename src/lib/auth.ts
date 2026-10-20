@@ -173,7 +173,11 @@ export const loginFn = createServerFn({ method: "POST" })
     } catch (error) {
       const errorCode =
         error && typeof error === "object" && "code" in error ? String(error.code) : "UNKNOWN";
-      console.error("Error consultando usuarios durante el inicio de sesión:", errorCode);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.error("Error consultando usuarios durante el inicio de sesión:", {
+        code: errorCode,
+        message: errorMessage,
+      });
       return {
         ok: false as const,
         message:

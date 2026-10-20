@@ -1,48 +1,14 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  useEffect,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useMemo, useState, useEffect, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { EMPTY_FILTERS, type GlobalFilters } from "./calculations";
 import { dataset, getDatasetVersion, subscribeDataset } from "./dataset";
+import { FilterContext, type FilterContextValue } from "./filter-context-store";
 import {
   CANONICAL_TIPOS_EVALUACION,
   type CanonicalTipoEvaluacion,
   includesTipoEvaluacion,
   normalizeTipoEvaluacion,
 } from "@/lib/tipo-evaluacion";
-
-interface FilterContextValue {
-  filters: GlobalFilters;
-  setFilter: (key: keyof GlobalFilters, value: string[] | null) => void;
-  clearFilters: () => void;
-  hasFilters: boolean;
-  activeLabel: string;
-  options: {
-    periodos: string[];
-    concesionarias: string[];
-    marcas: string[];
-    ubicaciones: string[];
-    tiposEvaluacion: string[];
-    indicadores: { value: string; label: string }[];
-  };
-  selectedIndicadorId: string | null;
-  openIndicador: (id: string) => void;
-  clearIndicador: () => void;
-  selectedEvaluacionId: string | null;
-  openEvaluacion: (id: string) => void;
-  selectedPreguntaId: string | null;
-  openPregunta: (indicadorId: string, preguntaId: string) => void;
-  clearPregunta: () => void;
-  dataVersion: number;
-}
-
-const FilterContext = createContext<FilterContextValue | null>(null);
 
 export function FilterProvider({ children }: { children: ReactNode }) {
   const [filters, setFilters] = useState<GlobalFilters>(EMPTY_FILTERS);
@@ -124,7 +90,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
   const clearFilters = useCallback(() => setFilters(EMPTY_FILTERS), []);
 
-  const options = useMemo(() => {
+  const options = (() => {
     const matchesActive = (
       evaluation: (typeof dataset.evaluations)[number],
       criteria: Partial<GlobalFilters>,
@@ -203,14 +169,7 @@ export function FilterProvider({ children }: { children: ReactNode }) {
       tiposEvaluacion: optionsFor("tipoEvaluacion"),
       indicadores,
     };
-  }, [
-    dataVersion,
-    filters.periodo,
-    filters.concesionaria,
-    filters.marca,
-    filters.ubicacion,
-    filters.tipoEvaluacion,
-  ]);
+  })();
 
   const isNonDefaultTipo =
     filters.tipoEvaluacion !== null &&
@@ -300,10 +259,4 @@ export function FilterProvider({ children }: { children: ReactNode }) {
   };
 
   return <FilterContext.Provider value={value}>{children}</FilterContext.Provider>;
-}
-
-export function useFilters(): FilterContextValue {
-  const ctx = useContext(FilterContext);
-  if (!ctx) throw new Error("useFilters debe usarse dentro de FilterProvider");
-  return ctx;
 }

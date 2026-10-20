@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/mystery/page-header";
 import { EmptyState, GapChip, SectionHeader } from "@/components/mystery/primitives";
 import { DumbbellChart, type DumbbellRow } from "@/components/mystery/charts";
-import { useFilters } from "@/lib/mystery/filter-context";
+import { useFilters } from "@/lib/mystery/filter-context-store";
 import {
   calculateBenchmark,
   calculateIndicatorPerformance,

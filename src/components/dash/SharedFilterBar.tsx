@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { FilterBar } from "./FilterBar";
-import { useFilters } from "@/lib/mystery/filter-context";
+import { useFilters } from "@/lib/mystery/filter-context-store";
 
 /** Adaptador que expone el `FilterBar` del panel ejecutivo usando el `FilterProvider`. */
 export function SharedFilterBar() {

@@ -883,9 +883,8 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
           "SELECT id FROM sucursales WHERE cliente_id = ? AND nombre = ? AND marca = ? AND ubicacion = ? LIMIT 1",
           [clienteId, nom, marca, ub],
         );
-        if (sucRows.length > 0) {
-          sucursalesMap.set(key, sucRows[0].id);
-        }
+        const sucursal = sucRows[0];
+        if (sucursal) sucursalesMap.set(key, sucursal.id);
       }
     }
 
@@ -926,9 +925,8 @@ export const saveNewServiceWithExcelFn = createServerFn({ method: "POST" })
         "SELECT id FROM indicadores WHERE proyecto_id = ? AND tipo_evaluacion = ? AND orden = ? LIMIT 1",
         [proyectoId, item.tipo, item.orden],
       );
-      if (indRows.length > 0) {
-        indicadoresMap.set(indKey, indRows[0].id);
-      }
+      const indicador = indRows[0];
+      if (indicador) indicadoresMap.set(indKey, indicador.id);
     }
 
     // 7. Insertar evaluaciones

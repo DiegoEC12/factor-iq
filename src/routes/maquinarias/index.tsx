@@ -15,7 +15,7 @@ import {
   scoreOf as scoreForEval,
   type Filters,
 } from "@/lib/analytics";
-import { useFilters } from "@/lib/mystery/filter-context";
+import { useFilters } from "@/lib/mystery/filter-context-store";
 
 export const Route = createFileRoute("/maquinarias/")({
   head: () => ({
@@ -38,14 +38,14 @@ export const Route = createFileRoute("/maquinarias/")({
 });
 
 function Dashboard() {
-  const { filters, setFilter, clearFilters, dataVersion } = useFilters();
+  const { filters, setFilter, clearFilters } = useFilters();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedHeatmapIndicator, setSelectedHeatmapIndicator] = useState<{
     n: number;
     nombre: string;
   } | null>(null);
 
-  const evs = useMemo(() => filterEvaluaciones(filters), [filters, dataVersion]);
+  const evs = filterEvaluaciones(filters);
   const benchmarkEvs = useMemo(() => {
     const isAnyEmpty =
       (filters.concesionaria !== null && filters.concesionaria.length === 0) ||

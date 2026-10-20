@@ -196,6 +196,9 @@ export interface AdminStatsPayload {
     razon_social: string | null;
     ruc: string | null;
     rubro: string | null;
+    color_primario: string | null;
+    contacto_nombre: string | null;
+    contacto_email: string | null;
     plan: string;
     estado: string;
     created_at: string;
@@ -261,6 +264,9 @@ export const getAdminStatsFn = createServerFn({ method: "GET" }).handler(
           razon_social: "Maquinarias S.A.",
           ruc: "20100055411",
           rubro: "Automotriz / Maquinaria",
+          color_primario: null,
+          contacto_nombre: null,
+          contacto_email: null,
           plan: "profesional",
           estado: "activo",
           created_at: new Date().toISOString(),
@@ -320,7 +326,7 @@ export const getAdminStatsFn = createServerFn({ method: "GET" }).handler(
       const [tCount] = await query<{ count: number }>("SELECT count(*) AS count FROM tickets");
 
       const clientes = await query<AdminStatsPayload["clientes"][0]>(
-        "SELECT id, slug, nombre_comercial, razon_social, ruc, rubro, plan, estado, created_at FROM clientes ORDER BY id ASC",
+        "SELECT id, slug, nombre_comercial, razon_social, ruc, rubro, color_primario, contacto_nombre, contacto_email, plan, estado, created_at FROM clientes ORDER BY id ASC",
       );
 
       const usuarios = await query<AdminStatsPayload["usuarios"][0]>(

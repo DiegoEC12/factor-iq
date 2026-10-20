@@ -92,6 +92,8 @@ export function AdminSidebar({ user, stats }: AdminSidebarProps) {
       )}
       {navLinks.map((item) => {
         const isActive = item.match(currentPath);
+        const isHighlighted = "highlight" in item && item.highlight;
+        const badge = "badge" in item ? item.badge : undefined;
         const Icon = item.icon;
 
         return (
@@ -104,7 +106,7 @@ export function AdminSidebar({ user, stats }: AdminSidebarProps) {
               "group relative flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-sm font-medium transition-all",
               isActive
                 ? "bg-[#1b2447] text-white shadow-lg shadow-[#1b2447]/15 font-semibold"
-                : item.highlight
+                : isHighlighted
                   ? "bg-[#eef2ff] text-[#1b2447] border border-[#dfe6f7] hover:bg-[#eaf1ff] hover:text-[#1b2447]"
                   : "text-slate-600 hover:bg-[#f4f7fb] hover:text-[#1b2447]",
               compact && "justify-center px-0",
@@ -115,13 +117,13 @@ export function AdminSidebar({ user, stats }: AdminSidebarProps) {
                 "h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110",
                 isActive
                   ? "text-white"
-                  : item.highlight
+                  : isHighlighted
                     ? "text-[#d6452c]"
                     : "text-slate-500 group-hover:text-[#1b2447]",
               )}
             />
             {!compact && <span className="flex-1 truncate tracking-tight">{item.label}</span>}
-            {!compact && item.badge !== undefined && item.badge > 0 && (
+            {!compact && badge !== undefined && badge > 0 && (
               <span
                 className={cn(
                   "rounded-full px-2 py-0.5 text-[10px] font-bold font-mono transition-colors",
@@ -130,10 +132,10 @@ export function AdminSidebar({ user, stats }: AdminSidebarProps) {
                     : "bg-[#eef2f9] text-[#1b2447] border border-[#dfe6f7]",
                 )}
               >
-                {item.badge}
+                {badge}
               </span>
             )}
-            {!compact && item.highlight && !isActive && (
+            {!compact && isHighlighted && !isActive && (
               <span className="rounded-full bg-[#fff2ee] border border-[#f7d9d1] px-1.5 py-0.5 text-[9px] font-bold text-[#d6452c] flex items-center gap-0.5">
                 <Sparkles className="h-2.5 w-2.5" />
                 Nuevo

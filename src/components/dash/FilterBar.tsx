@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MultiFilterSelect } from "./MultiFilterSelect";
-import { useFilters } from "@/lib/mystery/filter-context";
+import { useFilters } from "@/lib/mystery/filter-context-store";
 import { title, type Filters } from "@/lib/analytics";
 
 type Props = {

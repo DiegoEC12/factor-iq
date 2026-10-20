@@ -1,7 +1,7 @@
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMemo } from "react";
-import { useFilters } from "@/lib/mystery/filter-context";
+import { useFilters } from "@/lib/mystery/filter-context-store";
 import { MultiFilterSelect } from "./MultiFilterSelect";
 
 import { CANONICAL_TIPOS_EVALUACION, normalizeTipoEvaluacion } from "@/lib/tipo-evaluacion";
