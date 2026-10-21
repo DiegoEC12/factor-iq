@@ -212,8 +212,14 @@ export function FilterProvider({ children }: { children: ReactNode }) {
     : "Todas las evaluaciones";
 
   const openIndicador = useCallback(
-    (id: string) => {
+    (
+      id: string,
+      context?: Partial<
+        Pick<GlobalFilters, "periodo" | "concesionaria" | "marca" | "ubicacion" | "tipoEvaluacion">
+      >,
+    ) => {
       setSelectedIndicadorId(id);
+      setFilters((previous) => ({ ...previous, ...context, indicador: [id] }));
       void navigate({ to: "/maquinarias/indicadores" });
     },
     [navigate],

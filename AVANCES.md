@@ -226,6 +226,39 @@ Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproduc
   - Ventas: 44 evaluaciones (promedio: **51.47%**).
 - [x] Validado con `npx tsc --noEmit` y `npm run build` sin errores.
 
+## Módulo de Cuestionarios (Modificar y Cuestionarios Realizados)
+
+- [x] **Submódulo Cuestionarios Realizados (`/maquinarias/cuestionarios/realizadas`)**:
+  - **Corrección de visualización para Nuevos**: Se corrigió el loader y query de lectura en `questionnaire-data.ts`, permitiendo visualizar correctamente las respuestas de los 3 canales: **Nuevos** (4 encuestas), **Post Venta** (4 encuestas) y **Semi Nuevos** (2 encuestas).
+  - **Filtro y búsqueda**: Se integró búsqueda rápida por correo, distrito, sede o puntaje NPS en la tabla de encuestas realizadas.
+  - **Vista detallada de respuesta individual (`$respuestaId`)**: Mapeo completo de datos de identidad (correo, edad, sexo, distrito de residencia, distrito laboral, sede, motivo de visita) correlacionados con cada respuesta, preservando la estructura por bloques temáticos.
+- [x] **Submódulo Modificar Cuestionarios (`/maquinarias/cuestionarios/modificar`)**:
+  - **Alineación con el cuestionario real**: Se sincronizaron las preguntas, tipos de respuesta (`select`, `text`, `checks`, `scale`, `textarea`) y opciones con las encuestas operativas.
+  - **Opciones de combobox restauradas**: Campos como **Edad** ahora reflejan sus opciones (`18-25`, `26-35`, `36-45`, `46-60`, `61 a más`) en lugar de opciones vacías, aplicable a Nuevos, Post Venta y Semi Nuevos.
+  - **Estructura por bloques de Postventa**: Implementado ordenamiento canónico (`POSTVENTA_TEMPLATE_ORDER`) para que las 30 preguntas de Postventa agrupen correctamente los bloques de información general, instalaciones, atención asesor, servicio/entrega y experiencia.
+- [x] **Migración y Limpieza de Base de Datos (`database/migrations/003_fix_questionnaire_data.sql`)**:
+  - Eliminadas las preguntas 28-30 erróneamente insertadas en Nuevos y Seminuevos (exclusivas del flujo de Posventa).
+  - Normalizados los tipos de respuesta y opciones en formato JSON para las 27 preguntas de Nuevos, 30 de Postventa y 27 de Seminuevos.
+  - Script idempotente y probado en la base local `factoriq`.
+- [x] **Cálculo de CSAT Promedio y NPS en Dashboard (`/maquinarias/cuestionarios`)**:
+  - **Causa detectada**: El query SQL en `questionnaire-data.ts` filtraba códigos heredados inexistentes (`B4_P3` y `B4_P10`) y la función retornaba `null` para los KPIs globales.
+  - **Corrección**: Se actualizaron las consultas para relacionar por orden de pregunta (`orden = 23` para CSAT de escala 1 a 5 y `orden = 26` para NPS de escala 0 a 10). Se integró la consulta agregada global (`csatPromedio` y `nps`) y el detalle por tarjeta de cuestionario.
+  - **Visualización verificada**: Dashboard general muestra **CSAT Promedio: 4.5/5** y **NPS Promedio: 8.5/10** (sobre 10 personas evaluadas).
+- [x] **Persistencia en tiempo real de nuevas encuestas**:
+  - Implementada la server function `submitQuestionnaireResponseFn` en `src/lib/mystery/questionnaire-data.ts`.
+  - Guarda atómicamente la cabecera en `cuestionario_respuestas` (respondente, sede, motivo, distritos, timestamp) y todos los ítems de respuesta en `cuestionario_respuesta_items` (texto, valor numérico para CSAT/NPS, arrays en JSON).
+  - El botón "Finalizar" de la encuesta (`/maquinarias/cuestionarios/$tipo` y `/encuesta/$token`) ahora envía y confirma la inserción real en MySQL.
+  - **Prueba End-to-End completada**: Se llenó y envió una encuesta real de prueba (`test.evaluacion@factoriq.test`), verificando que:
+    1. Las métricas del dashboard se actualizaron inmediatamente: **Personas evaluadas subió de 10 a 11**, **CSAT promedio se recalculó a 4.55/5** y **NPS promedio a 8.64/10**.
+    2. La nueva respuesta apareció al instante en `/maquinarias/cuestionarios/realizadas/nuevos` con su NPS `10.00`.
+    3. La vista detallada (`/maquinarias/cuestionarios/realizadas/nuevos/97`) carga y presenta todas las respuestas completas por bloques.
+- [x] **Navegación y Tipado Estricto**:
+  - Enlaces de `app-sidebar.tsx` adaptados con parámetros tipados para TanStack Router (`params={{ tipo: "nuevos" }}`).
+  - Resolución completa de requisitos TypeScript estrictos (`exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noPropertyAccessFromIndexSignature`).
+  - Validación de compilación: `npx tsc --noEmit` **0 errores**, `npm run build` **exitoso**.
+  - Verificación visual y funcional completada mediante navegador en sesión `admMaqui`.
+
+
 ### Sugerencias para Producción en GoDaddy
 
 1. **Variables de Entorno en cPanel**:

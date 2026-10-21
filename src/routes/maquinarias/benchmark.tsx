@@ -64,6 +64,39 @@ function BenchmarkPage() {
     useState<BenchmarkFilters>(EMPTY_BENCHMARK_FILTERS);
   const [competenciaFilters, setCompetenciaFilters] =
     useState<CompetenciaFilters>(EMPTY_COMPETENCIA_FILTERS);
+  const maquinariasConcesionarias = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          dataset.evaluations
+            .filter(
+              (evaluation) =>
+                evaluation.tipoEmpresa === "MAQUINARIAS" &&
+                (benchmarkFilters.marca === null ||
+                  benchmarkFilters.marca.includes(evaluation.marca)) &&
+                (benchmarkFilters.ubicacion === null ||
+                  benchmarkFilters.ubicacion.includes(evaluation.ubicacion)) &&
+                (benchmarkFilters.tipoEvaluacion === null ||
+                  includesTipoEvaluacion(
+                    benchmarkFilters.tipoEvaluacion,
+                    evaluation.tipoEvaluacion,
+                  )),
+            )
+            .map((evaluation) => evaluation.concesionaria),
+        ),
+      ),
+    [benchmarkFilters],
+  );
+  const openBenchmarkIndicator = useCallback(
+    (id: string) =>
+      openIndicador(id, {
+        concesionaria: maquinariasConcesionarias,
+        marca: benchmarkFilters.marca,
+        ubicacion: benchmarkFilters.ubicacion,
+        tipoEvaluacion: benchmarkFilters.tipoEvaluacion,
+      }),
+    [benchmarkFilters, maquinariasConcesionarias, openIndicador],
+  );
 
   void dataVersion;
   const maquinariasBase = dataset.evaluations.filter(
@@ -605,7 +638,7 @@ function BenchmarkPage() {
                 No hay datos para el benchmark por indicador con los filtros actuales.
               </p>
             ) : (
-              <DumbbellChart rows={rows} onSelect={openIndicador} />
+              <DumbbellChart rows={rows} onSelect={openBenchmarkIndicator} />
             )}
           </section>
 
@@ -616,14 +649,14 @@ function BenchmarkPage() {
               description="Top 5 brechas positivas"
               tone="success"
               rows={positivas}
-              onSelect={openIndicador}
+              onSelect={openBenchmarkIndicator}
             />
             <GapList
               title="Dónde debemos cerrar brechas"
               description="Top 5 indicadores donde la competencia supera a Maquinarias"
               tone="danger"
               rows={negativas}
-              onSelect={openIndicador}
+              onSelect={openBenchmarkIndicator}
             />
           </section>
         </div>

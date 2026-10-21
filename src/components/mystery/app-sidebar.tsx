@@ -4,6 +4,10 @@ import {
   Scale,
   Building2,
   ListChecks,
+  ClipboardList,
+  Settings2,
+  ChevronDown,
+  ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
   Menu,
@@ -11,7 +15,7 @@ import {
   LogOut,
   Loader2,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logoAsset from "@/assets/logo-maquinarias.png.asset.json";
 import { cn } from "@/lib/utils";
 import { logoutFn } from "@/lib/auth";
@@ -21,14 +25,118 @@ const NAV_ITEMS = [
   { to: "/maquinarias/benchmark", label: "Benchmark", icon: Scale, exact: false },
   { to: "/maquinarias/concesionarias", label: "Concesionarias", icon: Building2, exact: false },
   { to: "/maquinarias/indicadores", label: "Indicadores", icon: ListChecks, exact: false },
+  { to: "/maquinarias/cuestionarios", label: "Cuestionarios", icon: ClipboardList, exact: false },
 ] as const;
 
 function NavLinks({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [questionnairesOpen, setQuestionnairesOpen] = useState(
+    pathname.startsWith("/maquinarias/cuestionarios/"),
+  );
+  useEffect(() => {
+    if (!pathname.startsWith("/maquinarias/cuestionarios")) {
+      setQuestionnairesOpen(false);
+    } else if (
+      pathname === "/maquinarias/cuestionarios/modificar" ||
+      pathname.startsWith("/maquinarias/cuestionarios/realizadas")
+    ) {
+      setQuestionnairesOpen(true);
+    }
+  }, [pathname]);
   return (
     <nav className="flex flex-col gap-1 px-3">
       {NAV_ITEMS.map((item) => {
         const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
+        if (item.to === "/maquinarias/cuestionarios" && !collapsed) {
+          const questionnaireActive = pathname === item.to;
+          return (
+            <div key={item.to}>
+              <div className="flex items-center">
+                <Link
+                  to={item.to}
+                  onClick={() => {
+                    setQuestionnairesOpen((value) =>
+                      pathname === "/maquinarias/cuestionarios/modificar" ? true : !value,
+                    );
+                    onNavigate?.();
+                  }}
+                  className={cn(
+                    "transition-ui group flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium",
+                    questionnaireActive
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground shadow-[inset_2px_0_0_0_var(--color-sidebar-primary)]"
+                      : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                  )}
+                >
+                  <ClipboardList
+                    className={cn(
+                      "h-[18px] w-[18px] shrink-0",
+                      questionnaireActive ? "text-sidebar-primary" : "text-sidebar-foreground/50",
+                    )}
+                  />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setQuestionnairesOpen((value) => !value)}
+                  className="rounded-md p-2 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  aria-label={questionnairesOpen ? "Ocultar submódulos" : "Mostrar submódulos"}
+                  aria-expanded={questionnairesOpen}
+                >
+                  {questionnairesOpen ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {questionnairesOpen && (
+                <>
+                  <Link
+                    to="/maquinarias/cuestionarios/modificar"
+                    onClick={onNavigate}
+                    className={cn(
+                      "ml-9 mt-1 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium",
+                      pathname === "/maquinarias/cuestionarios/modificar"
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                    )}
+                  >
+                    <Settings2
+                      className={cn(
+                        "h-3.5 w-3.5",
+                        pathname === "/maquinarias/cuestionarios/modificar"
+                          ? "text-sidebar-primary"
+                          : "text-sidebar-foreground/50",
+                      )}
+                    />
+                    Modificar cuestionario
+                  </Link>
+                  <Link
+                    to="/maquinarias/cuestionarios/realizadas/$tipo"
+                    params={{ tipo: "nuevos" }}
+                    onClick={onNavigate}
+                    className={cn(
+                      "ml-9 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium",
+                      pathname.startsWith("/maquinarias/cuestionarios/realizadas")
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+                    )}
+                  >
+                    <ClipboardList
+                      className={cn(
+                        "h-3.5 w-3.5",
+                        pathname.startsWith("/maquinarias/cuestionarios/realizadas")
+                          ? "text-sidebar-primary"
+                          : "text-sidebar-foreground/50",
+                      )}
+                    />
+                    Cuestionarios realizados
+                  </Link>
+                </>
+              )}
+            </div>
+          );
+        }
         return (
           <Link
             key={item.to}

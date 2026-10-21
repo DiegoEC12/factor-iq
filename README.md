@@ -1,140 +1,358 @@
-# Factor IQ — Plataforma de Insights
+# Factor IQ — Plataforma Integral de Mystery Shopping y Encuestas Virtuales
 
-Factor IQ reúne el portal ejecutivo de Mystery Shopping de Maquinarias y un panel central para administrar la plataforma multi-cliente.
+Plataforma empresarial de inteligencia operativa y analítica de experiencia del cliente (**CX**) desarrollada para **Maquinarias** y arquitectada como un sistema **multi-tenant** de alta escalabilidad.
 
-## Funcionalidades
+Integra la web institucional pública de **Factor IQ**, el portal ejecutivo de **Mystery Shopping**, el módulo operativo de **Cuestionarios / Encuestas Virtuales en Tiempo Real** y el **Panel SuperAdmin** para la gestión de clientes, usuarios, auditoría y base de datos.
 
-- Resumen Ejecutivo con KPIs, benchmark, ranking, mapa de calor y preguntas críticas.
-- Módulo Indicadores con los 12 indicadores, porcentajes, barras de progreso, locales, fortalezas y oportunidades.
-- Módulo Benchmark para comparar Maquinarias contra la competencia.
-- Módulo Concesionarias con ranking, mapa por indicador y detalle por local.
-- Filtros globales con selección múltiple mediante checkboxes:
-  - Concesionaria
-  - Marca
-  - Ubicación
-  - Indicador
-  - Tipo de evaluación: Venta, Callcenter, Seminuevos y Posventa
-- Estado inicial de filtros en `Todas`, mostrando el universo completo.
-- Corrección del filtro de tipo de evaluación: no se fuerza `Ventas` ni un único valor al cargar; el selector sigue siendo multi-select y conserva todas las opciones seleccionadas por defecto hasta que el usuario las modifique.
-- Deduplicación de locales por la combinación `concesionaria + marca + ubicación`.
-- Importación de archivos `.xlsx` y `.xls` desde la interfaz.
-- Restauración del dataset original después de una importación.
-- Panel SuperAdmin protegido en `/admin`, con una interfaz alineada al sistema visual claro del portal Maquinarias y los acentos institucionales azul marino y coral de Factor IQ.
-- Ajuste reciente del tema light administrativo para que el panel use la paleta corporativa de Factor IQ, manteniendo la estructura de navegación y los módulos operativos con un estilo más claro y coherente con la web pública.
-- Revisión final de formularios, drawers y wizard del panel: fondo blanco, textos oscuros y bordes claros para garantizar legibilidad sin perder la identidad de marca del módulo administrativo.
-- Gestión de clientes, usuarios y accesos, bitácora de auditoría y estado de la base de datos.
+---
 
-## Panel de administración
+## 📑 Tabla de Contenidos
 
-La ruta `/admin` es exclusiva para cuentas con rol `superadmin`. Organiza la operación en cuatro frentes:
+1. [Arquitectura del Sistema](#-arquitectura-del-sistema)
+2. [Módulos de la Plataforma](#-módulos-de-la-plataforma)
+   - [A. Resumen Ejecutivo](#a-resumen-ejecutivo)
+   - [B. Indicadores](#b-indicadores)
+   - [C. Benchmark](#c-benchmark)
+   - [D. Concesionarias](#d-concesionarias)
+   - [E. Cuestionarios y Encuestas Virtuales (Explicación y Fórmulas)](#e-cuestionarios-y-encuestas-virtuales)
+   - [F. Panel SuperAdmin](#f-panel-superadmin)
+3. [Fórmulas y Métodos de Cálculo](#-fórmulas-y-métodos-de-cálculo)
+4. [Estructura y Esquema de Base de Datos MySQL](#-estructura-y-esquema-de-base-de-datos-mysql)
+5. [Filtros Globales y Canales de Evaluación](#-filtros-globales-y-canales-de-evaluación)
+6. [Importación Segura de Datos (Excel)](#-importación-segura-de-datos-excel)
+7. [Pila Tecnológica](#-pila-tecnológica)
+8. [Instalación y Puesta en Marcha Local](#-instalación-y-puesta-en-marcha-local)
+9. [Guía de Despliegue en Producción (GoDaddy y Vercel)](#-guía-de-despliegue-en-producción)
 
-- **Clientes:** empresas, portales, plan y estado de cuenta.
-- **Usuarios y accesos:** cuentas, roles, credenciales, último acceso y bloqueo/activación.
-- **Bitácora:** trazabilidad de inicios de sesión y cambios administrativos.
-- **Salud del sistema:** conectividad MySQL, conteo de registros y archivos de esquema/seed.
+---
 
-La siguiente evolución sugerida, antes de añadir nuevos módulos, es incorporar filtros por fecha y cliente en la bitácora, métricas temporales de uso (usuarios activos, inicios de sesión y evaluaciones) y alertas configurables para fallas de conexión o cuentas suspendidas. Así se mantiene el panel centrado en operación y no solo en mantenimiento técnico.
+## 🏛 Arquitectura del Sistema
 
-## Operación central: proyectos y soporte
-
-El panel incorpora los módulos **Proyectos e importación** y **Soporte y tickets**. El primero registra estudios por empresa y valida archivos Excel mediante las hojas y encabezados requeridos; la carga validada se mantiene actualmente en la sesión del navegador. El segundo permite crear tickets y cambiar su estado entre `abierto`, `en_analisis` y `resuelto`.
-
-Para una instalación MySQL que ya existe, ejecutar una sola vez [database/migrations/002_admin_operaciones.sql](database/migrations/002_admin_operaciones.sql). La migración es incremental: amplía los roles y añade tickets, comentarios y la base de contenidos web sin eliminar información existente. Las instalaciones nuevas ya reciben esas tablas desde [database/schema.sql](database/schema.sql).
-
-El esquema de CMS está incluido en la base de datos, pero aún no se enlaza a los bloques públicos: antes de publicar ediciones desde el panel debe definirse el flujo editorial y qué secciones de la landing quedan administrables.
-
-## Datos
-
-El dataset base está en [src/data/mystery-shopping-imported.json](src/data/mystery-shopping-imported.json). El Excel de origen actual es `Base_Mystery_Shopping_Consolidada (8).xlsx` y contiene:
-
-- 42 evaluaciones.
-- 434 filas de indicadores.
-- 2494 preguntas.
-- 9756 opciones de respuesta.
-- 12 indicadores únicos.
-
-El snapshot normalizado se genera en [src/data/mystery-shopping-imported.json](src/data/mystery-shopping-imported.json). Para regenerarlo después de reemplazar el Excel:
-
-```bash
-npm run data:excel
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        FACTOR IQ (Multi-Tenant)                        │
+└────────────────────────────────────┬───────────────────────────────────┘
+                                     │
+         ┌───────────────────────────┼───────────────────────────┐
+         ▼                           ▼                           ▼
+┌──────────────────┐       ┌──────────────────┐        ┌──────────────────┐
+│   Web Pública    │       │ Portal Cliente   │        │ Panel SuperAdmin │
+│   (Factor IQ)    │       │  (/maquinarias)  │        │     (/admin)     │
+│ · Landing        │       │ · Resumen Exec.  │        │ · CRUD Clientes  │
+│ · Nosotros       │       │ · Indicadores    │        │ · Usuarios / Rol │
+│ · Servicios      │       │ · Benchmark      │        │ · Salud MySQL    │
+│ · Contacto       │       │ · Concesionarias │        │ · Importador XLS │
+│ · Acceso Clientes│       │ · Cuestionarios  │        │ · Auditoría      │
+└──────────────────┘       └─────────┬────────┘        └──────────────────┘
+                                     │
+         ┌───────────────────────────┴───────────────────────────┐
+         ▼                                                       ▼
+┌────────────────────────────────────┐         ┌───────────────────────────────────┐
+│       Mystery Shopping (Audit)     │         │   Cuestionarios / Encuestas       │
+│ · Evaluaciones en punto de venta   │         │ · Nuevos, Post Venta, Seminuevos  │
+│ · 12 indicadores ponderados        │         │ · CSAT, NPS y métricas en vivo    │
+│ · Comparativa de concesionarias    │         │ · Modificador y Realizadas        │
+└────────────────────────────────────┘         └───────────────────────────────────┘
+                                     │
+                                     ▼
+                  ┌─────────────────────────────────────┐
+                  │    MySQL Database (Base: factoriq)  │
+                  └─────────────────────────────────────┘
 ```
 
-El script [scripts/generate-imported-json.cjs](scripts/generate-imported-json.cjs) transforma las hojas `Evaluaciones`, `Indicadores` y `Preguntas` al formato lógico consumido por la aplicación. La hoja `Opciones` se conserva en el Excel para futuras necesidades de auditoría y detalle.
+---
 
-## Importación desde la aplicación
+## 🚀 Módulos de la Plataforma
 
-La importación operativa se realiza desde **Administración → Importación segura** (`/admin/importar`). La selección del Excel solo genera una vista previa: no altera MySQL, el dashboard ni `localStorage`.
+### A. Resumen Ejecutivo
+Vista macro para directores y gerentes que consolida el estado global de la red:
+* **KPIs Principales**: Cumplimiento general porcentual, número de evaluaciones ejecutadas y comparación de canal.
+* **Semáforo Institucional**:
+  * 🟢 **Óptimo**: $\ge 85\%$
+  * 🟡 **Observación**: $70\% - 84\%$
+  * 🔴 **Crítico**: $< 70\%$
+* **Benchmark Rápido**: Comparativo directo contra la competencia del sector automotriz.
+* **Mapa de Calor (Heatmap)**: Matriz de calor cruzando concesionarias vs. indicadores evaluados.
+* **Hallazgos y Preguntas Críticas**: Desglose de preguntas clave con menor cumplimiento para planes de acción inmediata.
 
-El flujo verifica las hojas `Evaluaciones`, `Indicadores` y `Preguntas`, muestra errores bloqueantes, advertencias, tipos de evaluación, asesor, fecha, duplicados dentro del archivo y códigos ya existentes en MySQL. Solo se habilita **Guardar nuevas evaluaciones en MySQL** cuando no hay errores y el esquema del proyecto Maquinarias (`id = 1`) está verificado.
+---
 
-El guardado es transaccional: inserta exclusivamente códigos nuevos y sus relaciones. Los códigos existentes se omiten por completo, sin actualizar evaluaciones, indicadores ni respuestas. MySQL es la fuente única de datos del dashboard; si no está disponible, el portal muestra un estado explícito y no usa JSON como respaldo operativo.
+### B. Indicadores
+Módulo analítico que desglosa los **12 indicadores clave** de la experiencia en tienda:
+1. Instalaciones y Ambiente General
+2. Protocolo de atención
+3. Identificación de necesidades
+4. Asesoría y demostración de producto
+5. Prueba de manejo (Test Drive)
+6. Presentación de cotización
+7. Financiamiento y alternativas de pago
+8. Manejo de objeciones y alternativas
+9. Cierre de venta o acuerdo comercial
+10. Despedida y seguimiento
+11. Imagen y presencia del asesor
+12. Tiempo y agilidad en sala de venta
 
-El JSON incluido en el repositorio se conserva como referencia de desarrollo y no se utiliza como respaldo silencioso de las consultas operativas.
+* **Interacción**: Al seleccionar un indicador, se despliega el listado de locales con su respectiva barra de progreso y porcentaje, más un panel lateral que detalla las **fortalezas** y **puntos de mejora** específicos.
 
-El parser aislado de la vista previa vive en [src/lib/safe-excel-import.ts](src/lib/safe-excel-import.ts) y el guardado protegido en [src/lib/admin.ts](src/lib/admin.ts).
+---
 
-## Desarrollo local
+### C. Benchmark
+Comparativa competitiva del sector:
+* Contrapone los puntajes de **Maquinarias** contra marcas competidoras líderes evaluadas bajo los mismos estándares metodológicos.
+* Filtros por canal: Ventas, Seminuevos, Posventa y Call Center.
 
-Requisitos: Node.js y npm.
+---
 
-```bash
-npm install
-npm run dev
+### D. Concesionarias
+Módulo de rendimiento por sede y sucursal:
+* **Ranking de Concesionarias**: Ordenamiento de mayor a menor desempeño.
+* **Drill-down analítico**: Rendimiento de cada local en los 12 indicadores.
+* **Historial de evaluaciones**: Consultas específicas por fecha, asesor evaluado y puntaje individual.
+
+---
+
+### E. Cuestionarios y Encuestas Virtuales
+
+Módulo interactivo y transaccional diseñado para levantar y medir la satisfacción directa del cliente en 3 canales clave: **Vehículos Nuevos**, **Post Venta (Taller)** y **Semi Nuevos**.
+
+```
+/maquinarias/cuestionarios
+├── [Dashboard Principal] ── KPIs globales (Evaluadas, Completas, CSAT, NPS) y tarjetas por segmento
+├── /modificar             ── Editor visual de preguntas, tipos de respuesta y opciones JSON
+├── /realizadas/$tipo      ── Listado con buscador en tiempo real de encuestas completadas
+│   └── /$respuestaId      ── Vista detallada e individual de la encuesta contestada
+└── /$tipo                 ── Formulario de llenado interactivo por bloques (también en /encuesta/$token)
 ```
 
-El servidor de desarrollo queda disponible en la URL que indique Vite, normalmente `http://localhost:5173`.
+#### Submódulos y Capacidades:
 
-## Reset de datos y seed MySQL
+1. **Dashboard General (`/maquinarias/cuestionarios`)**:
+   * **Tarjetas superiores (KPIs)**:
+     * *Personas evaluadas*: Conteo acumulado de encuestados únicos.
+     * *Respuestas completas*: Encuestas en estado `completa`.
+     * *CSAT Promedio*: Promedio ponderado sobre 5 puntos (`X.X/5`).
+     * *NPS Promedio*: Promedio de recomendación sobre 10 puntos (`X.X/10`).
+   * **Tarjetas por Cuestionario**:
+     * Muestra las encuestas completadas, el CSAT específico y el NPS del canal (Nuevos, Post Venta, Semi Nuevos).
+     * Enlaces directos a la encuesta interna o enlace público para clientes (`/encuesta/mqi-...`).
+   * **Distribución por Sede**: Gráfico de frecuencias por local de atención.
 
-Cuando se vuelve a cargar `database/seed_maquinarias.sql`, hay que respetar el orden de dependencias de las tablas para no romper las claves foráneas.
+2. **Editor de Cuestionarios (`/maquinarias/cuestionarios/modificar`)**:
+   * Permite activar/desactivar preguntas, definir obligatoriedad y modificar textos y opciones de respuesta.
+   * Admite tipos: `select` (combo box), `scale` (escala Likert o NPS), `checks` (selección múltiple), `text` (texto corto) y `textarea` (comentarios libres).
+   * **Versionado atómico**: Al publicar, se incrementa la versión en base de datos (`version + 1`) manteniendo inalteradas las respuestas históricas previamente registradas.
 
-- Las tablas hijas se limpian antes que las tablas padre.
-- No se recomienda `TRUNCATE TABLE` en este esquema porque `evaluaciones` tiene dependencias en `evaluacion_indicadores` y `evaluacion_preguntas`.
-- El script del seed usa `DELETE` en orden correcto y luego reinicia los `AUTO_INCREMENT`.
+3. **Cuestionarios Realizados (`/maquinarias/cuestionarios/realizadas/$tipo`)**:
+   * Tabla con buscador reactivo por correo, edad, distrito, sede o NPS.
+   * Botón de inspección individual (`/realizadas/$tipo/$respuestaId`) que reconstruye el cuestionario completo con todas las alternativas marcadas por el cliente.
 
-```sql
-SET FOREIGN_KEY_CHECKS = 0;
-DELETE FROM evaluacion_preguntas;
-DELETE FROM evaluacion_indicadores;
-DELETE FROM evaluaciones;
-DELETE FROM indicadores;
-DELETE FROM sucursales;
-DELETE FROM proyectos;
-DELETE FROM usuarios;
-DELETE FROM clientes;
-SET FOREIGN_KEY_CHECKS = 1;
+4. **Llenado y Persistencia en Tiempo Real**:
+   * Formulario por pasos con barra de progreso y validaciones obligatorias.
+   * Al pulsar **Finalizar**, la Server Function `submitQuestionnaireResponseFn` almacena en MySQL en una sola transacción la cabecera en `cuestionario_respuestas` y el detalle en `cuestionario_respuesta_items`.
+   * **Actualización instantánea**: Invalida el caché de TanStack Router (`router.invalidate()`), refrescando automáticamente el dashboard y la lista de respuestas sin recargar la página (sin necesidad de F5).
+
+---
+
+### F. Panel SuperAdmin (`/admin`)
+
+Entorno exclusivo para el rol `superadmin`:
+* **Salud del Sistema**: Conexión a MySQL, latencia de base de datos y volumen de registros.
+* **Directorio de Clientes**: Gestión de empresas, slugs, proyectos asociados y estado de cuenta.
+* **Directorio de Usuarios**: Altas, bajas, asignación de roles (`superadmin`, `cliente_admin`, `viewer`) y hashing seguro de contraseñas con `bcryptjs`.
+* **Bitácora de Auditoría**: Trazabilidad de accesos, inicios de sesión y modificaciones de datos.
+* **Importación Segura**: Carga controlada de archivos Excel.
+
+---
+
+## 📊 Fórmulas y Métodos de Cálculo
+
+### 1. CSAT (Customer Satisfaction Score)
+
+El indicador de satisfacción se mide en la pregunta:
+> *"Evaluación general de tu experiencia reciente"* (escala de 1 a 5 estrellas/puntos).
+
+* **CSAT por Cuestionario / Canal**:
+  $$\text{CSAT}_{\text{canal}} = \frac{\sum \text{Puntajes CSAT en el canal}}{\text{Total de encuestas completadas en el canal}}$$
+
+* **CSAT Promedio Global (Dashboard Superior)**:
+  Se calcula mediante **promedio general ponderado por encuestado**, garantizando que cada cliente tenga el mismo peso:
+  $$\text{CSAT}_{\text{global}} = \frac{\sum_{i=1}^{N} \text{Puntaje CSAT}_i}{N}$$
+  *(donde $N$ es el total consolidado de clientes evaluados en todos los canales).*
+
+---
+
+### 2. NPS (Net Promoter Score)
+
+El indicador de recomendación se mide en la pregunta:
+> *"¿Qué tan probable es que recomiendes Maquinarias a un familiar o colega?"* (escala de 0 a 10).
+
+* **Calificación Promedio de Recomendación (Score /10)**:
+  $$\overline{\text{NPS}} = \frac{\sum_{i=1}^{N} \text{Puntaje NPS}_i}{N}$$
+
+* **Net Promoter Score Metodológico Oficial (-100 a +100)**:
+  Los clientes se clasifican según su puntuación:
+  * **Promotores**: Calificaciones de `9` y `10`.
+  * **Pasivos**: Calificaciones de `7` y `8`.
+  * **Detractores**: Calificaciones de `0` a `6`.
+
+  $$\text{NPS (\%)} = \% \text{ Promotores} - \% \text{ Detractores} = \left(\frac{P - D}{N}\right) \times 100$$
+
+---
+
+### 3. Mystery Shopping — Cumplimiento de Indicadores
+
+Para las evaluaciones presenciales de Mystery Shopping:
+* Cada pregunta tiene un puntaje obtenido y un puntaje máximo.
+* El cumplimiento del indicador es la razón entre puntos obtenidos y puntos posibles:
+  $$\text{Cumplimiento}_{\text{indicador}} = \frac{\sum \text{Puntos Obtenidos}}{\sum \text{Puntos Máximos}}$$
+* La nota global de una evaluación aplica la ponderación establecida para cada indicador según el canal (Ventas, Postventa, Seminuevos o Call Center):
+  $$\text{Nota Final} = \sum_{k=1}^{M} \left( \text{Cumplimiento}_k \times \text{Peso}_k \right)$$
+
+---
+
+## 🗄 Estructura y Esquema de Base de Datos MySQL
+
+Base de datos relacional: **`factoriq`** (UTF-8 `utf8mb4_0900_ai_ci`).
+
+```
+clientes (id, nombre, slug, estado)
+ ├── usuarios (id, cliente_id, usuario, email, password_hash, rol)
+ ├── proyectos (id, cliente_id, nombre, anio, estado)
+ │    ├── sucursales (id, proyecto_id, concesionaria, marca, ubicacion, zona)
+ │    ├── indicadores (id, proyecto_id, tipo_evaluacion, codigo, nombre, peso, orden)
+ │    └── evaluaciones (id, proyecto_id, sucursal_id, codigo, tipo_evaluacion, fecha_evaluacion, puntaje, cumplimiento)
+ │         ├── evaluacion_indicadores (evaluacion_id, indicador_id, puntaje, cumplimiento)
+ │         └── evaluacion_preguntas (evaluacion_id, pregunta_id, respuesta, puntaje)
+ └── cuestionarios (id, cliente_id, codigo, nombre, version, estado)
+      ├── cuestionario_preguntas (id, cuestionario_id, codigo, orden, texto, tipo, tipo_respuesta, opciones)
+      └── cuestionario_respuestas (id, cuestionario_id, respondente_email, edad, sexo, distrito_residencia, sede_atencion, estado)
+           └── cuestionario_respuesta_items (id, respuesta_id, pregunta_id, valor_texto, valor_numero, valor_json)
 ```
 
-Ejecuta el esquema y después el seed así:
+### Scripts y Migraciones en `database/`:
+* [`database/schema.sql`](database/schema.sql): Estructura base completa con restricciones e índices.
+* [`database/seed_maquinarias.sql`](database/seed_maquinarias.sql): Carga de datos reales de Mystery Shopping (42 evaluaciones, 29 sucursales, 19 indicadores).
+* [`database/migration_cuestionarios.sql`](database/migration_cuestionarios.sql): Tablas del módulo de cuestionarios.
+* [`database/migrations/003_fix_questionnaire_data.sql`](database/migrations/003_fix_questionnaire_data.sql): Normalización de 27 preguntas de Nuevos, 30 de Postventa y 27 de Seminuevos, con opciones JSON y eliminación de preguntas cruzadas.
+
+---
+
+## 🔍 Filtros Globales y Canales de Evaluación
+
+El sistema cuenta con un motor de filtrado multi-select y persistente:
+* **Canales Canónicos**: `Ventas`, `Posventa`, `Seminuevos` y `Call Center`.
+* **Selectores**: Concesionaria, Marca, Ubicación, Indicador y Canal.
+* **Comportamiento**:
+  * Estado por defecto en `Todas` las opciones seleccionadas (visión 100% de la red).
+  * Menús compactos con búsqueda interna y contador de selecciones activas.
+  * Sincronización reactiva entre filtros de cabecera y el dataset activo en memoria.
+
+---
+
+## 📥 Importación Segura de Datos (Excel)
+
+Ubicación: **/admin/importar**
+1. **Previsualización Aislada**: El archivo `.xlsx` se procesa 100% en el navegador (no escribe en disco ni base de datos).
+2. **Validación Integral**: Verifica hojas obligatorias (`Evaluaciones`, `Indicadores`, `Preguntas`), tipos de datos, rangos porcentuales y duplicados de códigos.
+3. **Control de Duplicados contra MySQL**: Cruza los códigos del archivo contra la base `factoriq` e identifica cuáles son nuevos y cuáles ya existen.
+4. **Inserción Transaccional**: Solo crea evaluaciones nuevas e indicadores requeridos; ante cualquier inconsistencia revierte la transacción íntegra (`ROLLBACK`).
+
+---
+
+## 💻 Pila Tecnológica
+
+* **Framework Full-Stack**: [TanStack Start](https://tanstack.com/start) (React 19 + Vite)
+* **Enrutamiento**: [TanStack Router](https://tanstack.com/router) (Rutas basadas en archivos con tipado estricto)
+* **Estilos**: [Tailwind CSS 4](https://tailwindcss.com) y diseño responsive mobile-first
+* **Componentes UI**: [Radix UI Primitives](https://www.radix-ui.com/) y [Lucide Icons](https://lucide.dev/)
+* **Gráficos**: [Recharts](https://recharts.org/)
+* **Base de Datos**: MySQL 8.x con driver `mysql2/promise` y conexión por Connection Pool
+* **Seguridad y Criptografía**: `bcryptjs` para contraseñas y cookies firmadas `HttpOnly` para sesión
+* **Motor de Servidor SSR**: Nitro (`.output/server/index.mjs`)
+
+---
+
+## 🛠 Instalación y Puesta en Marcha Local
+
+### Requisitos Previos:
+* Node.js $\ge 20$
+* MySQL $\ge 8.0$ (o WAMP / XAMPP)
+
+### Pasos:
+
+1. **Clonar e instalar dependencias**:
+   ```bash
+   git clone <repo-url>
+   cd factor-iq
+   npm install
+   ```
+
+2. **Configurar variables de entorno (`.env`)**:
+   Copia el archivo de ejemplo:
+   ```bash
+   cp .env.example .env
+   ```
+   Configura las credenciales:
+   ```env
+   DB_HOST=localhost
+   DB_PORT=3306
+   DB_NAME=factoriq
+   DB_USER=root
+   DB_PASSWORD=
+   SESSION_SECRET=clave_secreta_de_al_menos_32_caracteres_aleatorios
+   ```
+
+3. **Cargar la base de datos**:
+   En tu cliente MySQL o phpMyAdmin, ejecuta:
+   ```bash
+   mysql -u root -p factoriq < database/schema.sql
+   mysql -u root -p factoriq < database/seed_maquinarias.sql
+   mysql -u root -p factoriq < database/migration_cuestionarios.sql
+   mysql -u root -p factoriq < database/migrations/003_fix_questionnaire_data.sql
+   ```
+
+4. **Iniciar el servidor de desarrollo**:
+   ```bash
+   npm run dev
+   ```
+   Abre [http://localhost:8081](http://localhost:8081) en tu navegador.
+
+5. **Credenciales predeterminadas**:
+   * **SuperAdmin**: `superadmin` / `admin123` (acceso a `/admin`)
+   * **Cliente Maquinarias**: `admMaqui` / `adm123` (acceso a `/maquinarias`)
+
+---
+
+## 🌐 Guía de Despliegue en Producción
+
+### A. Despliegue en GoDaddy (Node.js Hosting + cPanel)
+1. En cPanel → **Node.js Selector** / **Setup Node.js App**:
+   * Node Version: `20.x` o superior.
+   * Application Root: `/home/usuario/factor-iq`
+   * Application Startup File: `.output/server/index.mjs`
+2. Variables de entorno en cPanel: configurar `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` y `SESSION_SECRET`.
+3. Compilación:
+   ```bash
+   npm install
+   npm run build
+   npm start
+   ```
+
+### B. Despliegue en Vercel
+1. El proyecto cuenta con preset para Vercel y `vercel.json` configurado.
+2. Configurar en el panel de Vercel la variable obligatoria:
+   * `SESSION_SECRET`: cadena de 32 caracteres mínimos.
+
+---
+
+## ✅ Comprobación de Calidad de Código
+
+Para garantizar la estabilidad del proyecto en cada entrega:
 
 ```bash
-mysql -u root -p factoriq < database/schema.sql
-mysql -u root -p factoriq < database/seed_maquinarias.sql
-```
-
-## Acceso temporal sin MySQL
-
-Cuando `DB_HOST`, `DB_NAME` y `DB_USER` no están configurados —por ejemplo, durante el despliegue inicial en Vercel— la aplicación utiliza acceso temporal de demostración:
-
-- `superadmin` / `admin123` abre `/admin`.
-- `admMaqui` / `adm123` abre `/maquinarias`.
-
-En Vercel se debe configurar igualmente `SESSION_SECRET` con una cadena aleatoria de al menos 32 caracteres. Reemplaza estas credenciales al habilitar MySQL; no son apropiadas para una instancia pública definitiva.
-
-## Validación
-
-```bash
+# Comprobación de tipos TypeScript estricto (0 errores)
 npx tsc --noEmit
-npx prettier --check .
+
+# Compilación de producción cliente y servidor Nitro
 npm run build
 ```
-
-## Tecnologías
-
-- React 19 y TypeScript
-- TanStack Start y TanStack Router
-- Vite
-- Tailwind CSS 4
-- Radix UI
-- Recharts
-- `xlsx` para lectura de Excel

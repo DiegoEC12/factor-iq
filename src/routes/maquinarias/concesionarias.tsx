@@ -449,6 +449,19 @@ function ConcesionariasPage() {
                 if (row?.ids[0]) openEvaluacion(row.ids[0]);
               }}
               onColSelect={(id) => openIndicador(id)}
+              onCellSelect={(rowKey, indicatorId) => {
+                const row = heatRows.find((item) => item.key === rowKey);
+                const evaluation = row?.ids
+                  .map((id) => scopes.selection.find((item) => item.id === id))
+                  .find(Boolean);
+                if (!evaluation) return;
+                openIndicador(indicatorId, {
+                  concesionaria: [evaluation.concesionaria],
+                  marca: [evaluation.marca],
+                  ubicacion: [evaluation.ubicacion],
+                  tipoEvaluacion: [evaluation.tipoEvaluacion],
+                });
+              }}
             />
           )}
         </section>

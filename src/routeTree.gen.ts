@@ -25,9 +25,11 @@ import { Route as AdminDashboardRouteImport } from './routes/admin/dashboard'
 import { Route as AdminEmpresasRouteImport } from './routes/admin/empresas'
 import { Route as AdminImportarRouteImport } from './routes/admin/importar'
 import { Route as AdminUsuariosRouteImport } from './routes/admin/usuarios'
+import { Route as EncuestaTokenRouteImport } from './routes/encuesta.$token'
 import { Route as MaquinariasIndexRouteImport } from './routes/maquinarias/index'
 import { Route as MaquinariasBenchmarkRouteImport } from './routes/maquinarias/benchmark'
 import { Route as MaquinariasConcesionariasRouteImport } from './routes/maquinarias/concesionarias'
+import { Route as MaquinariasCuestionariosRouteImport } from './routes/maquinarias/cuestionarios'
 import { Route as MaquinariasIndicadoresRouteImport } from './routes/maquinarias/indicadores'
 import { Route as PagesContactoDothtmlRouteImport } from './routes/pages/contacto[.]html'
 import { Route as PagesNosotrosDothtmlRouteImport } from './routes/pages/nosotros[.]html'
@@ -35,6 +37,10 @@ import { Route as PagesServicio_nubeDothtmlRouteImport } from './routes/pages/se
 import { Route as PagesServiciosDothtmlRouteImport } from './routes/pages/servicios[.]html'
 import { Route as PortalDashboardRouteImport } from './routes/portal.dashboard'
 import { Route as AdminServiciosNuevoRouteImport } from './routes/admin/servicios.nuevo'
+import { Route as MaquinariasCuestionariosTipoRouteImport } from './routes/maquinarias/cuestionarios.$tipo'
+import { Route as MaquinariasCuestionariosModificarRouteImport } from './routes/maquinarias/cuestionarios.modificar'
+import { Route as MaquinariasCuestionariosRealizadasTipoRouteImport } from './routes/maquinarias/cuestionarios.realizadas.$tipo'
+import { Route as MaquinariasCuestionariosRealizadasTipoRespuestaIdRouteImport } from './routes/maquinarias/cuestionarios.realizadas.$tipo.$respuestaId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -116,6 +122,11 @@ const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
   path: '/usuarios',
   getParentRoute: () => AdminRoute,
 } as any)
+const EncuestaTokenRoute = EncuestaTokenRouteImport.update({
+  id: '/encuesta/$token',
+  path: '/encuesta/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MaquinariasIndexRoute = MaquinariasIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -130,6 +141,12 @@ const MaquinariasConcesionariasRoute =
   MaquinariasConcesionariasRouteImport.update({
     id: '/concesionarias',
     path: '/concesionarias',
+    getParentRoute: () => MaquinariasRoute,
+  } as any)
+const MaquinariasCuestionariosRoute =
+  MaquinariasCuestionariosRouteImport.update({
+    id: '/cuestionarios',
+    path: '/cuestionarios',
     getParentRoute: () => MaquinariasRoute,
   } as any)
 const MaquinariasIndicadoresRoute = MaquinariasIndicadoresRouteImport.update({
@@ -168,6 +185,30 @@ const AdminServiciosNuevoRoute = AdminServiciosNuevoRouteImport.update({
   path: '/servicios/nuevo',
   getParentRoute: () => AdminRoute,
 } as any)
+const MaquinariasCuestionariosTipoRoute =
+  MaquinariasCuestionariosTipoRouteImport.update({
+    id: '/$tipo',
+    path: '/$tipo',
+    getParentRoute: () => MaquinariasCuestionariosRoute,
+  } as any)
+const MaquinariasCuestionariosModificarRoute =
+  MaquinariasCuestionariosModificarRouteImport.update({
+    id: '/modificar',
+    path: '/modificar',
+    getParentRoute: () => MaquinariasCuestionariosRoute,
+  } as any)
+const MaquinariasCuestionariosRealizadasTipoRoute =
+  MaquinariasCuestionariosRealizadasTipoRouteImport.update({
+    id: '/realizadas/$tipo',
+    path: '/realizadas/$tipo',
+    getParentRoute: () => MaquinariasCuestionariosRoute,
+  } as any)
+const MaquinariasCuestionariosRealizadasTipoRespuestaIdRoute =
+  MaquinariasCuestionariosRealizadasTipoRespuestaIdRouteImport.update({
+    id: '/$respuestaId',
+    path: '/$respuestaId',
+    getParentRoute: () => MaquinariasCuestionariosRealizadasTipoRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -185,8 +226,10 @@ export interface FileRoutesByFullPath {
   '/admin/empresas': typeof AdminEmpresasRoute
   '/admin/importar': typeof AdminImportarRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/encuesta/$token': typeof EncuestaTokenRoute
   '/maquinarias/benchmark': typeof MaquinariasBenchmarkRoute
   '/maquinarias/concesionarias': typeof MaquinariasConcesionariasRoute
+  '/maquinarias/cuestionarios': typeof MaquinariasCuestionariosRouteWithChildren
   '/maquinarias/indicadores': typeof MaquinariasIndicadoresRoute
   '/pages/contacto.html': typeof PagesContactoDothtmlRoute
   '/pages/nosotros.html': typeof PagesNosotrosDothtmlRoute
@@ -196,6 +239,10 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/maquinarias/': typeof MaquinariasIndexRoute
   '/admin/servicios/nuevo': typeof AdminServiciosNuevoRoute
+  '/maquinarias/cuestionarios/$tipo': typeof MaquinariasCuestionariosTipoRoute
+  '/maquinarias/cuestionarios/modificar': typeof MaquinariasCuestionariosModificarRoute
+  '/maquinarias/cuestionarios/realizadas/$tipo': typeof MaquinariasCuestionariosRealizadasTipoRouteWithChildren
+  '/maquinarias/cuestionarios/realizadas/$tipo/$respuestaId': typeof MaquinariasCuestionariosRealizadasTipoRespuestaIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -211,8 +258,10 @@ export interface FileRoutesByTo {
   '/admin/empresas': typeof AdminEmpresasRoute
   '/admin/importar': typeof AdminImportarRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/encuesta/$token': typeof EncuestaTokenRoute
   '/maquinarias/benchmark': typeof MaquinariasBenchmarkRoute
   '/maquinarias/concesionarias': typeof MaquinariasConcesionariasRoute
+  '/maquinarias/cuestionarios': typeof MaquinariasCuestionariosRouteWithChildren
   '/maquinarias/indicadores': typeof MaquinariasIndicadoresRoute
   '/pages/contacto.html': typeof PagesContactoDothtmlRoute
   '/pages/nosotros.html': typeof PagesNosotrosDothtmlRoute
@@ -222,6 +271,10 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/maquinarias': typeof MaquinariasIndexRoute
   '/admin/servicios/nuevo': typeof AdminServiciosNuevoRoute
+  '/maquinarias/cuestionarios/$tipo': typeof MaquinariasCuestionariosTipoRoute
+  '/maquinarias/cuestionarios/modificar': typeof MaquinariasCuestionariosModificarRoute
+  '/maquinarias/cuestionarios/realizadas/$tipo': typeof MaquinariasCuestionariosRealizadasTipoRouteWithChildren
+  '/maquinarias/cuestionarios/realizadas/$tipo/$respuestaId': typeof MaquinariasCuestionariosRealizadasTipoRespuestaIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -240,8 +293,10 @@ export interface FileRoutesById {
   '/admin/empresas': typeof AdminEmpresasRoute
   '/admin/importar': typeof AdminImportarRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
+  '/encuesta/$token': typeof EncuestaTokenRoute
   '/maquinarias/benchmark': typeof MaquinariasBenchmarkRoute
   '/maquinarias/concesionarias': typeof MaquinariasConcesionariasRoute
+  '/maquinarias/cuestionarios': typeof MaquinariasCuestionariosRouteWithChildren
   '/maquinarias/indicadores': typeof MaquinariasIndicadoresRoute
   '/pages/contacto.html': typeof PagesContactoDothtmlRoute
   '/pages/nosotros.html': typeof PagesNosotrosDothtmlRoute
@@ -251,6 +306,10 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/maquinarias/': typeof MaquinariasIndexRoute
   '/admin/servicios/nuevo': typeof AdminServiciosNuevoRoute
+  '/maquinarias/cuestionarios/$tipo': typeof MaquinariasCuestionariosTipoRoute
+  '/maquinarias/cuestionarios/modificar': typeof MaquinariasCuestionariosModificarRoute
+  '/maquinarias/cuestionarios/realizadas/$tipo': typeof MaquinariasCuestionariosRealizadasTipoRouteWithChildren
+  '/maquinarias/cuestionarios/realizadas/$tipo/$respuestaId': typeof MaquinariasCuestionariosRealizadasTipoRespuestaIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -270,8 +329,10 @@ export interface FileRouteTypes {
     | '/admin/empresas'
     | '/admin/importar'
     | '/admin/usuarios'
+    | '/encuesta/$token'
     | '/maquinarias/benchmark'
     | '/maquinarias/concesionarias'
+    | '/maquinarias/cuestionarios'
     | '/maquinarias/indicadores'
     | '/pages/contacto.html'
     | '/pages/nosotros.html'
@@ -281,6 +342,10 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/maquinarias/'
     | '/admin/servicios/nuevo'
+    | '/maquinarias/cuestionarios/$tipo'
+    | '/maquinarias/cuestionarios/modificar'
+    | '/maquinarias/cuestionarios/realizadas/$tipo'
+    | '/maquinarias/cuestionarios/realizadas/$tipo/$respuestaId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -296,8 +361,10 @@ export interface FileRouteTypes {
     | '/admin/empresas'
     | '/admin/importar'
     | '/admin/usuarios'
+    | '/encuesta/$token'
     | '/maquinarias/benchmark'
     | '/maquinarias/concesionarias'
+    | '/maquinarias/cuestionarios'
     | '/maquinarias/indicadores'
     | '/pages/contacto.html'
     | '/pages/nosotros.html'
@@ -307,6 +374,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/maquinarias'
     | '/admin/servicios/nuevo'
+    | '/maquinarias/cuestionarios/$tipo'
+    | '/maquinarias/cuestionarios/modificar'
+    | '/maquinarias/cuestionarios/realizadas/$tipo'
+    | '/maquinarias/cuestionarios/realizadas/$tipo/$respuestaId'
   id:
     | '__root__'
     | '/'
@@ -324,8 +395,10 @@ export interface FileRouteTypes {
     | '/admin/empresas'
     | '/admin/importar'
     | '/admin/usuarios'
+    | '/encuesta/$token'
     | '/maquinarias/benchmark'
     | '/maquinarias/concesionarias'
+    | '/maquinarias/cuestionarios'
     | '/maquinarias/indicadores'
     | '/pages/contacto.html'
     | '/pages/nosotros.html'
@@ -335,6 +408,10 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/maquinarias/'
     | '/admin/servicios/nuevo'
+    | '/maquinarias/cuestionarios/$tipo'
+    | '/maquinarias/cuestionarios/modificar'
+    | '/maquinarias/cuestionarios/realizadas/$tipo'
+    | '/maquinarias/cuestionarios/realizadas/$tipo/$respuestaId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -349,6 +426,7 @@ export interface RootRouteChildren {
   MaquinariasRoute: typeof MaquinariasRouteWithChildren
   NosotrosRoute: typeof NosotrosRoute
   ServiciosRoute: typeof ServiciosRoute
+  EncuestaTokenRoute: typeof EncuestaTokenRoute
   PagesContactoDothtmlRoute: typeof PagesContactoDothtmlRoute
   PagesNosotrosDothtmlRoute: typeof PagesNosotrosDothtmlRoute
   PagesServicio_nubeDothtmlRoute: typeof PagesServicio_nubeDothtmlRoute
@@ -470,6 +548,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsuariosRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/encuesta/$token': {
+      id: '/encuesta/$token'
+      path: '/encuesta/$token'
+      fullPath: '/encuesta/$token'
+      preLoaderRoute: typeof EncuestaTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/maquinarias/': {
       id: '/maquinarias/'
       path: '/'
@@ -489,6 +574,13 @@ declare module '@tanstack/react-router' {
       path: '/concesionarias'
       fullPath: '/maquinarias/concesionarias'
       preLoaderRoute: typeof MaquinariasConcesionariasRouteImport
+      parentRoute: typeof MaquinariasRoute
+    }
+    '/maquinarias/cuestionarios': {
+      id: '/maquinarias/cuestionarios'
+      path: '/cuestionarios'
+      fullPath: '/maquinarias/cuestionarios'
+      preLoaderRoute: typeof MaquinariasCuestionariosRouteImport
       parentRoute: typeof MaquinariasRoute
     }
     '/maquinarias/indicadores': {
@@ -540,6 +632,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminServiciosNuevoRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/maquinarias/cuestionarios/$tipo': {
+      id: '/maquinarias/cuestionarios/$tipo'
+      path: '/$tipo'
+      fullPath: '/maquinarias/cuestionarios/$tipo'
+      preLoaderRoute: typeof MaquinariasCuestionariosTipoRouteImport
+      parentRoute: typeof MaquinariasCuestionariosRoute
+    }
+    '/maquinarias/cuestionarios/modificar': {
+      id: '/maquinarias/cuestionarios/modificar'
+      path: '/modificar'
+      fullPath: '/maquinarias/cuestionarios/modificar'
+      preLoaderRoute: typeof MaquinariasCuestionariosModificarRouteImport
+      parentRoute: typeof MaquinariasCuestionariosRoute
+    }
+    '/maquinarias/cuestionarios/realizadas/$tipo': {
+      id: '/maquinarias/cuestionarios/realizadas/$tipo'
+      path: '/realizadas/$tipo'
+      fullPath: '/maquinarias/cuestionarios/realizadas/$tipo'
+      preLoaderRoute: typeof MaquinariasCuestionariosRealizadasTipoRouteImport
+      parentRoute: typeof MaquinariasCuestionariosRoute
+    }
+    '/maquinarias/cuestionarios/realizadas/$tipo/$respuestaId': {
+      id: '/maquinarias/cuestionarios/realizadas/$tipo/$respuestaId'
+      path: '/$respuestaId'
+      fullPath: '/maquinarias/cuestionarios/realizadas/$tipo/$respuestaId'
+      preLoaderRoute: typeof MaquinariasCuestionariosRealizadasTipoRespuestaIdRouteImport
+      parentRoute: typeof MaquinariasCuestionariosRealizadasTipoRoute
+    }
   }
 }
 
@@ -563,9 +683,45 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface MaquinariasCuestionariosRealizadasTipoRouteChildren {
+  MaquinariasCuestionariosRealizadasTipoRespuestaIdRoute: typeof MaquinariasCuestionariosRealizadasTipoRespuestaIdRoute
+}
+
+const MaquinariasCuestionariosRealizadasTipoRouteChildren: MaquinariasCuestionariosRealizadasTipoRouteChildren =
+  {
+    MaquinariasCuestionariosRealizadasTipoRespuestaIdRoute:
+      MaquinariasCuestionariosRealizadasTipoRespuestaIdRoute,
+  }
+
+const MaquinariasCuestionariosRealizadasTipoRouteWithChildren =
+  MaquinariasCuestionariosRealizadasTipoRoute._addFileChildren(
+    MaquinariasCuestionariosRealizadasTipoRouteChildren,
+  )
+
+interface MaquinariasCuestionariosRouteChildren {
+  MaquinariasCuestionariosTipoRoute: typeof MaquinariasCuestionariosTipoRoute
+  MaquinariasCuestionariosModificarRoute: typeof MaquinariasCuestionariosModificarRoute
+  MaquinariasCuestionariosRealizadasTipoRoute: typeof MaquinariasCuestionariosRealizadasTipoRouteWithChildren
+}
+
+const MaquinariasCuestionariosRouteChildren: MaquinariasCuestionariosRouteChildren =
+  {
+    MaquinariasCuestionariosTipoRoute: MaquinariasCuestionariosTipoRoute,
+    MaquinariasCuestionariosModificarRoute:
+      MaquinariasCuestionariosModificarRoute,
+    MaquinariasCuestionariosRealizadasTipoRoute:
+      MaquinariasCuestionariosRealizadasTipoRouteWithChildren,
+  }
+
+const MaquinariasCuestionariosRouteWithChildren =
+  MaquinariasCuestionariosRoute._addFileChildren(
+    MaquinariasCuestionariosRouteChildren,
+  )
+
 interface MaquinariasRouteChildren {
   MaquinariasBenchmarkRoute: typeof MaquinariasBenchmarkRoute
   MaquinariasConcesionariasRoute: typeof MaquinariasConcesionariasRoute
+  MaquinariasCuestionariosRoute: typeof MaquinariasCuestionariosRouteWithChildren
   MaquinariasIndicadoresRoute: typeof MaquinariasIndicadoresRoute
   MaquinariasIndexRoute: typeof MaquinariasIndexRoute
 }
@@ -573,6 +729,7 @@ interface MaquinariasRouteChildren {
 const MaquinariasRouteChildren: MaquinariasRouteChildren = {
   MaquinariasBenchmarkRoute: MaquinariasBenchmarkRoute,
   MaquinariasConcesionariasRoute: MaquinariasConcesionariasRoute,
+  MaquinariasCuestionariosRoute: MaquinariasCuestionariosRouteWithChildren,
   MaquinariasIndicadoresRoute: MaquinariasIndicadoresRoute,
   MaquinariasIndexRoute: MaquinariasIndexRoute,
 }
@@ -593,6 +750,7 @@ const rootRouteChildren: RootRouteChildren = {
   MaquinariasRoute: MaquinariasRouteWithChildren,
   NosotrosRoute: NosotrosRoute,
   ServiciosRoute: ServiciosRoute,
+  EncuestaTokenRoute: EncuestaTokenRoute,
   PagesContactoDothtmlRoute: PagesContactoDothtmlRoute,
   PagesNosotrosDothtmlRoute: PagesNosotrosDothtmlRoute,
   PagesServicio_nubeDothtmlRoute: PagesServicio_nubeDothtmlRoute,

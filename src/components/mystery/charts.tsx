@@ -96,7 +96,7 @@ export function DumbbellChart({
   const [hovered, setHovered] = useState<DumbbellRow | null>(null);
   return (
     <div className="flex flex-col">
-      <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-2 pl-52.5 text-[11px] font-semibold text-muted-foreground max-md:pl-0">
+      <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-2 pl-2 text-[11px] font-semibold text-muted-foreground max-md:pl-0">
         <span className="flex items-center gap-1.5">
           <span className="h-2.5 w-2.5 rounded-full bg-black" /> Maquinarias
         </span>
@@ -303,6 +303,7 @@ export function Heatmap({
   benchmark,
   onRowSelect,
   onColSelect,
+  onCellSelect,
   selectedRow,
   showNumericHeaders = false,
   compact = false,
@@ -315,6 +316,7 @@ export function Heatmap({
   benchmark: (colId: string) => number | null;
   onRowSelect?: (key: string) => void;
   onColSelect?: (id: string) => void;
+  onCellSelect?: (rowKey: string, colId: string) => void;
   selectedRow?: string | null;
   showNumericHeaders?: boolean;
   compact?: boolean;
@@ -415,8 +417,11 @@ export function Heatmap({
                     <td key={c.id}>
                       <button
                         onClick={() => {
-                          onRowSelect?.(r.key);
-                          onColSelect?.(c.id);
+                          if (onCellSelect) onCellSelect(r.key, c.id);
+                          else {
+                            onRowSelect?.(r.key);
+                            onColSelect?.(c.id);
+                          }
                         }}
                         onMouseEnter={() =>
                           setHovered({

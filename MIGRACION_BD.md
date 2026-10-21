@@ -33,10 +33,13 @@ Todas las tablas de negocio cuelgan de `clientes` (multi-tenant por `cliente_id`
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `database/schema.sql`           | Creación de la base`factor_iq` y 9 tablas (clientes, usuarios, proyectos, sucursales, indicadores, evaluaciones, evaluacion\_indicadores, evaluacion\_preguntas, auditoria)                           |
 | `database/seed_maquinarias.sql` | Datos reales migrados desde el JSON: cliente Maquinarias, 1 proyecto, 29 sucursales, 19 indicadores (12 Ventas + 7 Call Center), 42 evaluaciones con `tipo_evaluacion`, 434 resultados por indicador, 2 494 respuestas a preguntas + usuarios iniciales |
+| `database/migration_cuestionarios.sql` | Esquema y tablas para el módulo de cuestionarios (`cuestionarios`, `cuestionario_preguntas`, `cuestionario_respuestas`, `cuestionario_respuesta_items`) |
+| `database/migrations/003_fix_questionnaire_data.sql` | Normalización y reparación de preguntas, tipos de respuesta (`select`, `checks`, `scale`, etc.) y opciones JSON para Nuevos, Postventa y Seminuevos |
 | `scripts/generate-sql-seed.cjs` | Generador reproducible del seed SQL desde `src/data/mystery-shopping-imported.json` con integridad relacional validada |
 | `scripts/hash-password.mjs`     | Generador de hashes bcrypt para contraseñas de usuarios                                                                                                                                               |
 | `src/lib/db.ts`                 | Pool de conexiones MySQL con `mysql2/promise`, lectura de `.env` y tipado TypeScript estricto                                                                                                         |
 | `src/lib/mystery/server-data.ts`| Server functions TanStack Start para lectura de evaluaciones desde MySQL con fallback automático a JSON estático                                                                                     |
+| `src/lib/mystery/questionnaire-data.ts` | Server functions TanStack Start para lectura y guardado de cuestionarios y respuestas en MySQL                                                                                 |
 | `src/routes/admin.tsx`          | Panel SuperAdmin `/admin` protegido por rol con métricas, directorio de clientes, usuarios y auditoría                                                                                                |
 
 ## 4. Avance

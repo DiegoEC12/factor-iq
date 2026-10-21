@@ -16,7 +16,12 @@ export interface FilterContextValue {
     indicadores: { value: string; label: string }[];
   };
   selectedIndicadorId: string | null;
-  openIndicador: (id: string) => void;
+  openIndicador: (
+    id: string,
+    context?: Partial<
+      Pick<GlobalFilters, "periodo" | "concesionaria" | "marca" | "ubicacion" | "tipoEvaluacion">
+    >,
+  ) => void;
   clearIndicador: () => void;
   selectedEvaluacionId: string | null;
   openEvaluacion: (id: string) => void;
