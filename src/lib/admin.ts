@@ -50,6 +50,275 @@ export interface TicketInput {
 
 const MAQUINARIAS_PROJECT_ID = 1;
 
+const CLIENT_DATABASE_TABLES = [
+  "clientes",
+  "usuarios",
+  "proyectos",
+  "sucursales",
+  "indicadores",
+  "evaluaciones",
+  "evaluacion_indicadores",
+  "evaluacion_preguntas",
+] as const;
+
+const PROTECTED_DATABASE_TABLES = new Set([
+  ...CLIENT_DATABASE_TABLES,
+  "auditoria",
+  "tickets",
+  "ticket_comentarios",
+  "contenidos_web",
+]);
+
+type DatabaseTableScope = "cliente" | "global";
+
+type DatabaseTableDefinition = {
+  name: (typeof CLIENT_DATABASE_TABLES)[number];
+  label: string;
+  description: string;
+  scope: DatabaseTableScope;
+  countSql: string;
+  countParams: (clientId: number) => [number];
+};
+
+const DATABASE_TABLE_DEFINITIONS: DatabaseTableDefinition[] = [
+  {
+    name: "clientes",
+    label: "Clientes",
+    description: "Empresas registradas",
+    scope: "cliente",
+    countSql: "SELECT COUNT(*) AS total FROM clientes WHERE id = ?",
+    countParams: (id) => [id],
+  },
+  {
+    name: "usuarios",
+    label: "Usuarios",
+    description: "Accesos del cliente",
+    scope: "cliente",
+    countSql: "SELECT COUNT(*) AS total FROM usuarios WHERE cliente_id = ?",
+    countParams: (id) => [id],
+  },
+  {
+    name: "proyectos",
+    label: "Proyectos",
+    description: "Servicios y estudios",
+    scope: "cliente",
+    countSql: "SELECT COUNT(*) AS total FROM proyectos WHERE cliente_id = ?",
+    countParams: (id) => [id],
+  },
+  {
+    name: "sucursales",
+    label: "Sucursales",
+    description: "Concesionarias y ubicaciones",
+    scope: "cliente",
+    countSql: "SELECT COUNT(*) AS total FROM sucursales WHERE cliente_id = ?",
+    countParams: (id) => [id],
+  },
+  {
+    name: "indicadores",
+    label: "Indicadores",
+    description: "Catálogo de criterios",
+    scope: "cliente",
+    countSql:
+      "SELECT COUNT(*) AS total FROM indicadores i INNER JOIN proyectos p ON p.id = i.proyecto_id WHERE p.cliente_id = ?",
+    countParams: (id) => [id],
+  },
+  {
+    name: "evaluaciones",
+    label: "Evaluaciones",
+    description: "Visitas y resultados principales",
+    scope: "cliente",
+    countSql:
+      "SELECT COUNT(*) AS total FROM evaluaciones e INNER JOIN proyectos p ON p.id = e.proyecto_id WHERE p.cliente_id = ?",
+    countParams: (id) => [id],
+  },
+  {
+    name: "evaluacion_indicadores",
+    label: "Resultados por indicador",
+    description: "Cumplimiento por visita",
+    scope: "cliente",
+    countSql:
+      "SELECT COUNT(*) AS total FROM evaluacion_indicadores ei INNER JOIN evaluaciones e ON e.id = ei.evaluacion_id INNER JOIN proyectos p ON p.id = e.proyecto_id WHERE p.cliente_id = ?",
+    countParams: (id) => [id],
+  },
+  {
+    name: "evaluacion_preguntas",
+    label: "Respuestas",
+    description: "Preguntas y observaciones",
+    scope: "cliente",
+    countSql:
+      "SELECT COUNT(*) AS total FROM evaluacion_preguntas ep INNER JOIN evaluaciones e ON e.id = ep.evaluacion_id INNER JOIN proyectos p ON p.id = e.proyecto_id WHERE p.cliente_id = ?",
+    countParams: (id) => [id],
+  },
+];
+
+function quoteIdentifier(identifier: string): string {
+  if (!/^[A-Za-z0-9_]+$/.test(identifier)) throw new Error("Identificador de tabla inválido.");
+  return `\`${identifier}\``;
+}
+
+export const getClientDatabaseFn = createServerFn({ method: "GET" })
+  .validator((data: { slug: string }) => data)
+  .handler(async ({ data }) => {
+    await assertSuperAdmin();
+    if (!isDbEnabled())
+      return { ready: false, message: "MySQL no está configurado.", client: null, tables: [] };
+
+    const [client] = await query<{ id: number; slug: string; nombre_comercial: string }>(
+      "SELECT id, slug, nombre_comercial FROM clientes WHERE slug = ? LIMIT 1",
+      [data.slug],
+    );
+    if (!client) throw new Error("No se encontró el cliente solicitado.");
+
+    const existing = await query<{ TABLE_NAME: string }>(
+      `SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = 'BASE TABLE'`,
+      [process.env["DB_NAME"]],
+    );
+    const existingNames = new Set(existing.map((row) => row.TABLE_NAME));
+    const tables = [];
+    for (const definition of DATABASE_TABLE_DEFINITIONS) {
+      if (!existingNames.has(definition.name)) continue;
+      const [count] = await query<{ total: number }>(
+        definition.countSql,
+        definition.countParams(client.id),
+      );
+      tables.push({
+        name: definition.name,
+        label: definition.label,
+        description: definition.description,
+        scope: definition.scope,
+        rows: Number(count?.total ?? 0),
+        canDrop: false,
+      });
+    }
+    for (const tableName of existingNames) {
+      if (PROTECTED_DATABASE_TABLES.has(tableName)) continue;
+      const [count] = await query<{ total: number }>(
+        `SELECT COUNT(*) AS total FROM ${quoteIdentifier(tableName)}`,
+      );
+      tables.push({
+        name: tableName,
+        label: tableName,
+        description: "Tabla adicional del esquema conectado",
+        scope: "global" as const,
+        rows: Number(count?.total ?? 0),
+        canDrop: true,
+      });
+    }
+    return { ready: true, message: null, client, tables };
+  });
+
+export const getClientTablePreviewFn = createServerFn({ method: "GET" })
+  .validator((data: { slug: string; table: string }) => data)
+  .handler(async ({ data }) => {
+    await assertSuperAdmin();
+    if (!isDbEnabled()) return { columns: [], rows: [], message: "MySQL no está configurado." };
+    const [client] = await query<{ id: number }>("SELECT id FROM clientes WHERE slug = ? LIMIT 1", [
+      data.slug,
+    ]);
+    if (!client) throw new Error("No se encontró el cliente solicitado.");
+    const [tableExists] = await query<{ TABLE_NAME: string }>(
+      "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND TABLE_TYPE = 'BASE TABLE' LIMIT 1",
+      [process.env["DB_NAME"], data.table],
+    );
+    if (!tableExists) throw new Error("La tabla solicitada no existe en la base conectada.");
+    const definition = DATABASE_TABLE_DEFINITIONS.find((item) => item.name === data.table);
+    const columns = await query<{ Field: string }>(
+      `SHOW COLUMNS FROM ${quoteIdentifier(data.table)}`,
+    );
+    const scopedQueries: Record<string, string> = {
+      clientes: "WHERE id = ?",
+      usuarios: "WHERE cliente_id = ?",
+      proyectos: "WHERE cliente_id = ?",
+      sucursales: "WHERE cliente_id = ?",
+      indicadores: "WHERE proyecto_id IN (SELECT id FROM proyectos WHERE cliente_id = ?)",
+      evaluaciones: "WHERE proyecto_id IN (SELECT id FROM proyectos WHERE cliente_id = ?)",
+      evaluacion_indicadores:
+        "WHERE evaluacion_id IN (SELECT e.id FROM evaluaciones e INNER JOIN proyectos p ON p.id = e.proyecto_id WHERE p.cliente_id = ?)",
+      evaluacion_preguntas:
+        "WHERE evaluacion_id IN (SELECT e.id FROM evaluaciones e INNER JOIN proyectos p ON p.id = e.proyecto_id WHERE p.cliente_id = ?)",
+    };
+    const scopedWhere = definition ? `${scopedQueries[definition.name]} ` : "";
+    const rows = await query<Record<string, unknown>>(
+      `SELECT * FROM ${quoteIdentifier(data.table)} ${scopedWhere}LIMIT 25`,
+      definition ? [client.id] : [],
+    );
+    return { columns: columns.map((column) => column.Field), rows, message: null };
+  });
+
+export const clearClientOperationalDataFn = createServerFn({ method: "POST" })
+  .validator((data: { slug: string; confirmation: string }) => data)
+  .handler(async ({ data }) => {
+    await assertSuperAdmin();
+    const confirmation = data.confirmation.trim().replace(/\s+/g, " ").toUpperCase();
+    if (confirmation !== "VACIAR MAQUINARIAS") throw new Error("La confirmación no coincide.");
+    if (!isDbEnabled())
+      throw new Error("MySQL no está configurado; no se puede vaciar información.");
+    const [client] = await query<{ id: number; nombre_comercial: string }>(
+      "SELECT id, nombre_comercial FROM clientes WHERE slug = ? LIMIT 1",
+      [data.slug],
+    );
+    if (!client) throw new Error("No se encontró el cliente solicitado.");
+    const result = await withTransaction(async (connection) => {
+      const [evaluations] = await connection.query<RowDataPacket[]>(
+        "SELECT e.id FROM evaluaciones e INNER JOIN proyectos p ON p.id = e.proyecto_id WHERE p.cliente_id = ?",
+        [client.id],
+      );
+      const ids = (evaluations as Array<{ id: number }>).map((row) => row.id);
+      if (ids.length) {
+        const placeholders = ids.map(() => "?").join(", ");
+        await connection.query(
+          `DELETE FROM evaluacion_preguntas WHERE evaluacion_id IN (${placeholders})`,
+          ids,
+        );
+        await connection.query(
+          `DELETE FROM evaluacion_indicadores WHERE evaluacion_id IN (${placeholders})`,
+          ids,
+        );
+        await connection.query(`DELETE FROM evaluaciones WHERE id IN (${placeholders})`, ids);
+      }
+      await connection.query(
+        "DELETE i FROM indicadores i INNER JOIN proyectos p ON p.id = i.proyecto_id WHERE p.cliente_id = ?",
+        [client.id],
+      );
+      await connection.query("DELETE FROM sucursales WHERE cliente_id = ?", [client.id]);
+      return { deletedEvaluations: ids.length };
+    });
+    await recordAudit("vaciar_datos_cliente", {
+      clienteId: client.id,
+      slug: data.slug,
+      ...result,
+      modificadoPor: admin.nombre,
+    });
+    return {
+      success: true,
+      message: `Se vaciaron ${result.deletedEvaluations} evaluaciones y sus datos relacionados. La estructura y el acceso del cliente se conservaron.`,
+      ...result,
+    };
+  });
+
+export const dropDatabaseTableFn = createServerFn({ method: "POST" })
+  .validator((data: { table: string; confirmation: string }) => data)
+  .handler(async ({ data }) => {
+    const admin = await assertSuperAdmin();
+    if (data.confirmation !== `ELIMINAR TABLA ${data.table}`)
+      throw new Error("La confirmación no coincide.");
+    if (PROTECTED_DATABASE_TABLES.has(data.table))
+      throw new Error("Esta tabla está protegida porque es parte del esquema de Factor IQ.");
+    if (!isDbEnabled())
+      throw new Error("MySQL no está configurado; no se puede eliminar la tabla.");
+    const [table] = await query<{ TABLE_NAME: string }>(
+      "SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND TABLE_TYPE = 'BASE TABLE' LIMIT 1",
+      [process.env["DB_NAME"], data.table],
+    );
+    if (!table) throw new Error("La tabla solicitada no existe en la base conectada.");
+    await execute(`DROP TABLE ${quoteIdentifier(data.table)}`);
+    await recordAudit("eliminar_tabla_adicional", {
+      tabla: data.table,
+      modificadoPor: admin.nombre,
+    });
+    return { success: true, message: `La tabla adicional ${data.table} fue eliminada.` };
+  });
+
 type ImportContext = {
   ready: boolean;
   message: string | null;

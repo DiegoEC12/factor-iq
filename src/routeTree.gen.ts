@@ -36,6 +36,7 @@ import { Route as PagesNosotrosDothtmlRouteImport } from './routes/pages/nosotro
 import { Route as PagesServicio_nubeDothtmlRouteImport } from './routes/pages/servicio_nube[.]html'
 import { Route as PagesServiciosDothtmlRouteImport } from './routes/pages/servicios[.]html'
 import { Route as PortalDashboardRouteImport } from './routes/portal.dashboard'
+import { Route as AdminEmpresasSlugRouteImport } from './routes/admin/empresas.$slug'
 import { Route as AdminServiciosNuevoRouteImport } from './routes/admin/servicios.nuevo'
 import { Route as MaquinariasCuestionariosTipoRouteImport } from './routes/maquinarias/cuestionarios.$tipo'
 import { Route as MaquinariasCuestionariosModificarRouteImport } from './routes/maquinarias/cuestionarios.modificar'
@@ -180,6 +181,11 @@ const PortalDashboardRoute = PortalDashboardRouteImport.update({
   path: '/portal/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminEmpresasSlugRoute = AdminEmpresasSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AdminEmpresasRoute,
+} as any)
 const AdminServiciosNuevoRoute = AdminServiciosNuevoRouteImport.update({
   id: '/servicios/nuevo',
   path: '/servicios/nuevo',
@@ -223,7 +229,7 @@ export interface FileRoutesByFullPath {
   '/nosotros': typeof NosotrosRoute
   '/servicios': typeof ServiciosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/empresas': typeof AdminEmpresasRouteWithChildren
   '/admin/importar': typeof AdminImportarRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/encuesta/$token': typeof EncuestaTokenRoute
@@ -238,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/portal/dashboard': typeof PortalDashboardRoute
   '/admin/': typeof AdminIndexRoute
   '/maquinarias/': typeof MaquinariasIndexRoute
+  '/admin/empresas/$slug': typeof AdminEmpresasSlugRoute
   '/admin/servicios/nuevo': typeof AdminServiciosNuevoRoute
   '/maquinarias/cuestionarios/$tipo': typeof MaquinariasCuestionariosTipoRoute
   '/maquinarias/cuestionarios/modificar': typeof MaquinariasCuestionariosModificarRoute
@@ -255,7 +262,7 @@ export interface FileRoutesByTo {
   '/nosotros': typeof NosotrosRoute
   '/servicios': typeof ServiciosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/empresas': typeof AdminEmpresasRouteWithChildren
   '/admin/importar': typeof AdminImportarRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/encuesta/$token': typeof EncuestaTokenRoute
@@ -270,6 +277,7 @@ export interface FileRoutesByTo {
   '/portal/dashboard': typeof PortalDashboardRoute
   '/admin': typeof AdminIndexRoute
   '/maquinarias': typeof MaquinariasIndexRoute
+  '/admin/empresas/$slug': typeof AdminEmpresasSlugRoute
   '/admin/servicios/nuevo': typeof AdminServiciosNuevoRoute
   '/maquinarias/cuestionarios/$tipo': typeof MaquinariasCuestionariosTipoRoute
   '/maquinarias/cuestionarios/modificar': typeof MaquinariasCuestionariosModificarRoute
@@ -290,7 +298,7 @@ export interface FileRoutesById {
   '/nosotros': typeof NosotrosRoute
   '/servicios': typeof ServiciosRoute
   '/admin/dashboard': typeof AdminDashboardRoute
-  '/admin/empresas': typeof AdminEmpresasRoute
+  '/admin/empresas': typeof AdminEmpresasRouteWithChildren
   '/admin/importar': typeof AdminImportarRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/encuesta/$token': typeof EncuestaTokenRoute
@@ -305,6 +313,7 @@ export interface FileRoutesById {
   '/portal/dashboard': typeof PortalDashboardRoute
   '/admin/': typeof AdminIndexRoute
   '/maquinarias/': typeof MaquinariasIndexRoute
+  '/admin/empresas/$slug': typeof AdminEmpresasSlugRoute
   '/admin/servicios/nuevo': typeof AdminServiciosNuevoRoute
   '/maquinarias/cuestionarios/$tipo': typeof MaquinariasCuestionariosTipoRoute
   '/maquinarias/cuestionarios/modificar': typeof MaquinariasCuestionariosModificarRoute
@@ -341,6 +350,7 @@ export interface FileRouteTypes {
     | '/portal/dashboard'
     | '/admin/'
     | '/maquinarias/'
+    | '/admin/empresas/$slug'
     | '/admin/servicios/nuevo'
     | '/maquinarias/cuestionarios/$tipo'
     | '/maquinarias/cuestionarios/modificar'
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/portal/dashboard'
     | '/admin'
     | '/maquinarias'
+    | '/admin/empresas/$slug'
     | '/admin/servicios/nuevo'
     | '/maquinarias/cuestionarios/$tipo'
     | '/maquinarias/cuestionarios/modificar'
@@ -407,6 +418,7 @@ export interface FileRouteTypes {
     | '/portal/dashboard'
     | '/admin/'
     | '/maquinarias/'
+    | '/admin/empresas/$slug'
     | '/admin/servicios/nuevo'
     | '/maquinarias/cuestionarios/$tipo'
     | '/maquinarias/cuestionarios/modificar'
@@ -625,6 +637,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PortalDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/empresas/$slug': {
+      id: '/admin/empresas/$slug'
+      path: '/$slug'
+      fullPath: '/admin/empresas/$slug'
+      preLoaderRoute: typeof AdminEmpresasSlugRouteImport
+      parentRoute: typeof AdminEmpresasRoute
+    }
     '/admin/servicios/nuevo': {
       id: '/admin/servicios/nuevo'
       path: '/servicios/nuevo'
@@ -663,9 +682,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminEmpresasRouteChildren {
+  AdminEmpresasSlugRoute: typeof AdminEmpresasSlugRoute
+}
+
+const AdminEmpresasRouteChildren: AdminEmpresasRouteChildren = {
+  AdminEmpresasSlugRoute: AdminEmpresasSlugRoute,
+}
+
+const AdminEmpresasRouteWithChildren = AdminEmpresasRoute._addFileChildren(
+  AdminEmpresasRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminDashboardRoute: typeof AdminDashboardRoute
-  AdminEmpresasRoute: typeof AdminEmpresasRoute
+  AdminEmpresasRoute: typeof AdminEmpresasRouteWithChildren
   AdminImportarRoute: typeof AdminImportarRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -674,7 +705,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminDashboardRoute: AdminDashboardRoute,
-  AdminEmpresasRoute: AdminEmpresasRoute,
+  AdminEmpresasRoute: AdminEmpresasRouteWithChildren,
   AdminImportarRoute: AdminImportarRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
   AdminIndexRoute: AdminIndexRoute,

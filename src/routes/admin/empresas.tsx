@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouter, useRouterState } from "@tanstack/react-router";
 import { getAdminStatsFn } from "@/lib/mystery/server-data";
 import type { AdminStatsPayload } from "@/lib/mystery/server-data";
 import { toggleClientStatusFn } from "@/lib/admin";
@@ -18,6 +18,7 @@ import {
   Mail,
   Phone,
   Power,
+  Database,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/admin/empresas")({
 function AdminEmpresasView() {
   const { data } = Route.useLoaderData();
   const router = useRouter();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPlan, setFilterPlan] = useState<string>("todos");
@@ -51,6 +53,10 @@ function AdminEmpresasView() {
   const [clientToEdit, setClientToEdit] = useState<AdminStatsPayload["clientes"][number] | null>(
     null,
   );
+
+  if (pathname !== "/admin/empresas") {
+    return <Outlet />;
+  }
 
   const clientes = data.clientes || [];
 
@@ -278,6 +284,16 @@ function AdminEmpresasView() {
                           >
                             <Pencil className="h-4 w-4" />
                           </button>
+
+                          <Link
+                            to="/admin/empresas/$slug"
+                            params={{ slug: c.slug }}
+                            className="p-1.5 text-slate-500 hover:text-[#1b5094] hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            title="Administrar base de datos del cliente"
+                            aria-label={`Administrar datos de ${c.nombre_comercial}`}
+                          >
+                            <Database className="h-4 w-4" />
+                          </Link>
 
                           <a
                             href={`/${c.slug}`}
