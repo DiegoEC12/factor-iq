@@ -13,6 +13,11 @@ export const CANONICAL_TIPOS_EVALUACION = [
   "Postventa",
 ] as const;
 
+/** Tipos que se muestran temporalmente en los filtros del dashboard. */
+export const VISIBLE_TIPOS_EVALUACION = CANONICAL_TIPOS_EVALUACION.filter(
+  (tipo) => tipo !== "Postventa",
+);
+
 export type CanonicalTipoEvaluacion = (typeof CANONICAL_TIPOS_EVALUACION)[number];
 
 export function normalizeTipoEvaluacion(value: unknown, fallback = "Ventas"): string {

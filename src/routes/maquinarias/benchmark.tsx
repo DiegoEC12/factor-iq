@@ -17,7 +17,7 @@ import { dataset } from "@/lib/mystery/dataset";
 import { MultiFilterSelect } from "@/components/dash/MultiFilterSelect";
 import { Button } from "@/components/ui/button";
 import {
-  CANONICAL_TIPOS_EVALUACION,
+  VISIBLE_TIPOS_EVALUACION,
   type CanonicalTipoEvaluacion,
   includesTipoEvaluacion,
   normalizeTipoEvaluacion,
@@ -166,8 +166,8 @@ function BenchmarkPage() {
               ),
           ),
         ].sort((a, b) => {
-          const idxA = CANONICAL_TIPOS_EVALUACION.indexOf(a as CanonicalTipoEvaluacion);
-          const idxB = CANONICAL_TIPOS_EVALUACION.indexOf(b as CanonicalTipoEvaluacion);
+          const idxA = VISIBLE_TIPOS_EVALUACION.indexOf(a as CanonicalTipoEvaluacion);
+          const idxB = VISIBLE_TIPOS_EVALUACION.indexOf(b as CanonicalTipoEvaluacion);
           if (idxA !== -1 && idxB !== -1) return idxA - idxB;
           return a.localeCompare(b, "es");
         });
@@ -188,7 +188,7 @@ function BenchmarkPage() {
     return {
       marcas: optionsFor("marca"),
       ubicaciones: optionsFor("ubicacion"),
-      tiposEvaluacion: optionsFor("tipoEvaluacion"),
+      tiposEvaluacion: optionsFor("tipoEvaluacion").filter((tipo) => tipo !== "Postventa"),
     };
   }, [benchmarkFilters, maquinariasBase, matchActiveBenchmarkFilters]);
 

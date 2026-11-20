@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useFilters } from "@/lib/mystery/filter-context-store";
 import { MultiFilterSelect } from "./MultiFilterSelect";
 
-import { CANONICAL_TIPOS_EVALUACION, normalizeTipoEvaluacion } from "@/lib/tipo-evaluacion";
+import { VISIBLE_TIPOS_EVALUACION, normalizeTipoEvaluacion } from "@/lib/tipo-evaluacion";
 
 export function CompactFilterControls({ showIndicator = true }: { showIndicator?: boolean }) {
   const {
@@ -25,13 +25,12 @@ export function CompactFilterControls({ showIndicator = true }: { showIndicator?
 
   const tipoEvaluacionOptions = useMemo(() => {
     const dynamicTipos = new Set(
-      (options.tiposEvaluacion.length > 0
-        ? options.tiposEvaluacion
-        : CANONICAL_TIPOS_EVALUACION
-      ).map((item) => normalizeTipoEvaluacion(item)),
+      (options.tiposEvaluacion.length > 0 ? options.tiposEvaluacion : VISIBLE_TIPOS_EVALUACION).map(
+        (item) => normalizeTipoEvaluacion(item),
+      ),
     );
 
-    return CANONICAL_TIPOS_EVALUACION.filter(
+    return VISIBLE_TIPOS_EVALUACION.filter(
       (tipo) => dynamicTipos.size === 0 || dynamicTipos.has(tipo),
     ).map((type) => ({ value: type, label: type }));
   }, [options.tiposEvaluacion]);
