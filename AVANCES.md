@@ -281,3 +281,9 @@ Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproduc
 4. **Respaldo Automático**:
    Configurar una tarea cron en cPanel para ejecutar un volcado diario de la base `factoriq`:
    `mysqldump -u factoriq_user -p'password' factoriq > /home/user/backups/factoriq_$(date +\%F).sql`.
+
+## Ajustes de UI — Resumen Ejecutivo
+
+- [x] **Panel "Comentarios del evaluador" oculto** en `/maquinarias` (Resumen Ejecutivo): se comentó `<EvaluatorPanel />` en `src/routes/maquinarias/index.tsx` junto con su columna, y el grid pasó a una sola columna para que el contenido ocupe todo el ancho. El componente permanece en el código para poder reactivarlo.
+- [x] **Rangos de color en la tarjeta "Puntaje global"** (`src/components/dash/KpiRow.tsx`): al desplegar el detalle, cada nivel (Alto / Medio / Crítico) muestra su rango junto al conteo de evaluaciones — Alto: > 70%, Medio: 50% - 70%, Crítico: < 50%.
+- [x] **Rangos retirados del mapa de calor** (`src/components/dash/Heatmap.tsx`): la leyenda superior conserva los colores y ahora solo muestra las etiquetas Crítico / Medio / Alto, sin porcentajes.

@@ -50,8 +50,8 @@ function NavLinks({ collapsed, onNavigate }: { collapsed: boolean; onNavigate?: 
         if (item.to === "/maquinarias/cuestionarios" && !collapsed) {
           const questionnaireActive = pathname === item.to;
           return (
-            <div key={item.to}>
-              <div className="flex items-center">
+            <div className="hidden" key={item.to}>
+              <div className="flex hidden items-center">
                 <Link
                   to={item.to}
                   onClick={() => {

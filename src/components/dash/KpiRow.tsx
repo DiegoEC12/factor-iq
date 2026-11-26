@@ -4,6 +4,12 @@ import { cn } from "@/lib/utils";
 import { ScoreBar, ToneDot } from "@/components/dash/primitives";
 import { labelOf, pct, toneColor, toneLabel, toneOf, type Evaluacion } from "@/lib/analytics";
 
+const toneRange: Record<"alto" | "medio" | "critico", string> = {
+  alto: "> 70%",
+  medio: "50% - 70%",
+  critico: "< 50%",
+};
+
 type Kpi = {
   key: string;
   label: string;
@@ -108,6 +114,9 @@ export function KpiRow({
                   style={{ backgroundColor: toneColor[t] }}
                 />
                 {toneLabel[t]}
+                <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-muted-foreground">
+                  {toneRange[t]}
+                </span>
               </span>
               <span className="font-semibold text-foreground">{dist[t]}</span>
             </li>

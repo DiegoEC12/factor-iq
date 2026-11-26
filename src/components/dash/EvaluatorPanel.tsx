@@ -177,7 +177,7 @@ export function EvaluatorPanel({
             type="button"
             onClick={() => setTab(key)}
             className={cn(
-              "flex-1 px-2 py-2.5 transition-colors",
+              "flex-1  px-2 py-2.5 transition-colors",
               tab === key
                 ? "border-b-2 border-primary text-primary"
                 : "text-muted-foreground hover:text-foreground",

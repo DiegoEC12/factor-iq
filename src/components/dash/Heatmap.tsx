@@ -7,6 +7,7 @@ import {
   labelOf,
   pct,
   toneColor,
+  toneLabel,
   toneOf,
   title,
   type Evaluacion,
@@ -53,7 +54,7 @@ export function Heatmap({
           {(["critico", "medio", "alto"] as const).map((t) => (
             <span key={t} className="flex items-center gap-1">
               <span className="h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: toneColor[t] }} />
-              {t === "critico" ? "<50%" : t === "medio" ? "50-70%" : ">70%"}
+              {toneLabel[t]}
             </span>
           ))}
         </div>
