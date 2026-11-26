@@ -2,7 +2,15 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScoreBar, ToneDot } from "@/components/dash/primitives";
-import { labelOf, pct, toneColor, toneLabel, toneOf, type Evaluacion } from "@/lib/analytics";
+import {
+  indicadores as allIndicadores,
+  labelOf,
+  pct,
+  toneColor,
+  toneLabel,
+  toneOf,
+  type Evaluacion,
+} from "@/lib/analytics";
 
 const toneRange: Record<"alto" | "medio" | "critico", string> = {
   alto: "> 70%",
@@ -30,27 +38,33 @@ function KpiCard({
   onToggle: () => void;
   index: number;
 }) {
+  const expandable = kpi.detail !== null && kpi.detail !== undefined;
+
   return (
     <button
       type="button"
-      onClick={onToggle}
+      onClick={expandable ? onToggle : undefined}
+      disabled={!expandable}
       className={cn(
-        "panel panel-interactive rise-in group flex flex-col p-4 text-left",
-        open && "ring-2 ring-ring/25",
+        "panel rise-in group flex flex-col p-4 text-left disabled:opacity-100",
+        expandable && "panel-interactive",
+        open && expandable && "ring-2 ring-ring/25",
       )}
       style={{ animationDelay: `${index * 70}ms` }}
-      aria-expanded={open}
+      aria-expanded={expandable ? open : undefined}
     >
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
         <span className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           {kpi.label}
         </span>
-        <ChevronDown
-          className={cn(
-            "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300",
-            open && "rotate-180 text-primary",
-          )}
-        />
+        {expandable && (
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300",
+              open && "rotate-180 text-primary",
+            )}
+          />
+        )}
       </div>
       <div
         className="mt-2 font-display text-3xl font-extrabold tracking-tight"
@@ -60,19 +74,67 @@ function KpiCard({
       </div>
       <p className="mt-1 truncate text-xs text-muted-foreground">{kpi.caption}</p>
       {kpi.tone !== undefined && <ScoreBar value={kpi.tone} className="mt-3" delay={index * 90} />}
-      <div
-        className={cn(
-          "grid transition-all duration-300 ease-out",
-          open ? "mt-3 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
-        )}
-      >
-        <div className="overflow-hidden">
-          <div className="border-t border-border pt-3 text-xs text-muted-foreground">
-            {kpi.detail}
+      {expandable && (
+        <div
+          className={cn(
+            "grid transition-all duration-300 ease-out",
+            open ? "mt-3 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="border-t border-border pt-3 text-xs text-muted-foreground">
+              {kpi.detail}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </button>
+  );
+}
+
+/**
+ * Detalle de la mejor/peor visita: en lugar del comentario del evaluador se
+ * muestran los indicadores que más destacan (o que más deben mejorar).
+ * Si la evaluación no tiene resultados por indicador, no se muestra nada.
+ */
+function evaluationIndicators(evaluation: Evaluacion, mode: "best" | "worst") {
+  return allIndicadores
+    .filter((indicator) => indicator.ev === evaluation.id)
+    .sort((a, b) => (mode === "best" ? b.cumpl - a.cumpl : a.cumpl - b.cumpl))
+    .slice(0, 3);
+}
+
+function EvaluationIndicators({
+  rows,
+  mode,
+}: {
+  rows: ReturnType<typeof evaluationIndicators>;
+  mode: "best" | "worst";
+}) {
+  if (rows.length === 0) return null;
+
+  return (
+    <div>
+      <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        {mode === "best" ? "Fortalezas de la visita" : "Oportunidades de la visita"}
+      </p>
+      <ul className="space-y-1.5">
+        {rows.map((indicator) => (
+          <li
+            key={`${indicator.n}-${indicator.nombre}`}
+            className="flex items-center justify-between gap-2"
+          >
+            <span className="min-w-0 truncate">{indicator.nombre}</span>
+            <span
+              className="shrink-0 font-semibold"
+              style={{ color: toneColor[toneOf(indicator.cumpl)] }}
+            >
+              {pct(indicator.cumpl)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -146,11 +208,12 @@ export function KpiRow({
       value: best ? pct(best.score) : "—",
       caption: best ? labelOf(best.ev) : "Sin datos",
       tone: best?.score,
-      detail: best ? (
-        <p className="line-clamp-4 leading-relaxed">
-          {best.ev.resumen ?? "Sin resumen disponible."}
-        </p>
-      ) : null,
+      detail: best
+        ? (() => {
+            const rows = evaluationIndicators(best.ev, "best");
+            return rows.length ? <EvaluationIndicators rows={rows} mode="best" /> : null;
+          })()
+        : null,
     },
     {
       key: "worst",
@@ -158,11 +221,12 @@ export function KpiRow({
       value: worst ? pct(worst.score) : "—",
       caption: worst ? labelOf(worst.ev) : "Sin datos",
       tone: worst?.score,
-      detail: worst ? (
-        <p className="line-clamp-4 leading-relaxed">
-          {worst.ev.resumen ?? "Sin resumen disponible."}
-        </p>
-      ) : null,
+      detail: worst
+        ? (() => {
+            const rows = evaluationIndicators(worst.ev, "worst");
+            return rows.length ? <EvaluationIndicators rows={rows} mode="worst" /> : null;
+          })()
+        : null,
     },
     {
       key: "criticos",

@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PageHeader } from "@/components/mystery/page-header";
 import { SectionHeader, EmptyState } from "@/components/mystery/primitives";
 import {
@@ -25,6 +26,11 @@ function IndicadoresPage() {
   const [selectedLocal, setSelectedLocal] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<"id" | "mayor" | "menor">("id");
   const [showAllLocalsFor, setShowAllLocalsFor] = useState<string | null>(null);
+  const [evaluationIndex, setEvaluationIndex] = useState(0);
+
+  useEffect(() => {
+    setEvaluationIndex(0);
+  }, [selectedIndicator, selectedLocal]);
 
   void dataVersion;
   const scopes = getScopes(filters);
@@ -87,22 +93,42 @@ function IndicadoresPage() {
     const indObj = indicatorList.find((i) => i.id === selectedIndicator);
     const indOrder = indObj?.orden;
 
-    const questionRows = preguntas
-      .filter(
-        (question) =>
-          (question.ind === indOrder || question.indicador === indObj?.nombre) &&
-          local.evIds.includes(question.ev) &&
-          question.nota !== null,
-      )
-      .map((question) => ({ ...question, score: (question.nota ?? 0) * 100 }));
+    // Una misma sede puede tener varias evaluaciones (distintos meses/canales).
+    // Se agrupan por evaluación para que las preguntas no se dupliquen.
+    const evaluations = local.evIds
+      .map((id) => evs.find((evaluation) => evaluation.id === id))
+      .filter((evaluation): evaluation is (typeof evs)[number] => Boolean(evaluation))
+      .map((evaluation) => {
+        const questionRows = preguntas
+          .filter(
+            (question) =>
+              question.ev === evaluation.id &&
+              (question.ind === indOrder || question.indicador === indObj?.nombre) &&
+              question.nota !== null,
+          )
+          .map((question) => ({ ...question, score: (question.nota ?? 0) * 100 }))
+          .sort((a, b) => b.score - a.score);
 
-    const allQuestions = [...questionRows].sort((a, b) => b.score - a.score);
+        return {
+          id: evaluation.id,
+          label: `${evaluation.marca}${evaluation.ubicacion ? ` · ${evaluation.ubicacion}` : ""}`,
+          meta: [evaluation.tipoEvaluacion, evaluation.mes ?? evaluation.fechaEvaluacion]
+            .filter(Boolean)
+            .join(" · "),
+          overall: (indicatorScore([evaluation.id], selectedIndicator) ?? 0) * 100,
+          questions: questionRows,
+        };
+      });
+
     return {
       local,
-      overall: (localScores.get(local.id) ?? 0) * 100,
-      questions: allQuestions,
+      evaluations,
     };
-  }, [selectedIndicator, selectedLocal, locales, localScores, indicatorList]);
+  }, [selectedIndicator, selectedLocal, locales, evs, indicatorList]);
+
+  const evaluationsCount = sidebarDetail?.evaluations.length ?? 0;
+  const safeEvaluationIndex = Math.min(evaluationIndex, Math.max(0, evaluationsCount - 1));
+  const currentEvaluation = sidebarDetail?.evaluations[safeEvaluationIndex] ?? null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -280,7 +306,7 @@ function IndicadoresPage() {
               <div className="text-sm text-muted-foreground">
                 Selecciona un local en la lista para ver su resumen.
               </div>
-            ) : sidebarDetail ? (
+            ) : sidebarDetail && currentEvaluation ? (
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-semibold">{sidebarDetail.local.nombre}</h3>
@@ -288,21 +314,59 @@ function IndicadoresPage() {
                     Indicador:{" "}
                     {indicatorList.find((indicator) => indicator.id === selectedIndicator)?.nombre}
                   </div>
+                  <div className="mt-0.5 text-[11px] text-muted-foreground">
+                    {currentEvaluation.meta}
+                  </div>
                 </div>
+
+                {sidebarDetail.evaluations.length > 1 && (
+                  <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/40 px-2 py-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setEvaluationIndex((index) => Math.max(0, index - 1))}
+                      disabled={safeEvaluationIndex === 0}
+                      aria-label="Ver evaluación anterior"
+                      className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-primary disabled:cursor-not-allowed disabled:opacity-35"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <div className="min-w-0 text-center">
+                      <p className="text-[11px] font-semibold text-foreground">
+                        Evaluación {safeEvaluationIndex + 1} de {evaluationsCount}
+                      </p>
+                      <p className="truncate text-[11px] text-muted-foreground">
+                        {currentEvaluation.label}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setEvaluationIndex((index) => Math.min(evaluationsCount - 1, index + 1))
+                      }
+                      disabled={safeEvaluationIndex >= evaluationsCount - 1}
+                      aria-label="Ver evaluación siguiente"
+                      className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-accent hover:text-primary disabled:cursor-not-allowed disabled:opacity-35"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-muted-foreground">Puntaje del indicador</div>
                   <div
                     className={cn(
                       "text-2xl font-black tabular-nums",
-                      getTextClass(sidebarDetail.overall),
+                      getTextClass(currentEvaluation.overall),
                     )}
                   >
-                    {Math.round(sidebarDetail.overall)}%
+                    {Math.round(currentEvaluation.overall)}%
                   </div>
                 </div>
                 <QuestionSummary
+                  key={currentEvaluation.id}
                   title="Preguntas (mejor → peor)"
-                  questions={sidebarDetail.questions.map((q) => ({ q: q.q, score: q.score }))}
+                  questions={currentEvaluation.questions.map((q) => ({ q: q.q, score: q.score }))}
                 />
               </div>
             ) : (

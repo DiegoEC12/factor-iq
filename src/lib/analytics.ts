@@ -231,6 +231,50 @@ export function brechaPorIndicador(evs: Evaluacion[]) {
     .sort((a, b) => (b.own ?? -Infinity) - (a.own ?? -Infinity));
 }
 
+/**
+ * Devuelve el texto de recomendaciones de una evaluación.
+ *
+ * Algunas importaciones llegan sin la columna `recomendaciones` pero sí con las
+ * recomendaciones embebidas en el resumen de la visita (como lista de puntos o
+ * como frases de cierre). En ese caso se extraen para no dejar la sección vacía.
+ */
+export function recommendationsForEvaluation(ev: Evaluacion | null | undefined): {
+  text: string | null;
+  derived: boolean;
+} {
+  if (!ev) return { text: null, derived: false };
+  if (ev.recomendaciones?.trim()) return { text: ev.recomendaciones.trim(), derived: false };
+
+  const summary = String(ev.resumen ?? "")
+    .replace(/\r\n/g, "\n")
+    .trim();
+  if (!summary) return { text: null, derived: false };
+
+  // 1) Lista de puntos embebida en el resumen (* punto 1 * punto 2 ...)
+  const bulletPoints = summary
+    .split(/\s*\*\s*/)
+    .slice(1)
+    .map((point) => point.replace(/^recomendaciones[:\s-]*/i, "").trim())
+    .filter((point) => point.length > 20);
+  if (bulletPoints.length >= 2) {
+    return { text: bulletPoints.join("\n"), derived: true };
+  }
+
+  // 2) Frases con verbos/sesgo de recomendación al final del resumen
+  const sentences = summary
+    .split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚÑ¿])/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+  const recommendationCue =
+    /se recomienda|se sugiere|es importante|es fundamental|se debe|deber[íi]a|fortalecer|reforzar|mejorar|implementar|garantizar|capacitar|incorporar|potenciar|recomendable/i;
+  const picks = sentences.filter((sentence) => recommendationCue.test(sentence));
+  if (picks.length) {
+    return { text: picks.slice(-5).join("\n"), derived: true };
+  }
+
+  return { text: null, derived: false };
+}
+
 export type PreguntaAgg = {
   q: string;
   indicador: string;

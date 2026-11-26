@@ -241,6 +241,16 @@
   color: var(--color-bad) !important;
 }
 
+/* Mensaje de benchmark: fondo y fuente según el signo de la brecha */
+.benchmark-message--positive {
+  background-color: color-mix(in oklch, var(--color-good) 14%, var(--background)) !important;
+  color: var(--color-good) !important;
+}
+.benchmark-message--negative {
+  background-color: color-mix(in oklch, var(--color-bad) 14%, var(--background)) !important;
+  color: var(--color-bad) !important;
+}
+
 /* Catch-all for Tailwind-style alpha suffixes (e.g. bg-danger/15) */
 [class*="bg-success"] {
   background-color: var(--color-good) !important;

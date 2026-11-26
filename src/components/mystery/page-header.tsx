@@ -1,6 +1,8 @@
 // Header simplificado: sin selects de filtro embebidos.
 
-export function PageHeader({ title, description }: { title: string; description: string }) {
+import type { ReactNode } from "react";
+
+export function PageHeader({ title, description }: { title: string; description: ReactNode }) {
   // ya no se usan filtros en el header
   return (
     <header className="border-b border-border bg-card/60 px-5 py-4 backdrop-blur-sm md:px-8">

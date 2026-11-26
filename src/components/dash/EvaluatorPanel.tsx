@@ -167,8 +167,8 @@ export function EvaluatorPanel({
       <div className="flex border-b border-border text-xs font-semibold">
         {(
           [
-            ["resumen", "Resumen"],
-            ["recomendaciones", "Recomendaciones"],
+            /*["resumen", "Resumen"],
+            ["recomendaciones", "Recomendaciones"],*/
             ["indicadores", "Indicadores"],
           ] as const
         ).map(([key, label]) => (

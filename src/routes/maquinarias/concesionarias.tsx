@@ -14,7 +14,11 @@ import {
   statusFor,
   type GroupScore,
 } from "@/lib/mystery/calculations";
-import { evaluaciones as evaluatorEvaluations, localKey } from "@/lib/analytics";
+import {
+  evaluaciones as evaluatorEvaluations,
+  localKey,
+  recommendationsForEvaluation,
+} from "@/lib/analytics";
 import { dataset } from "@/lib/mystery/dataset";
 import { fmtPct } from "@/lib/mystery/format";
 import { useFilters } from "@/lib/mystery/filter-context-store";
@@ -475,18 +479,22 @@ function EvaluatorComments({ evaluations }: { evaluations: typeof dataset.evalua
   const evaluatorById = new Map(
     evaluatorEvaluations.map((evaluation) => [evaluation.id, evaluation]),
   );
-  const content =
-    tab === "resumen"
-      ? evaluations.map((evaluation) => ({
-          id: evaluation.id,
-          text: evaluatorById.get(evaluation.id)?.resumen,
-          label: `${evaluation.marca} · ${evaluation.ubicacion}`,
-        }))
-      : evaluations.map((evaluation) => ({
-          id: evaluation.id,
-          text: evaluatorById.get(evaluation.id)?.recomendaciones,
-          label: `${evaluation.marca} · ${evaluation.ubicacion}`,
-        }));
+  const content = evaluations.map((evaluation) => {
+    const evaluator = evaluatorById.get(evaluation.id);
+    const label = [
+      evaluation.marca,
+      evaluation.ubicacion,
+      evaluation.tipoEvaluacion,
+      evaluation.mes ?? evaluation.fechaEvaluacion,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+    if (tab === "resumen") {
+      return { id: evaluation.id, text: evaluator?.resumen ?? null, label, derived: false };
+    }
+    const recommendation = recommendationsForEvaluation(evaluator);
+    return { id: evaluation.id, text: recommendation.text, label, derived: recommendation.derived };
+  });
   const Icon = tab === "resumen" ? MessageSquareQuote : Lightbulb;
 
   return (
@@ -516,19 +524,34 @@ function EvaluatorComments({ evaluations }: { evaluations: typeof dataset.evalua
         </button>
       </div>
       <div className="max-h-56 space-y-3 overflow-y-auto pr-1">
-        {content.map((item) => (
-          <div key={item.id} className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
-            <p className="mb-1 text-xs font-semibold text-foreground">{item.label}</p>
-            <div className="flex gap-2">
-              <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-              <ul className="list-disc space-y-1.5 pl-4">
-                {textAsPoints(item.text).map((point) => (
-                  <li key={point}>{point}</li>
-                ))}
-              </ul>
+        {content.map((item) => {
+          const points = textAsPoints(item.text);
+          return (
+            <div key={item.id} className="rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+              <p className="mb-1 text-xs font-semibold text-foreground">{item.label}</p>
+              {points.length ? (
+                <div className="flex gap-2">
+                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <ul className="list-disc space-y-1.5 pl-4">
+                    {points.map((point) => (
+                      <li key={point}>{point}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <p className="text-xs italic text-muted-foreground">
+                  Sin {tab === "resumen" ? "resumen" : "recomendaciones"} registradas para esta
+                  evaluación.
+                </p>
+              )}
+              {item.derived && points.length > 0 && (
+                <p className="mt-1.5 text-[11px] text-muted-foreground/80">
+                  Extraídas del resumen de la visita.
+                </p>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

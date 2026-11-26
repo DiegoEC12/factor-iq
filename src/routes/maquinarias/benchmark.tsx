@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
-import { ArrowRight, RotateCcw } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/mystery/page-header";
 import { EmptyState, GapChip, SectionHeader } from "@/components/mystery/primitives";
@@ -9,44 +9,11 @@ import {
   calculateBenchmark,
   calculateIndicatorPerformance,
   benchmarkSentence,
-  type Scopes,
+  getScopes,
 } from "@/lib/mystery/calculations";
 import { fmtPct, fmtPp } from "@/lib/mystery/format";
 import { cn } from "@/lib/utils";
-import { dataset } from "@/lib/mystery/dataset";
-import { MultiFilterSelect } from "@/components/dash/MultiFilterSelect";
-import { Button } from "@/components/ui/button";
-import {
-  VISIBLE_TIPOS_EVALUACION,
-  type CanonicalTipoEvaluacion,
-  includesTipoEvaluacion,
-  normalizeTipoEvaluacion,
-} from "@/lib/tipo-evaluacion";
-
-type BenchmarkFilters = {
-  marca: string[] | null;
-  ubicacion: string[] | null;
-  tipoEvaluacion: string[] | null;
-};
-
-type CompetenciaFilters = {
-  concesionaria: string[] | null;
-  marca: string[] | null;
-  ubicacion: string[] | null;
-};
-
-const EMPTY_BENCHMARK_FILTERS: BenchmarkFilters = {
-  marca: null,
-  ubicacion: null,
-  // El benchmark debe iniciar mostrando únicamente Ventas, igual que el panel ejecutivo.
-  tipoEvaluacion: ["Ventas"],
-};
-
-const EMPTY_COMPETENCIA_FILTERS: CompetenciaFilters = {
-  concesionaria: null,
-  marca: null,
-  ubicacion: null,
-};
+import CompactFilterControls from "@/components/dash/CompactFilterControls";
 
 export const Route = createFileRoute("/maquinarias/benchmark")({
   head: () => ({
@@ -55,342 +22,35 @@ export const Route = createFileRoute("/maquinarias/benchmark")({
   component: BenchmarkPage,
 });
 
+type SentenceTone = "positive" | "negative" | "neutral";
+
+function sentenceTone(brecha: number | null): SentenceTone {
+  if (brecha === null || !Number.isFinite(brecha) || brecha === 0) return "neutral";
+  return brecha > 0 ? "positive" : "negative";
+}
+
 function BenchmarkPage() {
-  const { openIndicador, dataVersion } = useFilters();
+  const { filters, openIndicador, dataVersion } = useFilters();
   const [sort, setSort] = useState<"abs" | "ventaja-maq" | "ventaja-comp" | "mayor" | "menor">(
     "abs",
   );
-  const [benchmarkFilters, setBenchmarkFilters] =
-    useState<BenchmarkFilters>(EMPTY_BENCHMARK_FILTERS);
-  const [competenciaFilters, setCompetenciaFilters] =
-    useState<CompetenciaFilters>(EMPTY_COMPETENCIA_FILTERS);
-  const maquinariasConcesionarias = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          dataset.evaluations
-            .filter(
-              (evaluation) =>
-                evaluation.tipoEmpresa === "MAQUINARIAS" &&
-                (benchmarkFilters.marca === null ||
-                  benchmarkFilters.marca.includes(evaluation.marca)) &&
-                (benchmarkFilters.ubicacion === null ||
-                  benchmarkFilters.ubicacion.includes(evaluation.ubicacion)) &&
-                (benchmarkFilters.tipoEvaluacion === null ||
-                  includesTipoEvaluacion(
-                    benchmarkFilters.tipoEvaluacion,
-                    evaluation.tipoEvaluacion,
-                  )),
-            )
-            .map((evaluation) => evaluation.concesionaria),
-        ),
-      ),
-    [benchmarkFilters],
-  );
-  const openBenchmarkIndicator = useCallback(
-    (id: string) =>
-      openIndicador(id, {
-        concesionaria: maquinariasConcesionarias,
-        marca: benchmarkFilters.marca,
-        ubicacion: benchmarkFilters.ubicacion,
-        tipoEvaluacion: benchmarkFilters.tipoEvaluacion,
-      }),
-    [benchmarkFilters, maquinariasConcesionarias, openIndicador],
-  );
 
   void dataVersion;
-  const maquinariasBase = dataset.evaluations.filter(
-    (evaluation) => evaluation.tipoEmpresa === "MAQUINARIAS",
+  const scopes = getScopes(filters);
+  const bench = useMemo(
+    () => calculateBenchmark(scopes, filters.indicador),
+    [filters.indicador, scopes],
   );
-  const competenciaBase = dataset.evaluations.filter(
-    (evaluation) => evaluation.tipoEmpresa === "COMPETENCIA",
-  );
+  const indicators = useMemo(() => {
+    const list = calculateIndicatorPerformance(scopes);
+    if (filters.indicador?.length) {
+      return list.filter((indicator) => filters.indicador!.includes(indicator.id));
+    }
+    return list;
+  }, [filters.indicador, scopes]);
 
-  const matchBenchmarkFilters = useCallback(
-    (evaluation: (typeof dataset.evaluations)[number], filters: BenchmarkFilters) =>
-      (filters.marca === null || filters.marca.includes(evaluation.marca)) &&
-      (filters.ubicacion === null || filters.ubicacion.includes(evaluation.ubicacion)) &&
-      (filters.tipoEvaluacion === null ||
-        includesTipoEvaluacion(filters.tipoEvaluacion, evaluation.tipoEvaluacion)),
-    [],
-  );
-
-  const matchActiveBenchmarkFilters = useCallback(
-    (evaluation: (typeof dataset.evaluations)[number], filters: BenchmarkFilters) =>
-      (!filters.marca?.length || filters.marca.includes(evaluation.marca)) &&
-      (!filters.ubicacion?.length || filters.ubicacion.includes(evaluation.ubicacion)) &&
-      (filters.tipoEvaluacion === null ||
-        includesTipoEvaluacion(filters.tipoEvaluacion, evaluation.tipoEvaluacion)),
-    [],
-  );
-
-  const matchCompetenciaFilters = useCallback(
-    (evaluation: (typeof dataset.evaluations)[number], filters: CompetenciaFilters) =>
-      (filters.concesionaria === null ||
-        filters.concesionaria.includes(evaluation.concesionaria)) &&
-      (filters.marca === null || filters.marca.includes(evaluation.marca)) &&
-      (filters.ubicacion === null || filters.ubicacion.includes(evaluation.ubicacion)),
-    [],
-  );
-
-  const matchActiveCompetenciaFilters = useCallback(
-    (evaluation: (typeof dataset.evaluations)[number], filters: CompetenciaFilters) =>
-      (!filters.concesionaria?.length ||
-        filters.concesionaria.includes(evaluation.concesionaria)) &&
-      (!filters.marca?.length || filters.marca.includes(evaluation.marca)) &&
-      (!filters.ubicacion?.length || filters.ubicacion.includes(evaluation.ubicacion)),
-    [],
-  );
-
-  const matchContextFilters = useCallback(
-    (
-      evaluation: (typeof dataset.evaluations)[number],
-      filters: Pick<BenchmarkFilters, "ubicacion" | "tipoEvaluacion">,
-    ) =>
-      (!filters.ubicacion?.length || filters.ubicacion.includes(evaluation.ubicacion)) &&
-      includesTipoEvaluacion(filters.tipoEvaluacion, evaluation.tipoEvaluacion),
-    [],
-  );
-
-  const benchmarkOptions = useMemo(() => {
-    const optionsFor = (key: keyof BenchmarkFilters) => {
-      const criteria: BenchmarkFilters = { ...benchmarkFilters, [key]: null };
-      if (key === "tipoEvaluacion") {
-        return [
-          ...new Set(
-            maquinariasBase
-              .filter((evaluation) => matchActiveBenchmarkFilters(evaluation, criteria))
-              .map((evaluation) => normalizeTipoEvaluacion(evaluation.tipoEvaluacion))
-              .filter(
-                (value): value is string => typeof value === "string" && value.trim().length > 0,
-              ),
-          ),
-        ].sort((a, b) => {
-          const idxA = VISIBLE_TIPOS_EVALUACION.indexOf(a as CanonicalTipoEvaluacion);
-          const idxB = VISIBLE_TIPOS_EVALUACION.indexOf(b as CanonicalTipoEvaluacion);
-          if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-          return a.localeCompare(b, "es");
-        });
-      }
-
-      return [
-        ...new Set(
-          maquinariasBase
-            .filter((evaluation) => matchActiveBenchmarkFilters(evaluation, criteria))
-            .map((evaluation) => evaluation[key])
-            .filter(
-              (value): value is string => typeof value === "string" && value.trim().length > 0,
-            ),
-        ),
-      ].sort((a, b) => a.localeCompare(b, "es"));
-    };
-
-    return {
-      marcas: optionsFor("marca"),
-      ubicaciones: optionsFor("ubicacion"),
-      tiposEvaluacion: optionsFor("tipoEvaluacion").filter((tipo) => tipo !== "Postventa"),
-    };
-  }, [benchmarkFilters, maquinariasBase, matchActiveBenchmarkFilters]);
-
-  const setBenchmarkFilter = (key: keyof BenchmarkFilters, value: string[] | null) => {
-    setBenchmarkFilters((prev) => {
-      const next: BenchmarkFilters = {
-        ...prev,
-        [key]: value,
-      };
-
-      const optionsFor = (targetKey: keyof BenchmarkFilters) => {
-        const criteria: BenchmarkFilters = { ...next, [targetKey]: null };
-        return new Set(
-          maquinariasBase
-            .filter((evaluation) => matchActiveBenchmarkFilters(evaluation, criteria))
-            .map((evaluation) => evaluation[targetKey])
-            .filter((item): item is string => typeof item === "string" && item.trim().length > 0),
-        );
-      };
-
-      for (const targetKey of ["marca", "ubicacion", "tipoEvaluacion"] as const) {
-        const current = next[targetKey];
-        if (current === null || current.length === 0) continue;
-        const allowed = optionsFor(targetKey);
-        next[targetKey] = current.filter((item) => allowed.has(item));
-      }
-
-      setCompetenciaFilters((prevComp) => {
-        const nextComp: CompetenciaFilters = {
-          ...prevComp,
-          marca: next.marca,
-          ubicacion: next.ubicacion,
-        };
-        const scopedCompetencia = competenciaBase.filter((evaluation) =>
-          matchContextFilters(evaluation, {
-            ubicacion: next.ubicacion,
-            tipoEvaluacion: next.tipoEvaluacion,
-          }),
-        );
-
-        const optionsForCompetencia = (targetKey: keyof CompetenciaFilters) => {
-          const criteria: CompetenciaFilters = { ...nextComp, [targetKey]: null };
-          return new Set(
-            scopedCompetencia
-              .filter((evaluation) => matchActiveCompetenciaFilters(evaluation, criteria))
-              .map((evaluation) => evaluation[targetKey])
-              .filter((item): item is string => typeof item === "string" && item.trim().length > 0),
-          );
-        };
-
-        for (const targetKey of ["concesionaria"] as const) {
-          const current = nextComp[targetKey];
-          if (current === null || current.length === 0) continue;
-          const allowed = optionsForCompetencia(targetKey);
-          nextComp[targetKey] = current.filter((item) => allowed.has(item));
-        }
-
-        return nextComp;
-      });
-
-      return next;
-    });
-  };
-
-  const competenciaScopedByMaquinarias = useMemo(
-    () =>
-      competenciaBase.filter((evaluation) =>
-        matchContextFilters(evaluation, {
-          ubicacion: benchmarkFilters.ubicacion,
-          tipoEvaluacion: benchmarkFilters.tipoEvaluacion,
-        }),
-      ),
-    [
-      benchmarkFilters.tipoEvaluacion,
-      benchmarkFilters.ubicacion,
-      competenciaBase,
-      matchContextFilters,
-    ],
-  );
-
-  const competenciaOptions = useMemo(() => {
-    const optionsFor = (key: keyof CompetenciaFilters) => {
-      const criteria: CompetenciaFilters = { ...competenciaFilters, [key]: null };
-      return [
-        ...new Set(
-          competenciaScopedByMaquinarias
-            .filter((evaluation) => matchActiveCompetenciaFilters(evaluation, criteria))
-            .map((evaluation) => evaluation[key])
-            .filter(
-              (value): value is string => typeof value === "string" && value.trim().length > 0,
-            ),
-        ),
-      ].sort((a, b) => a.localeCompare(b, "es"));
-    };
-
-    return {
-      concesionarias: optionsFor("concesionaria"),
-      marcas: optionsFor("marca"),
-      ubicaciones: optionsFor("ubicacion"),
-    };
-  }, [competenciaFilters, competenciaScopedByMaquinarias, matchActiveCompetenciaFilters]);
-
-  const setCompetenciaFilter = (key: keyof CompetenciaFilters, value: string[] | null) => {
-    setCompetenciaFilters((prev) => {
-      const next: CompetenciaFilters = { ...prev, [key]: value };
-
-      const optionsFor = (targetKey: keyof CompetenciaFilters) => {
-        const criteria: CompetenciaFilters = { ...next, [targetKey]: null };
-        return new Set(
-          competenciaScopedByMaquinarias
-            .filter((evaluation) => matchActiveCompetenciaFilters(evaluation, criteria))
-            .map((evaluation) => evaluation[targetKey])
-            .filter((item): item is string => typeof item === "string" && item.trim().length > 0),
-        );
-      };
-
-      for (const targetKey of ["concesionaria"] as const) {
-        const current = next[targetKey];
-        if (current === null || current.length === 0) continue;
-        const allowed = optionsFor(targetKey);
-        next[targetKey] = current.filter((item) => allowed.has(item));
-      }
-
-      return next;
-    });
-  };
-
-  const selectedMaquinarias = useMemo(
-    () =>
-      maquinariasBase.filter((evaluation) => matchBenchmarkFilters(evaluation, benchmarkFilters)),
-    [benchmarkFilters, maquinariasBase, matchBenchmarkFilters],
-  );
-
-  const comparableMaquinarias = useMemo(
-    () =>
-      selectedMaquinarias.filter(
-        (evaluation) =>
-          (!competenciaFilters.marca?.length ||
-            competenciaFilters.marca.includes(evaluation.marca)) &&
-          (!competenciaFilters.ubicacion?.length ||
-            competenciaFilters.ubicacion.includes(evaluation.ubicacion)),
-      ),
-    [competenciaFilters.marca, competenciaFilters.ubicacion, selectedMaquinarias],
-  );
-
-  const selectedCompetencia = useMemo(
-    () =>
-      competenciaScopedByMaquinarias.filter((evaluation) =>
-        matchCompetenciaFilters(evaluation, competenciaFilters),
-      ),
-    [competenciaFilters, competenciaScopedByMaquinarias, matchCompetenciaFilters],
-  );
-
-  const scopes: Scopes = useMemo(
-    () => ({
-      selection: [...selectedMaquinarias, ...selectedCompetencia],
-      maquinarias: comparableMaquinarias,
-      competencia: selectedCompetencia,
-      selectionLabel: "Benchmark VS",
-      maquinariasLabel:
-        comparableMaquinarias.length === 0
-          ? "Maquinarias sin dato comparable"
-          : benchmarkFilters.marca?.length || benchmarkFilters.ubicacion?.length
-            ? "Maquinarias filtrada"
-            : "Maquinarias (todas)",
-      competenciaLabel:
-        competenciaFilters.concesionaria?.length ||
-        competenciaFilters.marca?.length ||
-        competenciaFilters.ubicacion?.length ||
-        benchmarkFilters.ubicacion?.length ||
-        (benchmarkFilters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas"
-          ? "Competencia filtrada"
-          : benchmarkFilters.marca?.length ||
-              benchmarkFilters.ubicacion?.length ||
-              (benchmarkFilters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas"
-            ? "Competencia en contexto Maquinarias"
-            : "Competencia (todas)",
-    }),
-    [
-      benchmarkFilters.marca,
-      benchmarkFilters.ubicacion,
-      benchmarkFilters.tipoEvaluacion,
-      competenciaFilters.concesionaria,
-      competenciaFilters.marca,
-      competenciaFilters.ubicacion,
-      comparableMaquinarias,
-      selectedMaquinarias,
-      selectedCompetencia,
-    ],
-  );
-
-  const benchmarkActiveCount =
-    [
-      benchmarkFilters.marca,
-      benchmarkFilters.ubicacion,
-      competenciaFilters.concesionaria,
-      competenciaFilters.marca,
-      competenciaFilters.ubicacion,
-    ].filter((values) => values !== null && values.length > 0).length +
-    ((benchmarkFilters.tipoEvaluacion?.[0] ?? "Ventas") !== "Ventas" ? 1 : 0);
-  const bench = useMemo(() => calculateBenchmark(scopes), [scopes]);
-  const indicators = useMemo(() => calculateIndicatorPerformance(scopes), [scopes]);
+  const tone = sentenceTone(bench.brecha);
+  const sentence = benchmarkSentence(bench);
 
   const rows: DumbbellRow[] = useMemo(() => {
     const base = indicators.map((i) => ({
@@ -438,126 +98,20 @@ function BenchmarkPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader title="Benchmark" description={benchmarkSentence(bench)} />
+      <PageHeader
+        title="Benchmark"
+        description={
+          <span
+            className={cn(tone === "positive" && "text-alto", tone === "negative" && "text-bajo")}
+          >
+            {sentence}
+          </span>
+        }
+      />
+      <CompactFilterControls showIndicator />
 
       <main className="mx-auto max-w-300 space-y-6 px-4 py-6 lg:px-8">
-        <div className="flex flex-col gap-8 p-5 md:p-8">
-          <section className="rounded-xl border border-border bg-card p-5 md:p-6">
-            <SectionHeader
-              title="Filtro de comparación VS"
-              description="Maquinarias define el contexto del VS. Marca, ubicación y tipo de evaluación se reflejan en Competencia como punto de partida; luego puedes ajustar Competencia por concesionaria, marca y ubicación para comparar escenarios específicos."
-              action={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setBenchmarkFilters(EMPTY_BENCHMARK_FILTERS);
-                    setCompetenciaFilters(EMPTY_COMPETENCIA_FILTERS);
-                  }}
-                  disabled={benchmarkActiveCount === 0}
-                  className="shrink-0 gap-2 rounded-full text-muted-foreground hover:text-primary"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  <span className="hidden sm:inline">Limpiar filtro VS</span>
-                </Button>
-              }
-            />
-            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_260px_minmax(0,1fr)]">
-              <div className="rounded-xl border border-border p-3">
-                <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-foreground">
-                  Maquinarias
-                </h4>
-                <div className="grid grid-cols-1 gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-10 justify-start rounded-full border-border bg-card px-4 text-sm font-medium shadow-none"
-                    disabled
-                  >
-                    Concesionaria: Maquinarias
-                  </Button>
-                  <MultiFilterSelect
-                    label="Marca"
-                    values={benchmarkFilters.marca}
-                    options={benchmarkOptions.marcas.map((item) => ({ value: item, label: item }))}
-                    onChange={(values) => setBenchmarkFilter("marca", values)}
-                  />
-                  <MultiFilterSelect
-                    label="Ubicación"
-                    values={benchmarkFilters.ubicacion}
-                    options={benchmarkOptions.ubicaciones.map((item) => ({
-                      value: item,
-                      label: item,
-                    }))}
-                    onChange={(values) => setBenchmarkFilter("ubicacion", values)}
-                  />
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-border p-3">
-                <h4 className="mb-3 text-center text-sm font-semibold uppercase tracking-wide text-foreground">
-                  Tipo de evaluación
-                </h4>
-                <div className="grid grid-cols-1 gap-2">
-                  <MultiFilterSelect
-                    label="Tipo"
-                    values={benchmarkFilters.tipoEvaluacion}
-                    singleSelect={true}
-                    showAllOption={false}
-                    options={benchmarkOptions.tiposEvaluacion.map((item) => ({
-                      value: item,
-                      label: item,
-                    }))}
-                    onChange={(values) => setBenchmarkFilter("tipoEvaluacion", values)}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-10 justify-start rounded-full border-border bg-card px-4 text-sm font-medium text-muted-foreground shadow-none"
-                    disabled
-                  >
-                    Sincronizado en ambas bases
-                  </Button>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-border p-3">
-                <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-foreground">
-                  Competencia
-                </h4>
-                <div className="grid grid-cols-1 gap-2">
-                  <MultiFilterSelect
-                    label="Concesionaria"
-                    values={competenciaFilters.concesionaria}
-                    options={competenciaOptions.concesionarias.map((item) => ({
-                      value: item,
-                      label: item,
-                    }))}
-                    onChange={(values) => setCompetenciaFilter("concesionaria", values)}
-                  />
-                  <MultiFilterSelect
-                    label="Marca"
-                    values={competenciaFilters.marca}
-                    options={competenciaOptions.marcas.map((item) => ({
-                      value: item,
-                      label: item,
-                    }))}
-                    onChange={(values) => setCompetenciaFilter("marca", values)}
-                  />
-                  <MultiFilterSelect
-                    label="Ubicación"
-                    values={competenciaFilters.ubicacion}
-                    options={competenciaOptions.ubicaciones.map((item) => ({
-                      value: item,
-                      label: item,
-                    }))}
-                    onChange={(values) => setCompetenciaFilter("ubicacion", values)}
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
+        <div className="flex flex-col gap-6 p-1 md:p-2">
           {scopes.selection.length === 0 && (
             <section className="rounded-xl border border-dashed border-border bg-card p-5">
               <EmptyState />
@@ -605,8 +159,15 @@ function BenchmarkPage() {
                 con la selección actual. Mantén la UI y ajusta filtros para continuar comparando.
               </p>
             )}
-            <p className="mx-auto mt-6 max-w-lg rounded-lg bg-accent px-4 py-2.5 text-center text-[13px] font-medium text-accent-foreground">
-              {benchmarkSentence(bench)}
+            <p
+              className={cn(
+                "mx-auto mt-6 max-w-lg rounded-lg px-4 py-2.5 text-center text-[13px] font-semibold",
+                tone === "positive" && "benchmark-message--positive",
+                tone === "negative" && "benchmark-message--negative",
+                tone === "neutral" && "bg-accent text-accent-foreground",
+              )}
+            >
+              {sentence}
             </p>
           </section>
 
@@ -638,7 +199,7 @@ function BenchmarkPage() {
                 No hay datos para el benchmark por indicador con los filtros actuales.
               </p>
             ) : (
-              <DumbbellChart rows={rows} onSelect={openBenchmarkIndicator} />
+              <DumbbellChart rows={rows} onSelect={(id) => openIndicador(id)} />
             )}
           </section>
 
@@ -649,14 +210,14 @@ function BenchmarkPage() {
               description="Top 5 brechas positivas"
               tone="success"
               rows={positivas}
-              onSelect={openBenchmarkIndicator}
+              onSelect={(id) => openIndicador(id)}
             />
             <GapList
               title="Dónde debemos cerrar brechas"
               description="Top 5 indicadores donde la competencia supera a Maquinarias"
               tone="danger"
               rows={negativas}
-              onSelect={openBenchmarkIndicator}
+              onSelect={(id) => openIndicador(id)}
             />
           </section>
         </div>

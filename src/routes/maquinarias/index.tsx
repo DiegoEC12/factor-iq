@@ -161,7 +161,7 @@ function Dashboard() {
   }, [selectedId, evs]);
 
   // Se mantiene para reactivar el panel de comentarios del evaluador.
-  // const selected = evs.find((e) => e.id === selectedId) ?? null;
+   const selected = evs.find((e) => e.id === selectedId) ?? null;
   const activeCount =
     (filters.concesionaria !== null ? 1 : 0) +
     (filters.marca !== null ? 1 : 0) +
@@ -197,8 +197,8 @@ function Dashboard() {
 
         <KpiRow evs={evs} scoreOf={scoreOf} indicadores={indicadorRows} />
 
-        <div className="grid gap-4">
-          <div className="space-y-4">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="space-y-4 lg:col-span-2">
             <div className="grid items-start gap-4 md:grid-cols-2">
               <BenchmarkPanel evs={benchmarkEvs} delay={60} />
 
@@ -227,11 +227,11 @@ function Dashboard() {
               delay={180}
             />
             <HistoricalTrendsChart filters={filters} />
-            {/* <StrengthsOpportunities rows={indicadorRows} delay={240} /> */}
+            { <StrengthsOpportunities rows={indicadorRows} delay={240} /> }
           </div>
 
           {/* Oculto en Resumen Ejecutivo a pedido: comentarios del evaluador, resumen y recomendaciones. */}
-          {/* <div className="lg:col-span-1">
+          { <div className="lg:col-span-1">
             <EvaluatorPanel
               evs={evs}
               selected={selected}
@@ -239,7 +239,7 @@ function Dashboard() {
               selectedIndicator={selectedHeatmapIndicator}
               delay={160}
             />
-          </div> */}
+          </div> }
         </div>
 
         <footer className="pt-2 text-center text-xs text-muted-foreground">
