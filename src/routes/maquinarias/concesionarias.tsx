@@ -309,7 +309,7 @@ function ConcesionariasPage() {
           </span>
         </nav>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <section className="rounded-xl border border-border bg-card p-5">
             <SectionHeader
               title={`Ranking por ${levelLabel}`}
@@ -344,7 +344,7 @@ function ConcesionariasPage() {
             )}
           </section>
 
-          <section className="rounded-xl border border-border bg-card p-5">
+          <section className="rounded-xl h-fit border border-border bg-card p-5">
             {selected ? (
               <>
                 <div className="mb-4 flex items-start justify-between gap-3">
@@ -402,7 +402,7 @@ function ConcesionariasPage() {
 
                 <button
                   onClick={handleDrillDown}
-                  className="transition-ui mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                  className="transition-ui mt-4 hidden w-full items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                 >
                   {level === "local"
                     ? "Ver detalle de una visita"
@@ -498,7 +498,7 @@ function EvaluatorComments({ evaluations }: { evaluations: typeof dataset.evalua
   const Icon = tab === "resumen" ? MessageSquareQuote : Lightbulb;
 
   return (
-    <div className="mt-4 border-t border-border pt-4">
+    <div className="mt-4 hidden border-t border-border pt-4">
       <div className="mb-3 flex gap-3 border-b border-border text-xs font-semibold">
         <button
           type="button"

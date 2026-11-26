@@ -67,6 +67,9 @@ Integra la web institucional pública de **Factor IQ**, el portal ejecutivo de *
 ### A. Resumen Ejecutivo
 Vista macro para directores y gerentes que consolida el estado global de la red:
 * **KPIs Principales**: Cumplimiento general porcentual, número de evaluaciones ejecutadas y comparación de canal.
+* **Tarjetas desplegables**:
+  * *Puntaje global*: al desplegar muestra el conteo por nivel del semáforo con su rango (> 70%, 50% – 70%, < 50%).
+  * *Mejor evaluación* y *Menor evaluación*: al desplegar muestran los 3 indicadores más relevantes de esa visita (*Fortalezas de la visita* / *Oportunidades de la visita*) con su porcentaje y color semáforo. Si la evaluación no tiene resultados por indicador, la tarjeta queda vacía y no se puede desplegar (no muestra comentarios del evaluador).
 * **Semáforo Institucional**:
   * 🟢 **Óptimo**: $\ge 85\%$
   * 🟡 **Observación**: $70\% - 84\%$
@@ -93,13 +96,17 @@ Módulo analítico que desglosa los **12 indicadores clave** de la experiencia e
 12. Tiempo y agilidad en sala de venta
 
 * **Interacción**: Al seleccionar un indicador, se despliega el listado de locales con su respectiva barra de progreso y porcentaje, más un panel lateral que detalla las **fortalezas** y **puntos de mejora** específicos.
+* **Detalle por evaluación**: un mismo local puede tener varias evaluaciones (distintos meses o canales). El panel lateral agrupa las preguntas por evaluación y ofrece un selector **“Evaluación X de Y”** con flechas para cambiar de visita, recalculando el puntaje y las preguntas mostradas sin duplicar registros.
+* **Slider de evaluaciones**: si el local solo tiene una evaluación, el selector se oculta y se muestra el detalle directo.
 
 ---
 
 ### C. Benchmark
 Comparativa competitiva del sector:
 * Contrapone los puntajes de **Maquinarias** contra marcas competidoras líderes evaluadas bajo los mismos estándares metodológicos.
-* Filtros por canal: Ventas, Seminuevos, Posventa y Call Center.
+* **Mensaje comparativo con color dinámico**: la frase *“Maquinarias se encuentra X puntos sobre/por debajo de la competencia”* cambia de fondo y de texto según el signo de la brecha (verde si está por encima, rojo si está por debajo, neutro en empate o sin datos). Se aplica tanto en el encabezado como en el bloque principal del benchmark.
+* **Filtros globales compartidos**: la página usa la misma barra de filtros que el resto de módulos (concesionaria, marca, ubicación, indicador y tipo de evaluación). Ya no existen filtros independientes de comparación, por lo que la selección se conserva al navegar entre Resumen Ejecutivo, Benchmark, Concesionarias e Indicadores.
+* **Desglose por indicador**: gráfico de mancuernas (Maquinarias vs. Competencia) con ordenamiento configurable y listas de las mayores brechas positivas y negativas.
 
 ---
 
@@ -108,6 +115,10 @@ Módulo de rendimiento por sede y sucursal:
 * **Ranking de Concesionarias**: Ordenamiento de mayor a menor desempeño.
 * **Drill-down analítico**: Rendimiento de cada local en los 12 indicadores.
 * **Historial de evaluaciones**: Consultas específicas por fecha, asesor evaluado y puntaje individual.
+* **Panel flotante del local**: al seleccionar una concesionaria se muestran las pestañas *Resumen* y *Recomendaciones*.
+  * Si la evaluación no trae la columna `recomendaciones` (importaciones antiguas), el sistema las recupera del resumen de la visita (listas con `*` o frases de cierre) y lo indica con la nota *“Extraídas del resumen de la visita”*.
+  * Cuando no existe ningún dato disponible, se muestra un mensaje explícito en lugar de una tarjeta vacía.
+  * Cada evaluación se etiqueta con marca, ubicación, tipo y mes para distinguir visitas repetidas del mismo local.
 
 ---
 
@@ -246,6 +257,8 @@ El sistema cuenta con un motor de filtrado multi-select y persistente:
   * Estado por defecto en `Todas` las opciones seleccionadas (visión 100% de la red).
   * Menús compactos con búsqueda interna y contador de selecciones activas.
   * Sincronización reactiva entre filtros de cabecera y el dataset activo en memoria.
+  * **Fuente única compartida**: Resumen Ejecutivo, Benchmark, Concesionarias e Indicadores consumen el mismo contexto (`useFilters`); filtrar en un módulo mantiene la selección en los demás y Benchmark ya no tiene filtros de comparación independientes.
+  * El filtro de **Tipo de evaluación** se normaliza contra el catálogo canónico (`Ventas`, `Posventa`, `Seminuevos`, `Call Center`) para evitar duplicados.
 
 ---
 

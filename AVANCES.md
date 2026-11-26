@@ -287,3 +287,57 @@ Recomendación: mantener `mystery-shopping-imported.json` como snapshot reproduc
 - [x] **Panel "Comentarios del evaluador" oculto** en `/maquinarias` (Resumen Ejecutivo): se comentó `<EvaluatorPanel />` en `src/routes/maquinarias/index.tsx` junto con su columna, y el grid pasó a una sola columna para que el contenido ocupe todo el ancho. El componente permanece en el código para poder reactivarlo.
 - [x] **Rangos de color en la tarjeta "Puntaje global"** (`src/components/dash/KpiRow.tsx`): al desplegar el detalle, cada nivel (Alto / Medio / Crítico) muestra su rango junto al conteo de evaluaciones — Alto: > 70%, Medio: 50% - 70%, Crítico: < 50%.
 - [x] **Rangos retirados del mapa de calor** (`src/components/dash/Heatmap.tsx`): la leyenda superior conserva los colores y ahora solo muestra las etiquetas Crítico / Medio / Alto, sin porcentajes.
+
+## Ajustes de UI — Benchmark, Concesionarias, Indicadores y Resumen Ejecutivo
+
+Fecha: 26 de noviembre de 2026
+
+### Benchmark — mensaje comparativo con color dinámico
+
+- [x] La frase *“Maquinarias se encuentra X puntos sobre/por debajo de la competencia”* ahora cambia **fondo y color de texto** según el signo de la brecha: verde cuando Maquinarias supera a la competencia, rojo cuando está por debajo y neutro cuando hay empate o no hay datos comparables.
+- [x] El color se aplica tanto en la descripción del encabezado (`PageHeader`) como en el bloque principal del benchmark; `PageHeader.description` pasó a aceptar `ReactNode`.
+- [x] Nuevas clases reutilizables en `src/styles.css`: `.benchmark-message--positive` y `.benchmark-message--negative` (fondo derivado del color semáforo con `color-mix`).
+
+### Benchmark — filtros globales compartidos
+
+- [x] Eliminado el bloque local *“Filtro de comparación VS”* y su estado independiente (`EMPTY_BENCHMARK_FILTERS`, filtros de competencia y lógica en cascada).
+- [x] La página ahora consume `useFilters()` y `CompactFilterControls`, igual que Resumen Ejecutivo, Concesionarias e Indicadores: concesionaria, marca, ubicación, indicador y tipo de evaluación.
+- [x] La selección realizada en Benchmark se conserva al navegar a los demás módulos y viceversa.
+- [x] Se mantiene el ordenamiento del gráfico de mancuernas (brecha absoluta, ventaja Maquinarias, ventaja competencia, mayor/menor resultado) y las listas de brechas positivas/negativas.
+- [x] Al abrir un indicador desde Benchmark ya no se inyectan filtros propios de la página.
+
+### Concesionarias — recomendaciones en el panel flotante
+
+- [x] Diagnosticado que la base `factoriq` trae `recomendaciones` en `NULL` para la mayoría de evaluaciones importadas (el Excel de origen no incluye esa columna en esos meses).
+- [x] Agregada la función `recommendationsForEvaluation` en `src/lib/analytics.ts`: usa `recomendaciones` cuando existe y, si no, extrae las recomendaciones embebidas en el resumen de la visita (listas con `*` o frases de cierre con verbos de acción).
+- [x] La pestaña **Recomendaciones** vuelve a mostrar contenido e indica *“Extraídas del resumen de la visita”* cuando el texto es derivado.
+- [x] Si no hay resumen ni recomendaciones, se muestra un mensaje explícito en lugar de una tarjeta vacía.
+- [x] La etiqueta de cada evaluación ahora incluye marca, ubicación, tipo de evaluación y mes para distinguir visitas repetidas.
+
+### Indicadores — detalle agrupado por evaluación
+
+- [x] El panel lateral agrupa las preguntas **por evaluación** del local, eliminando la duplicación que aparecía cuando una sede tenía más de una visita.
+- [x] Agregado un selector compacto **“Evaluación X de Y”** con flechas anterior/siguiente; el puntaje del indicador y las preguntas se recalculan para la evaluación seleccionada.
+- [x] El índice se reinicia al cambiar de indicador o local y el selector se oculta cuando solo existe una evaluación.
+
+### Resumen Ejecutivo — tarjetas Mejor y Menor evaluación
+
+- [x] Las tarjetas **“Mejor evaluación”** y **“Menor evaluación”** ya no despliegan el comentario/resumen del evaluador.
+- [x] Al desplegarlas muestran los **3 indicadores más relevantes** de esa visita: *Fortalezas de la visita* (mayor cumplimiento) y *Oportunidades de la visita* (menor cumplimiento), con porcentaje y color semáforo.
+- [x] Si la evaluación no tiene resultados por indicador, la tarjeta queda vacía: no muestra la flecha, no es clicable y no aparece texto de relleno.
+
+### Archivos modificados
+
+- `src/routes/maquinarias/benchmark.tsx`
+- `src/routes/maquinarias/concesionarias.tsx`
+- `src/routes/maquinarias/indicadores.tsx`
+- `src/components/dash/KpiRow.tsx`
+- `src/components/mystery/page-header.tsx`
+- `src/lib/analytics.ts`
+- `src/styles.css`
+
+### Validación
+
+- [x] `npx tsc --noEmit` sin errores en los archivos modificados.
+- [x] `npm run build` completado correctamente (salida Nitro).
+- [x] ESLint y Prettier aplicados sobre los archivos tocados sin errores.
